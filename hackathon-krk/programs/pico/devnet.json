@@ -1,0 +1,15 @@
+{
+  "cluster": "devnet",
+  "programId": "6irGnLScTsE7i5C1Ai74rdhD1iKG3rdxJnZWNnWthV7j",
+  "usdcMint": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+  "treasuryAta": "J7vNqKbJTitt4C3ec1EQaddSQer1Tf9V4NwRRUoAmQgq",
+  "configPda": "F7hAMpPWgh8k2JFHsmpvamaJfi9KwnsPf2QQ5dZPBAyV",
+  "authority": "2D3thoP9nNRShnHimTsyRMhRArPC1PD2ovv1AEv2jds3",
+  "operator": "2D3thoP9nNRShnHimTsyRMhRArPC1PD2ovv1AEv2jds3",
+  "budgetPda": "C4wttuC26iFV4Vn4uknsVoxJE4ALRsreRXWPjPddMFe7",
+  "vaultAta": "DypsZBodj4SBZgD834EFJ6fw4dEMswVbKLX7nbqunp1A",
+  "initializeConfigTx": "3wLU6mFnukhqS5PDwTkiTDK8u5ag4TJsLdNuoW2paV9q2YYY3kz5DaQ2VsNumYoYjv8ApF6HLBQekaVhbudzhY6u",
+  "initializeBudgetTx": "k78fkY28SxuVMM6Nkn2mm9T8DzCsvmmJzMACJaUSWQXgiELZwmgmyWJuwbCV1VpYgDF6pbFZFzfbn9vcdneytrJ",
+  "debitTxExplainTx": "4HEukDsfKpdnduU4sMYacoNEVpB22js8Dki5zZ7AQBj8KHwL7vyY5Uk4XEZEQu58VqayMjyhPoZ5qsbw1SfoZtzG",
+  "notes": "Never commit private keys. operator = Playground wallet for hackathon MVP. Core loop verified: config → budget → debit."
+}
