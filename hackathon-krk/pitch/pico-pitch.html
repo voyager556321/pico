@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <title>Pico — Pitch Deck</title>
+  <style>
+    @font-face {
+      font-family: "Noto Sans";
+      src: url("file:///usr/share/fonts/noto/NotoSans-Regular.ttf") format("truetype");
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: "Noto Sans";
+      src: url("file:///usr/share/fonts/noto/NotoSans-Medium.ttf") format("truetype");
+      font-weight: 500;
+    }
+    @font-face {
+      font-family: "Noto Sans";
+      src: url("file:///usr/share/fonts/noto/NotoSans-Bold.ttf") format("truetype");
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: "Noto Sans";
+      src: url("file:///usr/share/fonts/noto/NotoSans-Black.ttf") format("truetype");
+      font-weight: 900;
+    }
+
+    :root {
+      --ink: #0b1f1c;
+      --muted: #3d5a54;
+      --paper: #f7faf8;
+      --panel: #e8f2ee;
+      --accent: #0d9488;
+      --accent-deep: #0f766e;
+      --warn: #b45309;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #111;
+      font-family: "Noto Sans", sans-serif;
+      color: var(--ink);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .slide {
+      width: 1280px;
+      height: 720px;
+      page-break-after: always;
+      break-after: page;
+      padding: 56px 64px;
+      position: relative;
+      overflow: hidden;
+      background: var(--paper);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(900px 420px at 110% -10%, rgba(13, 148, 136, 0.16), transparent 60%),
+        linear-gradient(135deg, #f7faf8 0%, #eef6f3 55%, #e7f1ed 100%);
+      z-index: 0;
+    }
+
+    .slide > * { position: relative; z-index: 1; }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .brand { color: var(--accent-deep); font-weight: 700; letter-spacing: 0.12em; }
+
+    .num { font-variant-numeric: tabular-nums; }
+
+    h1 {
+      font-size: 52px;
+      line-height: 1.12;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      max-width: 1050px;
+      margin-bottom: 22px;
+    }
+
+    h1.hero { font-size: 58px; max-width: 1100px; }
+
+    .sub {
+      font-size: 24px;
+      line-height: 1.4;
+      color: var(--muted);
+      max-width: 980px;
+      font-weight: 400;
+    }
+
+    .sub strong { color: var(--ink); font-weight: 700; }
+
+    .body {
+      margin-top: 18px;
+      font-size: 22px;
+      line-height: 1.45;
+      color: var(--ink);
+      max-width: 1000px;
+    }
+
+    ul { list-style: none; margin-top: 12px; }
+    ul li {
+      font-size: 22px;
+      line-height: 1.35;
+      padding: 12px 0 12px 28px;
+      position: relative;
+      border-bottom: 1px solid rgba(11, 31, 28, 0.08);
+    }
+    ul li:last-child { border-bottom: none; }
+    ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 22px;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 20px;
+      flex: 1;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(11, 31, 28, 0.08);
+      border-radius: 18px;
+      padding: 24px 26px;
+    }
+
+    .card h3 {
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .card p, .card li {
+      font-size: 20px;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+
+    .card ul li { font-size: 19px; padding: 8px 0 8px 22px; border: none; }
+    .card ul li::before { top: 16px; width: 8px; height: 8px; }
+
+    .footer {
+      margin-top: auto;
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      background: var(--ink);
+      color: #e8f2ee;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .tag.teal { background: var(--accent-deep); }
+
+    .flow {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .flow .step {
+      flex: 1;
+      min-width: 140px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(11,31,28,0.1);
+      border-radius: 14px;
+      padding: 18px 16px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .flow .arrow {
+      align-self: center;
+      color: var(--accent-deep);
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .mono {
+      font-family: "Liberation Mono", "Noto Sans Mono", monospace;
+      font-size: 16px;
+      word-break: break-all;
+    }
+
+    .big-link {
+      margin-top: 28px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent-deep);
+    }
+
+    .title-slide .logo {
+      font-size: 18px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      font-weight: 900;
+      color: var(--accent-deep);
+      margin-bottom: 28px;
+    }
+
+    .title-slide h1 { margin-bottom: 18px; }
+    .title-slide .sub { font-size: 26px; margin-bottom: 36px; }
+
+    .meta-row {
+      display: flex;
+      gap: 40px;
+      margin-top: auto;
+      padding-top: 24px;
+    }
+
+    .meta-row div strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .meta-row div span { font-size: 20px; font-weight: 600; }
+
+    .quote {
+      margin-top: 20px;
+      padding: 22px 26px;
+      border-left: 5px solid var(--accent);
+      background: rgba(255,255,255,0.65);
+      border-radius: 0 14px 14px 0;
+      font-size: 22px;
+      line-height: 1.4;
+      max-width: 980px;
+    }
+
+    .stack {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .stack .card { text-align: left; }
+    .stack .card p { margin-top: 8px; font-size: 18px; color: var(--muted); }
+    .stack .card strong { font-size: 22px; color: var(--ink); display: block; }
+
+    @media print {
+      @page { size: 1280px 720px; margin: 0; }
+      html, body { background: white; }
+      .slide { page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1 -->
+  <section class="slide title-slide">
+    <div class="logo">PICO</div>
+    <span class="tag">Blockchain Hack Kraków · Colosseum</span>
+    <h1 class="hero">Give your AI a budget,<br/>not your wallet.</h1>
+    <p class="sub">A payment layer for on-demand AI on Solana.<br/>Prepaid USDC · pay per tool call · hard spend ceiling.</p>
+    <div class="meta-row">
+      <div><strong>Live</strong><span>hackatonpico.vercel.app</span></div>
+      <div><strong>Team</strong><span>1 eng + 1 design · Kraków</span></div>
+      <div><strong>Network</strong><span>Solana Devnet</span></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">02 / Problem</span></div>
+    <h1>Agents need to spend.<br/>Humans won’t hand over the wallet.</h1>
+    <ul>
+      <li>Subscriptions waste money on idle capacity — then cap you mid-run.</li>
+      <li>Builders juggle 6–8 prepaid API balances; one dies at 2am → pipeline fails.</li>
+      <li>Agents can’t do Stripe / KYC. Full wallet access is a non-starter.</li>
+    </ul>
+    <div class="footer"><span>Insight, not feature list</span><span>Pico</span></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">03 / Who</span></div>
+    <h1>First users: Solana builders &amp; traders who use AI in bursts.</h1>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Today</h3>
+        <p>People who need Explain Tx / Token Check occasionally — not another $20/mo chat stack.</p>
+      </div>
+      <div class="card">
+        <h3>Next</h3>
+        <p>Agent runtimes that need a hard USDC ceiling: deposit once, meter every tool call, withdraw the rest.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Founder + market fit</span><span>Pico</span></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">04 / Solution</span></div>
+    <h1>Prepaid USDC vault + metered debit per tool call.</h1>
+    <div class="flow">
+      <div class="step">Deposit<br/>$1 / $2 / $5</div>
+      <div class="arrow">→</div>
+      <div class="step">Price<br/>before click</div>
+      <div class="arrow">→</div>
+      <div class="step">Tool runs<br/>+ on-chain debit</div>
+      <div class="arrow">→</div>
+      <div class="step">Meter falls<br/>· withdraw</div>
+    </div>
+    <p class="quote">Like a prepaid café card: top up, spend per coffee, always see the balance, close the tab anytime.</p>
+    <div class="footer"><span>Control layer, not another chat UI</span><span>Pico</span></div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">05 / Why we built it</span></div>
+    <h1>Payment UX for AI is still subscriptions &amp; API keys.</h1>
+    <ul>
+      <li><strong>Why now:</strong> agent economy + Solana micropayments (x402 narrative). $0.01–$0.05 fees finally work.</li>
+      <li><strong>Why us:</strong> fast loop — custom escrow → live meter → useful Solana tools.</li>
+      <li><strong>Why Solana:</strong> only cheap rails make pay-per-call viable; Anchor program proves it’s not a Stripe wrapper.</li>
+    </ul>
+    <div class="footer"><span>Colosseum: say why you started</span><span>Pico</span></div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">06 / Why Solana</span></div>
+    <h1>$0.01 tool calls only work on cheap rails.</h1>
+    <div class="grid-2">
+      <div class="card">
+        <h3>On-chain</h3>
+        <ul>
+          <li>Custom Anchor program <em>pico</em></li>
+          <li>Config + Budget PDAs</li>
+          <li>USDC vault · operator debit</li>
+          <li>User withdraw_remaining</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Auditable spend</h3>
+        <p>Every tool call lands as an on-chain debit with tool_id — not a hidden SaaS invoice.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Forced crypto? No — economics require it</span><span>Pico</span></div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">07 / Product</span></div>
+    <h1>Live on Devnet — two paid tools today.</h1>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Explain Tx · $0.01</h3>
+        <p>Paste a signature → Gemini explains what happened → operator debit on success.</p>
+      </div>
+      <div class="card">
+        <h3>Token Check · $0.05</h3>
+        <p>Paste a mint → risk signal → metered spend from the same budget vault.</p>
+      </div>
+    </div>
+    <p class="big-link">hackatonpico.vercel.app/app</p>
+    <div class="footer"><span>Demo before architecture lectures</span><span>Pico</span></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">08 / How it works</span></div>
+    <h1>Analyze first. Debit only if the tool succeeds.</h1>
+    <div class="flow">
+      <div class="step">User wallet<br/>Phantom</div>
+      <div class="arrow">→</div>
+      <div class="step">Budget PDA<br/>+ USDC vault</div>
+      <div class="arrow">→</div>
+      <div class="step">Next.js API<br/>+ Gemini</div>
+      <div class="arrow">→</div>
+      <div class="step">Operator<br/>signs debit</div>
+    </div>
+    <p class="body" style="margin-top:28px">Human sets the ceiling. Agent (or UI) spends inside it. Leftover USDC withdraws back to the user.</p>
+    <div class="footer"><span>Technical story for judges</span><span>Pico</span></div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">09 / Stack</span></div>
+    <h1>Built end-to-end for the hackathon sprint.</h1>
+    <div class="stack">
+      <div class="card"><strong>On-chain</strong><p>Rust · Anchor · PDAs · SPL USDC</p></div>
+      <div class="card"><strong>Client</strong><p>Next.js 15 · TS · wallet-adapter</p></div>
+      <div class="card"><strong>AI</strong><p>Google Gemini · analyze-then-debit</p></div>
+      <div class="card"><strong>Ship</strong><p>Playground · Devnet · Vercel</p></div>
+    </div>
+    <p class="body mono" style="margin-top:28px">Program: 6irGnLScTsE7i5C1Ai74rdhD1iKG3rdxJnZWNnWthV7j</p>
+    <div class="footer"><span>GitHub: voyager556321/pico</span><span>Pico</span></div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">10 / Competition</span></div>
+    <h1>OpenRouter meters APIs. We meter a budget humans trust.</h1>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Crowded</h3>
+        <p>Pay-per-AI aggregators · x402 HTTP gateways · subscription wrappers.</p>
+      </div>
+      <div class="card">
+        <h3>Pico wedge</h3>
+        <p>On-chain spend vault + hard ceiling UX + Solana-native tools (tx / token) as the first catalog.</p>
+      </div>
+    </div>
+    <p class="quote">Compatible with the x402 narrative — we demo the control layer users actually touch.</p>
+    <div class="footer"><span>Honest competitive slide</span><span>Pico</span></div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">11 / Traction</span></div>
+    <h1>Working product — not a slideware MVP.</h1>
+    <ul>
+      <li>Custom Anchor program live on Devnet (deposit / debit / withdraw).</li>
+      <li>Web app shipped: landing + /app with Phantom + live meter.</li>
+      <li>Two Gemini tools charging on-chain after successful analysis.</li>
+      <li>Production URL on Vercel · public GitHub repo.</li>
+    </ul>
+    <div class="footer"><span>Add user quotes / waitlist when you have them</span><span>Pico</span></div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide">
+    <div class="top"><span class="brand">PICO</span><span class="num">12 / Ask</span></div>
+    <h1>Try the demo. Help us put more tools on the same budget.</h1>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Now</h3>
+        <p>Win KRK · submit Colosseum · collect builder feedback on budget UX.</p>
+      </div>
+      <div class="card">
+        <h3>Next 6 weeks</h3>
+        <p>Expand tool catalog / MCP on the same vault · mainnet when ops are ready.</p>
+      </div>
+    </div>
+    <p class="big-link">hackatonpico.vercel.app · github.com/voyager556321/pico</p>
+    <div class="footer"><span>Give your AI a budget, not your wallet.</span><span>Thank you → try it</span></div>
+  </section>
+
+</body>
+</html>

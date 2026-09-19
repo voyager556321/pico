@@ -83,6 +83,8 @@ Web: лендинг `/` · апка `/app`.
 
 ## Пітч (90 сек)
 
+**Повний deck + скрипти + критерії виграшних пітчів → `PITCH.md`.**
+
 1. Агентам потрібен spend layer, не підписка.  
 2. Deposit $2.  
 3. 1× Explain Tx → результат + списання.  
@@ -92,7 +94,7 @@ Web: лендинг `/` · апка `/app`.
 7. Далі: будь-який MCP tool на той самий budget.
 
 **Одне речення:**  
-«Люди не платять по $0.02 за клік п’ятдесят разів — агенти так. Ми робимо безпечний budget UX для AI tool calls на Solana.»
+«Give your AI a budget, not your wallet» — prepaid USDC spend layer для AI tool calls на Solana.
 
 ---
 

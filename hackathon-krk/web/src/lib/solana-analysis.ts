@@ -6,8 +6,23 @@ export async function fetchTxContext(
   signature: string
 ): Promise<string> {
   const sig = signature.trim();
-  if (sig.length < 32) {
-    throw new Error("Enter a Solana transaction signature (or use a real explorer sig).");
+
+  // Agent demo / placeholder inputs — synthetic context, no RPC required
+  if (/^demo(-call)?[-_]?\d*$/i.test(sig) || sig.toLowerCase().startsWith("demo-")) {
+    return [
+      `Mode: Pico agent demo (simulated Explain Tx)`,
+      `Demo id: ${sig}`,
+      `Status: Successful (demo)`,
+      `Action: Simulated prepaid tool call on Solana Devnet`,
+      `Note: No real explorer signature was provided. Explain this as a demo metered call.`,
+      `Risks: none for demo; real users should paste a Devnet/mainnet signature.`,
+    ].join("\n");
+  }
+
+  if (sig.length < 64) {
+    throw new Error(
+      "Enter a Solana transaction signature (or use a real explorer sig)."
+    );
   }
 
   try {
