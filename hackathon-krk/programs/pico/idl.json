@@ -1,1 +1,326 @@
-{"version":"0.1.0","name":"pico","instructions":[{"name":"initializeConfig","accounts":[{"name":"authority","isMut":true,"isSigner":true},{"name":"config","isMut":true,"isSigner":false},{"name":"mint","isMut":false,"isSigner":false},{"name":"treasuryTokenAccount","isMut":false,"isSigner":false},{"name":"systemProgram","isMut":false,"isSigner":false}],"args":[{"name":"operator","type":"publicKey"}]},{"name":"updateOperator","accounts":[{"name":"authority","isMut":false,"isSigner":true},{"name":"config","isMut":true,"isSigner":false}],"args":[{"name":"newOperator","type":"publicKey"}]},{"name":"initializeBudget","accounts":[{"name":"owner","isMut":true,"isSigner":true},{"name":"config","isMut":false,"isSigner":false},{"name":"mint","isMut":false,"isSigner":false},{"name":"budget","isMut":true,"isSigner":false},{"name":"vaultAuthority","isMut":false,"isSigner":false},{"name":"vault","isMut":true,"isSigner":false},{"name":"ownerTokenAccount","isMut":true,"isSigner":false},{"name":"tokenProgram","isMut":false,"isSigner":false},{"name":"associatedTokenProgram","isMut":false,"isSigner":false},{"name":"systemProgram","isMut":false,"isSigner":false}],"args":[{"name":"amount","type":"u64"}]},{"name":"deposit","accounts":[{"name":"owner","isMut":false,"isSigner":true},{"name":"budget","isMut":true,"isSigner":false},{"name":"vault","isMut":true,"isSigner":false},{"name":"ownerTokenAccount","isMut":true,"isSigner":false},{"name":"tokenProgram","isMut":false,"isSigner":false}],"args":[{"name":"amount","type":"u64"}]},{"name":"debit","accounts":[{"name":"operator","isMut":false,"isSigner":true},{"name":"config","isMut":false,"isSigner":false},{"name":"budget","isMut":true,"isSigner":false},{"name":"vaultAuthority","isMut":false,"isSigner":false},{"name":"vault","isMut":true,"isSigner":false},{"name":"treasuryTokenAccount","isMut":true,"isSigner":false},{"name":"tokenProgram","isMut":false,"isSigner":false}],"args":[{"name":"amount","type":"u64"},{"name":"toolId","type":"u16"}]},{"name":"withdrawRemaining","accounts":[{"name":"owner","isMut":false,"isSigner":true},{"name":"budget","isMut":true,"isSigner":false},{"name":"vaultAuthority","isMut":false,"isSigner":false},{"name":"vault","isMut":true,"isSigner":false},{"name":"ownerTokenAccount","isMut":true,"isSigner":false},{"name":"tokenProgram","isMut":false,"isSigner":false}],"args":[]}],"accounts":[{"name":"Config","type":{"kind":"struct","fields":[{"name":"authority","type":"publicKey"},{"name":"operator","type":"publicKey"},{"name":"mint","type":"publicKey"},{"name":"treasury","type":"publicKey"},{"name":"bump","type":"u8"}]}},{"name":"Budget","type":{"kind":"struct","fields":[{"name":"owner","type":"publicKey"},{"name":"mint","type":"publicKey"},{"name":"vault","type":"publicKey"},{"name":"totalDeposited","type":"u64"},{"name":"totalSpent","type":"u64"},{"name":"spendCount","type":"u64"},{"name":"bump","type":"u8"},{"name":"vaultBump","type":"u8"}]}}],"events":[{"name":"SpendEvent","fields":[{"name":"owner","type":"publicKey","index":false},{"name":"amount","type":"u64","index":false},{"name":"toolId","type":"u16","index":false},{"name":"totalSpent","type":"u64","index":false},{"name":"spendCount","type":"u64","index":false},{"name":"remaining","type":"u64","index":false}]}],"errors":[{"code":6000,"name":"ZeroAmount","msg":"Amount must be greater than zero"},{"code":6001,"name":"InsufficientBudget","msg":"Insufficient budget in vault"},{"code":6002,"name":"NothingToWithdraw","msg":"Nothing left to withdraw"},{"code":6003,"name":"Unauthorized","msg":"Unauthorized"},{"code":6004,"name":"MintMismatch","msg":"Mint mismatch"},{"code":6005,"name":"VaultMismatch","msg":"Vault mismatch"},{"code":6006,"name":"TreasuryMismatch","msg":"Treasury mismatch"},{"code":6007,"name":"MathOverflow","msg":"Math overflow"}]}
+{
+  "version": "0.2.0",
+  "name": "pico",
+  "instructions": [
+    {
+      "name": "initializeConfig",
+      "accounts": [
+        { "name": "authority", "isMut": true, "isSigner": true },
+        { "name": "config", "isMut": true, "isSigner": false },
+        { "name": "mint", "isMut": false, "isSigner": false },
+        { "name": "treasuryTokenAccount", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "operator", "type": "publicKey" },
+        { "name": "feeBps", "type": "u16" }
+      ]
+    },
+    {
+      "name": "updateOperator",
+      "accounts": [
+        { "name": "authority", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": true, "isSigner": false }
+      ],
+      "args": [{ "name": "newOperator", "type": "publicKey" }]
+    },
+    {
+      "name": "updateFees",
+      "accounts": [
+        { "name": "authority", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": true, "isSigner": false }
+      ],
+      "args": [{ "name": "feeBps", "type": "u16" }]
+    },
+    {
+      "name": "issueCredential",
+      "accounts": [
+        { "name": "operator", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "worker", "isMut": false, "isSigner": false },
+        { "name": "credential", "isMut": true, "isSigner": false },
+        { "name": "payer", "isMut": true, "isSigner": true },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "skillId", "type": "u16" },
+        { "name": "level", "type": "u8" }
+      ]
+    },
+    {
+      "name": "refreshCredential",
+      "accounts": [
+        { "name": "operator", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "credential", "isMut": true, "isSigner": false }
+      ],
+      "args": [{ "name": "level", "type": "u8" }]
+    },
+    {
+      "name": "revokeCredential",
+      "accounts": [
+        { "name": "operator", "isMut": true, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "credential", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "createTask",
+      "accounts": [
+        { "name": "client", "isMut": true, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "mint", "isMut": false, "isSigner": false },
+        { "name": "task", "isMut": true, "isSigner": false },
+        { "name": "vaultAuthority", "isMut": false, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "clientTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false },
+        { "name": "associatedTokenProgram", "isMut": false, "isSigner": false },
+        { "name": "systemProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "skillId", "type": "u16" },
+        { "name": "reward", "type": "u64" },
+        { "name": "deadlineTs", "type": "i64" },
+        { "name": "taskNonce", "type": "u64" },
+        { "name": "reviewCount", "type": "u8" },
+        { "name": "slotBps", "type": { "array": ["u16", 4] } }
+      ]
+    },
+    {
+      "name": "cancelTask",
+      "accounts": [
+        { "name": "client", "isMut": false, "isSigner": true },
+        { "name": "task", "isMut": true, "isSigner": false },
+        { "name": "vaultAuthority", "isMut": false, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "clientTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "expireQualifyingTask",
+      "accounts": [
+        { "name": "client", "isMut": true, "isSigner": false },
+        { "name": "task", "isMut": true, "isSigner": false },
+        { "name": "vaultAuthority", "isMut": false, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "clientTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "assignTeam",
+      "accounts": [
+        { "name": "operator", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "task", "isMut": true, "isSigner": false }
+      ],
+      "args": [
+        { "name": "holders", "type": { "array": ["publicKey", 4] } },
+        { "name": "timesMs", "type": { "array": ["u32", 4] } }
+      ]
+    },
+    {
+      "name": "declineSlot",
+      "accounts": [
+        { "name": "holder", "isMut": false, "isSigner": true },
+        { "name": "task", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "fillSlot",
+      "accounts": [
+        { "name": "operator", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "task", "isMut": true, "isSigner": false },
+        { "name": "newHolder", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "slotIndex", "type": "u8" },
+        { "name": "timeMs", "type": "u32" }
+      ]
+    },
+    {
+      "name": "submitExecution",
+      "accounts": [
+        { "name": "executor", "isMut": false, "isSigner": true },
+        { "name": "task", "isMut": true, "isSigner": false }
+      ],
+      "args": [
+        { "name": "resultHash", "type": { "array": ["u8", 32] } },
+        { "name": "explanationHash", "type": { "array": ["u8", 32] } }
+      ]
+    },
+    {
+      "name": "submitVerification",
+      "accounts": [
+        { "name": "verifier", "isMut": false, "isSigner": true },
+        { "name": "task", "isMut": true, "isSigner": false }
+      ],
+      "args": [{ "name": "reviewHash", "type": { "array": ["u8", 32] } }]
+    },
+    {
+      "name": "rejectVerification",
+      "accounts": [
+        { "name": "verifier", "isMut": false, "isSigner": true },
+        { "name": "task", "isMut": true, "isSigner": false }
+      ],
+      "args": [{ "name": "reviewHash", "type": { "array": ["u8", 32] } }]
+    },
+    {
+      "name": "finalizeAndPay",
+      "accounts": [
+        { "name": "payerSig", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "task", "isMut": true, "isSigner": false },
+        { "name": "vaultAuthority", "isMut": false, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "treasuryTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "raiseDispute",
+      "accounts": [
+        { "name": "party", "isMut": false, "isSigner": true },
+        { "name": "task", "isMut": true, "isSigner": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "resolveDispute",
+      "accounts": [
+        { "name": "operator", "isMut": false, "isSigner": true },
+        { "name": "config", "isMut": false, "isSigner": false },
+        { "name": "task", "isMut": true, "isSigner": false },
+        { "name": "vaultAuthority", "isMut": false, "isSigner": false },
+        { "name": "vault", "isMut": true, "isSigner": false },
+        { "name": "treasuryTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "clientTokenAccount", "isMut": true, "isSigner": false },
+        { "name": "tokenProgram", "isMut": false, "isSigner": false }
+      ],
+      "args": [
+        { "name": "clientAmount", "type": "u64" },
+        { "name": "feeAmount", "type": "u64" },
+        { "name": "slotAmounts", "type": { "array": ["u64", 4] } }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "publicKey" },
+          { "name": "operator", "type": "publicKey" },
+          { "name": "mint", "type": "publicKey" },
+          { "name": "treasury", "type": "publicKey" },
+          { "name": "feeBps", "type": "u16" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "SkillCredential",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "worker", "type": "publicKey" },
+          { "name": "skillId", "type": "u16" },
+          { "name": "level", "type": "u8" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "Task",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "client", "type": "publicKey" },
+          { "name": "skillId", "type": "u16" },
+          { "name": "taskNonce", "type": "u64" },
+          { "name": "reward", "type": "u64" },
+          { "name": "deadline", "type": "i64" },
+          { "name": "status", "type": { "defined": "TaskStatus" } },
+          { "name": "reviewCount", "type": "u8" },
+          { "name": "slotCount", "type": "u8" },
+          { "name": "slotBps", "type": { "array": ["u16", 4] } },
+          { "name": "slotHolders", "type": { "array": ["publicKey", 4] } },
+          { "name": "slotTimesMs", "type": { "array": ["u32", 4] } },
+          { "name": "workHashes", "type": { "array": [{ "array": ["u8", 32] }, 4] } },
+          { "name": "explanationHash", "type": { "array": ["u8", 32] } },
+          { "name": "activeSlot", "type": "u8" },
+          { "name": "hiringSlot", "type": "u8" },
+          { "name": "vault", "type": "publicKey" },
+          { "name": "bump", "type": "u8" },
+          { "name": "vaultBump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "TaskStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Qualifying" },
+          { "name": "Working" },
+          { "name": "InReview" },
+          { "name": "HiringSlot" },
+          { "name": "Submitted" },
+          { "name": "Paid" },
+          { "name": "Disputed" },
+          { "name": "Cancelled" }
+        ]
+      }
+    },
+    {
+      "name": "DisputeReason",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "VerificationFailed" },
+          { "name": "RaisedByParty" }
+        ]
+      }
+    }
+  ],
+  "events": [],
+  "errors": [
+    { "code": 6000, "name": "ZeroAmount", "msg": "Amount must be greater than zero" },
+    { "code": 6001, "name": "Unauthorized", "msg": "Unauthorized" },
+    { "code": 6002, "name": "MintMismatch", "msg": "Mint mismatch" },
+    { "code": 6003, "name": "VaultMismatch", "msg": "Vault mismatch" },
+    { "code": 6004, "name": "TreasuryMismatch", "msg": "Treasury mismatch" },
+    { "code": 6005, "name": "MathOverflow", "msg": "Math overflow" },
+    { "code": 6006, "name": "InvalidBps", "msg": "Invalid bps / slot split" },
+    { "code": 6007, "name": "InvalidLevel", "msg": "Invalid credential level" },
+    { "code": 6008, "name": "DeadlineInPast", "msg": "Deadline must be in the future" },
+    { "code": 6009, "name": "NotExpired", "msg": "Task not yet expired" },
+    { "code": 6010, "name": "InvalidStatus", "msg": "Invalid task status for this instruction" },
+    { "code": 6011, "name": "EmptyHash", "msg": "Hash must be non-zero" },
+    { "code": 6012, "name": "EmptyVault", "msg": "Vault is empty" },
+    { "code": 6013, "name": "PayoutMismatch", "msg": "Payout amounts must sum to vault balance" },
+    { "code": 6014, "name": "InvalidReviewCount", "msg": "review_count must be 1..=3" },
+    { "code": 6015, "name": "EmptySlot", "msg": "Slot holder missing" },
+    { "code": 6016, "name": "InvalidSlotPayload", "msg": "Invalid unused slot payload" },
+    { "code": 6017, "name": "DuplicateHolder", "msg": "Duplicate slot holder" },
+    { "code": 6018, "name": "RankingInvalid", "msg": "Execution must be fastest (lowest time_ms)" },
+    { "code": 6019, "name": "NotActiveSlot", "msg": "Not the active slot for this action" },
+    { "code": 6020, "name": "WrongHiringSlot", "msg": "Wrong hiring slot index" },
+    { "code": 6021, "name": "InvalidSlotIndex", "msg": "Invalid slot index" },
+    { "code": 6022, "name": "RemainingAccounts", "msg": "Unexpected remaining accounts length" }
+  ],
+  "metadata": {
+    "address": "6irGnLScTsE7i5C1Ai74rdhD1iKG3rdxJnZWNnWthV7j"
+  }
+}

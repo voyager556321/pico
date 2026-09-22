@@ -7,7 +7,7 @@ https://www.figma.com/design/UG9ZJPAmjmqtmRImkN9c7R/Blockchain-hack-Krakow?node-
 
 | Class | Use |
 |-------|-----|
-| `.btn-primary` / `.btn-pink` | Main CTA (Add funds, Run tool, Launch) |
+| `.btn-primary` / `.btn-pink` | Main CTA — `linear-gradient(90deg, #ff55d2 → #b09eff)`, **black** text |
 | `.btn-secondary` | Secondary (Withdraw, Cancel outline) |
 | `.btn-ghost` | Text / soft (Paste, Back, Cancel text) |
 | `.btn-icon` | Square icon-only |

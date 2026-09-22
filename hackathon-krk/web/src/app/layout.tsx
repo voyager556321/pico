@@ -3,9 +3,9 @@ import { SolanaProvider } from "@/components/SolanaProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Pico — AI tools. Real control. On-chain.",
+  title: "Pico — Verified work without hiring",
   description:
-    "Give your AI a budget, not your wallet. Pay per tool call on Solana.",
+    "Fund a short expert task in USDC escrow. Timed qualification fills Execution + verification slots. Chain verify, auto-pay on Solana.",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
           crossOrigin=""
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Syne:wght@600;700;800&display=swap"
           rel="stylesheet"
         />
       </head>

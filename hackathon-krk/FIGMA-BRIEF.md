@@ -26,9 +26,9 @@
 | `--border` | `rgba(255,255,255,0.10)` | обводки |
 | Gradient CTA | `135deg #FF4FD8 → #8B5CFF → #FF8A3D` | кнопки Run / Add / Connect |
 
-**Шрифт:** Sora (400/500/600/700)  
+**Шрифт:** Manrope (400/500/600/700/800) для UI · **IBM Plex Mono** лише для адрес, signature й tx hash  
 **Logo mark:** літера **P** у rounded square з gradient fill  
-**Не використовувати:** Nora як назву; Inter/Roboto; світлу тему для MVP
+**Не використовувати:** Nora як назву; Inter/Roboto; Sora; світлу тему для MVP
 
 **Ключові меседжі (EN, готові в макет):**
 - «Give your AI a budget, not your wallet.»
@@ -187,7 +187,7 @@ Figma має покращити **екрани/стани/мікрокопі**, 
 Віддати:
 - Figma file з auto-layout  
 - Export іконок SVG  
-- Текст-стилі (Sora sizes)  
+- Текст-стилі (Manrope + IBM Plex Mono для адрес/хешів)  
 - Спеки spacing 8pt grid  
 
 Дев мапить на існуючий `PicoApp.tsx` — нові екрани як sections/modals, без нового смартконтракту.

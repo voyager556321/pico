@@ -5,8 +5,17 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
-  webpack: (config) => {
+  // Native .node bindings break when webpack bundles bigint-buffer; keep it on Node require.
+  serverExternalPackages: ["bigint-buffer", "bindings"],
+  webpack: (config, { isServer }) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
+    if (isServer) {
+      const prev = config.externals;
+      config.externals = [
+        ...(Array.isArray(prev) ? prev : prev ? [prev] : []),
+        { "bigint-buffer": "commonjs bigint-buffer", bindings: "commonjs bindings" },
+      ];
+    }
     config.resolve.alias = {
       ...config.resolve.alias,
       // Prevent @solana/kit browser break via mobile wallet adapter

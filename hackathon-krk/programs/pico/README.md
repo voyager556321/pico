@@ -1,75 +1,85 @@
 # Pico on-chain program
 
-**Pico** — *A payment layer for on-demand AI*
+**Model:** per-task USDC escrow + **slot team** from a timed qualification podium.
 
-Custom Anchor program: USDC escrow vault + operator `debit` + user withdraw.
+| Slot index | Name | Duty |
+|------------|------|------|
+| 0 | Execution | Does the work |
+| 1 | Primary Verification | Reviews Execution |
+| 2… | Audit Verification | Reviews previous verifier; **last → client** |
+
+Full product rules: [`../../FLOW.md`](../../FLOW.md)
 
 **Devnet Program ID:** `6irGnLScTsE7i5C1Ai74rdhD1iKG3rdxJnZWNnWthV7j`  
-Explorer: https://explorer.solana.com/address/6irGnLScTsE7i5C1Ai74rdhD1iKG3rdxJnZWNnWthV7j?cluster=devnet
+(Redeploy after this rewrite; bump `declare_id` if Playground assigns a new key.)
 
-## Solana Playground steps
+## Happy path
 
-1. Open [https://beta.solpg.io](https://beta.solpg.io)
-2. New Anchor project → replace `lib.rs` with  
-   `programs/pico/src/lib.rs` from this repo
-3. Build
-4. Deploy to **devnet** (Playground wallet needs SOL — use faucet)
-5. Copy the new **Program ID** → paste into `declare_id!("...")` → rebuild → redeploy if Playground asks
-6. Export **IDL** (JSON) → save as `web/src/idl/pico.json` (later)
+```
+initialize_config(operator, fee_bps)
 
-### After first deploy
+create_task(skill_id, reward, deadline, nonce, review_count, slot_bps)
+  # status = Qualifying; locks USDC
+  # slot_bps[0..review_count+1) sum to 10_000 (share of *net* after fee)
 
-Call once (from Playground test UI or a script):
+# off-chain: Test 1 → 2 → 3 (time). Need ≥ N+1 finishers or refill.
 
-- `initialize_config(operator)`  
-  - `mint` = Devnet USDC `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`  
-  - `treasury_token_account` = your ATA for that mint (create in Playground/Phantom if needed)  
-  - `operator` = pubkey of the backend hot wallet (will sign every `debit`)
+assign_team(holders, times_ms)          # operator; 0 = fastest Execution
+submit_execution(result_hash, explanation_hash)
+submit_verification(review_hash)        # slot 1, then 2, …
+# last verification → status Submitted
+finalize_and_pay()                      # remaining_accounts = slot ATAs in order
+```
+
+## Declines
+
+| Who | Instruction | Next |
+|-----|-------------|------|
+| Execution (while Working) | `decline_slot` | `HiringSlot` for index 0; verifiers stay |
+| Active verifier | `decline_slot` | `HiringSlot` for that index |
+| After single-seat race | `fill_slot(index, time_ms)` | Resume Working / InReview |
+
+## Payout (`finalize_and_pay`)
+
+```
+fee     = reward * fee_bps / 10_000     → treasury
+net     = reward - fee
+slot_i  = net * slot_bps[i] / 10_000    → slot holder i
+dust    → Execution
+```
+
+Example N=2, bps `[7000,2000,1000,0]`, fee 10%: reward $100 → fee $10, exec $63, primary $18, audit $9.
+
+## Cancel / expire
+
+Only while `Qualifying` (no team yet): `cancel_task` / `expire_qualifying_task`.
+
+## Dispute
+
+`reject_verification` or `raise_dispute` → `Disputed` → `resolve_dispute(client, fee, slot_amounts)`.
+
+## What stays off-chain
+
+Test content, timers, anti-cheat, notifications, reputation from failed races.  
+On-chain stores **holders + times_ms** so UI can show why place-2 is not Execution.
 
 ## PDAs
 
 | Account | Seeds |
 |---------|--------|
-| `Config` | `["config"]` |
-| `Budget` | `["budget", owner, mint]` |
-| `vault_authority` | `["vault_authority", budget]` |
-| `vault` | ATA(`vault_authority`, mint) |
+| Config | `["config"]` |
+| SkillCredential | `["credential", worker, skill_id_le]` |
+| Task | `["task", client, nonce_le]` |
+| vault_authority | `["vault_authority", task]` |
+| vault | ATA(vault_authority, USDC) |
 
-## Instructions
+## Deploy (Playground)
 
-| Ix | Signer | Effect |
-|----|--------|--------|
-| `initialize_config` | authority | Set operator + mint + treasury |
-| `update_operator` | authority | Rotate operator |
-| `initialize_budget(amount)` | user | Create budget + vault, deposit USDC |
-| `deposit(amount)` | user | Top up vault |
-| `debit(amount, tool_id)` | **operator** | Vault → treasury, emit `SpendEvent` |
-| `withdraw_remaining` | user | Drain vault back to user |
+1. Paste `src/lib.rs` → Build → Deploy Devnet  
+2. Sync `declare_id` + `PROGRAM_ID` in client / web  
+3. Export IDL → `web/src/idl/pico.json`  
+4. `initialize_config(operator, fee_bps)` once  
 
-### Amounts (USDC 6 decimals)
+## Client
 
-| UI | On-chain `u64` |
-|----|----------------|
-| $0.01 | `10_000` |
-| $0.05 | `50_000` |
-| $1 | `1_000_000` |
-| $5 | `5_000_000` |
-
-### tool_id convention
-
-| id | Tool |
-|----|------|
-| 1 | Explain Tx |
-| 2 | Token Check |
-
-## Security notes (pitch-ready)
-
-- Funds sit in **vault ATA** owned by PDA — not a custodial EOA wallet alone
-- Only **config.operator** can `debit`
-- User alone can `deposit` / `withdraw_remaining`
-- `has_one` + mint/vault/treasury constraints on every path
-
-## Local files
-
-- `src/lib.rs` — program source (Playground copy-paste)
-- `../client/pico.ts` — TypeScript invoke helpers (after IDL export)
+[`../client/pico.ts`](../client/pico.ts) — helpers for the slot flow.

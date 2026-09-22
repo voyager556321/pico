@@ -1,13 +1,12 @@
 /**
- * Pico client helpers — use AFTER deploying from Solana Playground
- * and saving the IDL next to this file (or under web/src/idl/pico.json).
+ * Pico slot-network client helpers.
+ * Deploy programs/pico/src/lib.rs, then sync PROGRAM_ID + IDL.
  *
- * npm: @coral-xyz/anchor @solana/web3.js @solana/spl-token
+ * Flow: Qualifying → assign_team → Working → InReview chain → Submitted → finalize_and_pay
+ * See hackathon-krk/FLOW.md
  */
-import * as anchor from "@coral-xyz/anchor";
-import { Program, AnchorProvider, BN } from "@coral-xyz/anchor";
+import { Program, BN } from "@coral-xyz/anchor";
 import {
-  Connection,
   PublicKey,
   Keypair,
   SystemProgram,
@@ -18,76 +17,144 @@ import {
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 
-/** Replace after Playground deploy */
 export const PROGRAM_ID = new PublicKey(
   "6irGnLScTsE7i5C1Ai74rdhD1iKG3rdxJnZWNnWthV7j"
 );
 
-/** Circle USDC on Solana Devnet */
 export const DEVNET_USDC = new PublicKey(
   "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
 );
 
-export const TOOL_EXPLAIN_TX = 1;
-export const TOOL_TOKEN_CHECK = 2;
+export const MAX_SLOTS = 4;
 
-/** $1 → 1_000_000 base units (6 decimals) */
 export function usdc(amount: number): BN {
   return new BN(Math.round(amount * 1_000_000));
+}
+
+/** e.g. N=2 reviews → [7000, 2000, 1000, 0] */
+export function slotBps(parts: number[]): number[] {
+  const out = [0, 0, 0, 0];
+  let sum = 0;
+  for (let i = 0; i < parts.length && i < MAX_SLOTS; i++) {
+    out[i] = parts[i];
+    sum += parts[i];
+  }
+  if (sum !== 10_000) {
+    throw new Error(`slot bps must sum to 10000, got ${sum}`);
+  }
+  return out;
 }
 
 export function configPda(programId = PROGRAM_ID): PublicKey {
   return PublicKey.findProgramAddressSync([Buffer.from("config")], programId)[0];
 }
 
-export function budgetPda(
-  owner: PublicKey,
-  mint: PublicKey = DEVNET_USDC,
+export function credentialPda(
+  worker: PublicKey,
+  skillId: number,
   programId = PROGRAM_ID
 ): PublicKey {
+  const skill = Buffer.alloc(2);
+  skill.writeUInt16LE(skillId, 0);
   return PublicKey.findProgramAddressSync(
-    [Buffer.from("budget"), owner.toBuffer(), mint.toBuffer()],
+    [Buffer.from("credential"), worker.toBuffer(), skill],
+    programId
+  )[0];
+}
+
+export function taskPda(
+  client: PublicKey,
+  taskNonce: BN | number,
+  programId = PROGRAM_ID
+): PublicKey {
+  const nonce =
+    typeof taskNonce === "number"
+      ? (() => {
+          const b = Buffer.alloc(8);
+          b.writeBigUInt64LE(BigInt(taskNonce), 0);
+          return b;
+        })()
+      : taskNonce.toArrayLike(Buffer, "le", 8);
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("task"), client.toBuffer(), nonce],
     programId
   )[0];
 }
 
 export function vaultAuthorityPda(
-  budget: PublicKey,
+  task: PublicKey,
   programId = PROGRAM_ID
 ): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [Buffer.from("vault_authority"), budget.toBuffer()],
+    [Buffer.from("vault_authority"), task.toBuffer()],
     programId
   );
 }
 
-export function vaultAta(vaultAuthority: PublicKey, mint: PublicKey = DEVNET_USDC) {
+export function vaultAta(
+  vaultAuthority: PublicKey,
+  mint: PublicKey = DEVNET_USDC
+) {
   return getAssociatedTokenAddressSync(mint, vaultAuthority, true);
 }
 
-type PicoProgram = Program; // replace with Program<Pico> after `anchor idl` types
+type PicoProgram = Program;
 
-export async function initializeBudget(
+export async function initializeConfig(
   program: PicoProgram,
-  owner: PublicKey,
-  ownerUsdcAta: PublicKey,
-  amountUsd: number
+  authority: PublicKey,
+  operator: PublicKey,
+  treasuryAta: PublicKey,
+  feeBps: number,
+  mint: PublicKey = DEVNET_USDC
 ) {
-  const mint = DEVNET_USDC;
-  const budget = budgetPda(owner, mint);
-  const [vaultAuthority] = vaultAuthorityPda(budget);
-  const vault = vaultAta(vaultAuthority, mint);
-
   return program.methods
-    .initializeBudget(usdc(amountUsd))
+    .initializeConfig(operator, feeBps)
     .accounts({
-      owner,
+      authority,
       config: configPda(),
       mint,
-      budget,
+      treasuryTokenAccount: treasuryAta,
+      systemProgram: SystemProgram.programId,
+    })
+    .rpc();
+}
+
+export async function createTask(
+  program: PicoProgram,
+  client: PublicKey,
+  skillId: number,
+  reward: BN,
+  deadlineTs: BN,
+  taskNonce: BN | number,
+  reviewCount: number,
+  slotBpsArr: number[],
+  clientUsdcAta: PublicKey,
+  mint: PublicKey = DEVNET_USDC
+) {
+  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
+  const task = taskPda(client, nonce);
+  const [vaultAuthority] = vaultAuthorityPda(task);
+  const vault = vaultAta(vaultAuthority, mint);
+  const bps = slotBps(slotBpsArr);
+
+  return program.methods
+    .createTask(
+      skillId,
+      reward,
+      deadlineTs,
+      nonce,
+      reviewCount,
+      bps as [number, number, number, number]
+    )
+    .accounts({
+      client,
+      config: configPda(),
+      mint,
+      task,
       vaultAuthority,
       vault,
-      ownerTokenAccount: ownerUsdcAta,
+      clientTokenAccount: clientUsdcAta,
       tokenProgram: TOKEN_PROGRAM_ID,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       systemProgram: SystemProgram.programId,
@@ -95,82 +162,103 @@ export async function initializeBudget(
     .rpc();
 }
 
-export async function deposit(
-  program: PicoProgram,
-  owner: PublicKey,
-  ownerUsdcAta: PublicKey,
-  amountUsd: number
-) {
-  const budget = budgetPda(owner);
-  const [vaultAuthority] = vaultAuthorityPda(budget);
-  const vault = vaultAta(vaultAuthority);
-
-  return program.methods
-    .deposit(usdc(amountUsd))
-    .accounts({
-      owner,
-      budget,
-      vault,
-      ownerTokenAccount: ownerUsdcAta,
-      tokenProgram: TOKEN_PROGRAM_ID,
-    })
-    .rpc();
-}
-
-/** Backend-only: operator Keypair must match config.operator */
-export async function debit(
+/** After off-chain Test 1→2→3: holders[0]=Execution (fastest), then verifiers. */
+export async function assignTeam(
   program: PicoProgram,
   operator: Keypair,
-  userOwner: PublicKey,
-  treasuryAta: PublicKey,
-  amountUsd: number,
-  toolId: number
+  client: PublicKey,
+  taskNonce: BN | number,
+  holders: PublicKey[],
+  timesMs: number[]
 ) {
-  const budget = budgetPda(userOwner);
-  const [vaultAuthority] = vaultAuthorityPda(budget);
-  const vault = vaultAta(vaultAuthority);
-
+  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
+  const h: PublicKey[] = [];
+  const t: number[] = [];
+  for (let i = 0; i < MAX_SLOTS; i++) {
+    h.push(holders[i] ?? PublicKey.default);
+    t.push(timesMs[i] ?? 0);
+  }
   return program.methods
-    .debit(usdc(amountUsd), toolId)
+    .assignTeam(h as [PublicKey, PublicKey, PublicKey, PublicKey], t)
     .accounts({
       operator: operator.publicKey,
       config: configPda(),
-      budget,
-      vaultAuthority,
-      vault,
-      treasuryTokenAccount: treasuryAta,
-      tokenProgram: TOKEN_PROGRAM_ID,
+      task: taskPda(client, nonce),
     })
     .signers([operator])
     .rpc();
 }
 
-export async function withdrawRemaining(
+export async function submitExecution(
   program: PicoProgram,
-  owner: PublicKey,
-  ownerUsdcAta: PublicKey
+  executor: Keypair,
+  client: PublicKey,
+  taskNonce: BN | number,
+  resultHash: number[],
+  explanationHash: number[]
 ) {
-  const budget = budgetPda(owner);
-  const [vaultAuthority] = vaultAuthorityPda(budget);
-  const vault = vaultAta(vaultAuthority);
-
+  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
   return program.methods
-    .withdrawRemaining()
+    .submitExecution(resultHash, explanationHash)
     .accounts({
-      owner,
-      budget,
-      vaultAuthority,
-      vault,
-      ownerTokenAccount: ownerUsdcAta,
-      tokenProgram: TOKEN_PROGRAM_ID,
+      executor: executor.publicKey,
+      task: taskPda(client, nonce),
     })
+    .signers([executor])
     .rpc();
 }
 
-/** Example: wire AnchorProvider from a browser wallet adapter */
-export function getProgram(connection: Connection, wallet: anchor.Wallet, idl: anchor.Idl) {
-  const provider = new AnchorProvider(connection, wallet, {
-    commitment: "confirmed",
-  });
-  return new Program(idl, provider);
+export async function submitVerification(
+  program: PicoProgram,
+  verifier: Keypair,
+  client: PublicKey,
+  taskNonce: BN | number,
+  reviewHash: number[]
+) {
+  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
+  return program.methods
+    .submitVerification(reviewHash)
+    .accounts({
+      verifier: verifier.publicKey,
+      task: taskPda(client, nonce),
+    })
+    .signers([verifier])
+    .rpc();
+}
+
+/** remainingAccounts: ATA for each filled slot, in order 0..slot_count-1 */
+export async function finalizeAndPay(
+  program: PicoProgram,
+  signer: Keypair,
+  client: PublicKey,
+  taskNonce: BN | number,
+  treasuryAta: PublicKey,
+  slotAtas: PublicKey[],
+  mint: PublicKey = DEVNET_USDC
+) {
+  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
+  const task = taskPda(client, nonce);
+  const [vaultAuthority] = vaultAuthorityPda(task);
+  const vault = vaultAta(vaultAuthority, mint);
+
+  return program.methods
+    .finalizeAndPay()
+    .accounts({
+      payerSig: signer.publicKey,
+      config: configPda(),
+      task,
+      vaultAuthority,
+      vault,
+      treasuryTokenAccount: treasuryAta,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .remainingAccounts(
+      slotAtas.map((pubkey) => ({
+        pubkey,
+        isWritable: true,
+        isSigner: false,
+      }))
+    )
+    .signers([signer])
+    .rpc();
 }

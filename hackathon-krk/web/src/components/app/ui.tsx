@@ -6,15 +6,22 @@ import type { ReactNode } from "react";
 export function PicoMark({ size = 36 }: { size?: number }) {
   return (
     <div
-      className="grid place-items-center rounded-[10px] text-sm font-bold text-white"
+      className="grid place-items-center rounded-[12px] text-[#1a120c]"
       style={{
         width: size,
         height: size,
-        background: "linear-gradient(135deg, #ff4fd8, #8b5cff)",
+        background: "var(--accent)",
       }}
       aria-hidden
     >
-      P
+      <svg width={size * 0.45} height={size * 0.45} viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 3v18M5 8.5c2.5-3 11.5-3 14 0M5 15.5c2.5 3 11.5 3 14 0"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+      </svg>
     </div>
   );
 }
@@ -30,7 +37,7 @@ function btnClass(
 ) {
   const v =
     variant === "primary"
-      ? "btn-primary btn-pink"
+      ? "btn-primary"
       : variant === "secondary"
         ? "btn-secondary"
         : "btn-ghost";
@@ -73,7 +80,7 @@ export function Btn({
   );
 }
 
-/** Primary CTA — Figma Button / Primary */
+/** Primary CTA — teal trust */
 export function BtnPink({
   children,
   className = "",
@@ -106,17 +113,18 @@ export function BtnPink({
   );
 }
 
-/** Secondary / outline — Figma Button / Secondary */
 export function BtnGhost({
   children,
   className = "",
   disabled,
+  loading,
   onClick,
   size = "md",
 }: {
   children: ReactNode;
   className?: string;
   disabled?: boolean;
+  loading?: boolean;
   onClick?: () => void;
   size?: BtnSize;
 }) {
@@ -126,6 +134,7 @@ export function BtnGhost({
       size={size}
       className={className}
       disabled={disabled}
+      loading={loading}
       onClick={onClick}
     >
       {children}
@@ -142,7 +151,7 @@ export function Panel({
 }) {
   return (
     <section
-      className={`rounded-2xl border border-white/10 bg-[#14101f]/90 p-4 shadow-[0_0_40px_rgba(139,92,255,0.12)] sm:rounded-[20px] sm:p-5 ${className}`}
+      className={`rounded-[var(--radius)] border border-[var(--border)] bg-[var(--panel)] p-4 shadow-[var(--shadow)] sm:p-5 ${className}`}
     >
       {children}
     </section>
@@ -154,9 +163,9 @@ export function BackLink({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="btn-ghost mb-4 !justify-start !px-0 !text-[var(--muted)] hover:!text-white"
+      className="btn-ghost mb-4 !justify-start !px-0"
     >
-      <span aria-hidden>←</span> Back to Dashboard
+      <span aria-hidden>←</span> Back
     </button>
   );
 }
@@ -169,14 +178,14 @@ export function StatusPill({
   children: ReactNode;
 }) {
   const map = {
-    ok: "bg-[rgba(109,255,176,0.12)] text-[var(--ok)]",
-    warn: "bg-[rgba(255,184,0,0.12)] text-[#ffb800]",
-    err: "bg-[rgba(255,107,138,0.12)] text-[var(--danger)]",
-    info: "bg-[rgba(255,79,216,0.12)] text-[var(--pink)]",
+    ok: "border border-[rgba(52,211,153,0.22)] bg-[rgba(52,211,153,0.1)] text-[#6ee7b7]",
+    warn: "border border-[rgba(251,191,36,0.22)] bg-[rgba(251,191,36,0.1)] text-[var(--warn)]",
+    err: "border border-[rgba(248,113,113,0.22)] bg-[rgba(248,113,113,0.1)] text-[var(--danger)]",
+    info: "border border-[var(--border)] bg-[var(--accent-soft)] text-[var(--accent-ink)]",
   } as const;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${map[tone]}`}
+      className={`inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold tracking-wide ${map[tone]}`}
     >
       {children}
     </span>
@@ -199,12 +208,14 @@ export function Field({
   return (
     <label className="mt-4 block">
       <span className="text-sm text-[var(--muted)]">{label}</span>
-      <div className="mt-2 flex items-center gap-2 rounded-xl border border-white/10 bg-black/35 px-3 py-2.5">
+      <div className="mt-2 flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] px-3 py-2.5">
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-white/30"
+          spellCheck={false}
+          autoComplete="off"
+          className="mono min-w-0 flex-1 bg-transparent text-sm text-[var(--text)] outline-none placeholder:text-[var(--muted)]"
         />
         <button
           type="button"
@@ -242,17 +253,17 @@ export function CostRow({
 }) {
   return (
     <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs sm:text-sm">
-      <div className="rounded-xl border border-white/8 bg-black/25 px-2 py-2.5">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] px-2 py-2.5">
         <p className="text-[var(--muted)]">Cost</p>
         <p className="mt-1 font-semibold">${cost.toFixed(2)}</p>
       </div>
-      <div className="rounded-xl border border-white/8 bg-black/25 px-2 py-2.5">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] px-2 py-2.5">
         <p className="text-[var(--muted)]">Available</p>
         <p className="mt-1 font-semibold">
           {available === null ? "—" : `$${available.toFixed(2)}`}
         </p>
       </div>
-      <div className="rounded-xl border border-white/8 bg-black/25 px-2 py-2.5">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-soft)] px-2 py-2.5">
         <p className="text-[var(--muted)]">{afterLabel}</p>
         <p className="mt-1 font-semibold">
           {after === null ? "—" : `$${after.toFixed(2)}`}
@@ -262,20 +273,20 @@ export function CostRow({
   );
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({
+  children,
+  wide = false,
+}: {
+  children: ReactNode;
+  wide?: boolean;
+}) {
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="relative min-h-screen overflow-x-hidden bg-[var(--board)]">
       <div
-        className="pointer-events-none absolute left-[-10%] top-[-8%] h-[28rem] w-[28rem] rounded-full opacity-50 blur-3xl"
-        style={{ background: "rgba(255,79,216,0.18)" }}
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute right-[-12%] top-[20%] h-[26rem] w-[26rem] rounded-full opacity-50 blur-3xl"
-        style={{ background: "rgba(139,92,255,0.22)" }}
-        aria-hidden
-      />
-      <div className="relative mx-auto w-full max-w-xl px-4 pb-12 pt-5 sm:max-w-2xl sm:px-5 sm:pt-6">
+        className={`relative mx-auto w-full px-4 pb-16 pt-0 sm:px-6 ${
+          wide ? "max-w-6xl" : "max-w-2xl"
+        }`}
+      >
         {children}
       </div>
     </div>
@@ -286,7 +297,14 @@ export function BrandLink() {
   return (
     <Link href="/" className="flex items-center gap-2.5">
       <PicoMark />
-      <span className="text-lg font-semibold tracking-tight">pico</span>
+      <span className="display text-lg font-bold tracking-tight">pico</span>
     </Link>
   );
 }
+
+/** Shared form controls for /app */
+export const inputClass =
+  "mt-2 w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--border-strong)]";
+
+export const textareaClass =
+  "mt-2 min-h-[100px] w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--border-strong)]";
