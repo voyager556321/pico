@@ -1,0 +1,246 @@
+// Pico product schema.
+// Off-chain source of truth for tournament, consensus, and payouts.
+// On-chain escrow (Anchor) is still the old slot program — do not mirror
+// these enums into the program until the contract rewrite.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  WORKER
+  REVIEWER
+  OPERATOR
+}
+
+enum ReviewerAvailability {
+  FREE
+  ASSIGNED
+}
+
+enum ReviewFunding {
+  CLIENT
+  POOL
+}
+
+enum ProductTaskState {
+  QUALIFICATION
+  IN_PROGRESS
+  EMERGENCY_REQUEUE
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum TournamentEntryRole {
+  PENDING
+  WORKER
+  REVIEWER
+  RELEASED
+  QUEUED
+}
+
+enum ReviewVerdict {
+  APPROVED
+  REJECTED
+}
+
+enum PayoutKind {
+  WORKER_BUDGET
+  REVIEWER_FEE
+  REVIEWER_BOUNTY
+}
+
+enum TaskKind {
+  PAID
+  PRACTICE
+}
+
+model User {
+  id               String               @id @default(cuid())
+  wallet           String               @unique
+  displayName      String?
+  role             UserRole             @default(WORKER)
+  /// Internal rating. Practice solves raise it; ghosting lowers it.
+  rating           Int                  @default(1000)
+  practiceSolved   Int                  @default(0)
+  reviewerStatus   ReviewerAvailability @default(FREE)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  clientTasks      Task[]               @relation("ClientTasks")
+  workerTasks      Task[]               @relation("WorkerTasks")
+  entries          TournamentEntry[]
+  reviews          Review[]
+  submissions      TaskSubmission[]
+  queueSpots       ReviewerQueue[]
+  practiceAttempts PracticeAttempt[]
+
+  @@index([reviewerStatus, rating])
+  @@index([role])
+}
+
+model Task {
+  id                 String           @id @default(cuid())
+  clientId           String
+  client             User             @relation("ClientTasks", fields: [clientId], references: [id])
+  title              String
+  brief              String
+  kind               TaskKind         @default(PAID)
+  /// Minimum rating required to press Enter. Practice tasks sit on lower bands.
+  requiredRating     Int              @default(0)
+  /// Qualification stays open until this time. Field size = clicks before close.
+  qualificationClosesAt DateTime?
+  /// Worker budget in USDC base units (6 decimals). Worker is paid 100% of this.
+  workerBudget       BigInt
+  /// 0 = client opted out. Places 2 and 3 join the standby queue.
+  reviewerCount      Int              @default(0)
+  reviewFunding      ReviewFunding    @default(POOL)
+  /// Extra client fee in bps of workerBudget when reviewFunding = CLIENT. 0 if pool.
+  clientReviewBps    Int              @default(0)
+  /// Each seated reviewer share in bps of workerBudget.
+  reviewerBps        Int              @default(500)
+  /// Extra bps paid to reviewers when a worker ghost delayed them.
+  bountyBps          Int              @default(200)
+  state              ProductTaskState @default(QUALIFICATION)
+  workerId           String?
+  worker             User?            @relation("WorkerTasks", fields: [workerId], references: [id])
+  /// Wall-clock deadline for the active worker submission.
+  executionDeadline  DateTime?
+  /// Set when the active worker ghosts; funds reviewer bounty.
+  ghostPenaltyActive Boolean          @default(false)
+  /// On-chain task pubkey once escrow exists. Nullable until contract catches up.
+  chainTask          String?          @unique
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  tournament         Tournament?
+  submissions        TaskSubmission[]
+  reviews            Review[]
+  payouts            Payout[]
+
+  @@index([state, updatedAt])
+  @@index([clientId, state])
+  @@index([workerId])
+  @@index([kind, requiredRating])
+}
+
+/// Training tasks. No escrow. Time and completion feed rating.
+model PracticeAttempt {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  taskId       String
+  totalTimeMs  Int
+  solved       Boolean
+  ratingDelta  Int
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([taskId])
+}
+
+model Tournament {
+  id            String   @id @default(cuid())
+  taskId        String   @unique
+  task          Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  /// Automated problems are content-addressed off-chain.
+  problemSetId  String
+  /// How many people clicked Enter before qualification closed. Not a fixed cap.
+  entrantCount  Int      @default(0)
+  closedAt      DateTime?
+  entries       TournamentEntry[]
+
+  @@index([problemSetId])
+}
+
+model TournamentEntry {
+  id            String              @id @default(cuid())
+  tournamentId  String
+  tournament    Tournament          @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User                @relation(fields: [userId], references: [id])
+  /// Sum of three problem times; lower is better. Null until finished.
+  totalTimeMs   Int?
+  problemsSolved Int               @default(0)
+  place         Int?
+  role          TournamentEntryRole @default(PENDING)
+  finishedAt    DateTime?
+
+  @@unique([tournamentId, userId])
+  @@index([tournamentId, totalTimeMs])
+  @@index([userId])
+}
+
+model TaskSubmission {
+  id          String   @id @default(cuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  workerId    String
+  worker      User     @relation(fields: [workerId], references: [id])
+  /// Git or blob URI. Not stored on-chain.
+  codeRef     String
+  codeHash    String
+  submittedAt DateTime @default(now())
+  active      Boolean  @default(true)
+
+  reviews     Review[]
+
+  @@index([taskId, active])
+  @@index([workerId, submittedAt])
+}
+
+model Review {
+  id            String        @id @default(cuid())
+  taskId        String
+  task          Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  submissionId  String
+  submission    TaskSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewerId    String
+  reviewer      User          @relation(fields: [reviewerId], references: [id])
+  verdict       ReviewVerdict?
+  checklist     Json?
+  /// Required when verdict = REJECTED (file + line of the critical bug).
+  vetoPath      String?
+  vetoLine      Int?
+  assignedAt    DateTime      @default(now())
+  dueAt         DateTime
+  submittedAt   DateTime?
+  replaced      Boolean       @default(false)
+
+  @@unique([submissionId, reviewerId])
+  @@index([taskId, replaced, submittedAt])
+  @@index([reviewerId, dueAt])
+}
+
+/// Global FIFO of reviewers waiting for a seat.
+model ReviewerQueue {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  enqueuedAt DateTime @default(now())
+
+  @@unique([userId])
+  @@index([enqueuedAt])
+}
+
+model Payout {
+  id        String     @id @default(cuid())
+  taskId    String
+  task      Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  kind      PayoutKind
+  /// USDC base units. Ledger only until the program pays worker 100% + reviewer fees.
+  amount    BigInt
+  createdAt DateTime   @default(now())
+
+  @@index([taskId, kind])
+  @@index([userId])
+}

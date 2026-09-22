@@ -19,7 +19,12 @@ export const FLOW = {
   ranking: "time_on_test_3_ascending" as const,
   payout: {
     bpsDenom: 10_000,
-    note: "platform_fee = reward * fee_bps / 10_000; slot_i = net * slot_bps[i] / 10_000",
+    /** Still what the deployed program does. */
+    chainNote:
+      "platform_fee = reward * fee_bps / 10_000; slot_i = net * slot_bps[i] / 10_000",
+    /** Target product ledger — contract rewrite later. */
+    productNote:
+      "Worker receives 100% of the posted budget. Reviewers receive reviewer_bps from the client fee or the system pool, plus bounty_bps if a worker ghost delayed them.",
   },
 } as const;
 

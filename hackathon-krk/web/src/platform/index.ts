@@ -1,4 +1,20 @@
 export { FLOW, STATUS_PIPELINE } from "./flow";
+export {
+  PRODUCT,
+  PRODUCT_STATES,
+  CHAIN_STATUS_FOR_PRODUCT,
+  majorityOf,
+} from "./product/constants";
+export type { ProductTaskState } from "./product/constants";
+export { canTransition, assertTransition } from "./product/stateMachine";
+export { rankTournament, podiumReady } from "./product/tournament";
+export { levelForRating, canEnterTask, practiceRatingDelta } from "./product/rating";
+export { notifyOnWorkerSubmit } from "./product/notify";
+export {
+  evaluateConsensus,
+  vetoIsValid,
+  countableBallots,
+} from "./product/consensus";
 export { resolveRole, mySlotIndex } from "./roles";
 export { getTaskCapabilities } from "./capabilities";
 export {
