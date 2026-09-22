@@ -12,6 +12,7 @@ import { useTasks } from "@/lib/hooks";
 import { isDefaultPk } from "@/lib/program";
 import { useAppMode } from "@/components/app/AppChrome";
 import { DemoControls } from "@/components/app/DemoControls";
+import { LiveBoard } from "@/components/app/LiveBoard";
 import { StatusPill } from "@/components/app/ui";
 import { statusTone } from "@/components/app/SlotTable";
 
@@ -29,6 +30,7 @@ export function DashboardPage() {
   const [mode] = useAppMode();
   const { tasks, loading, error, reload, bumpDemo } = useTasks();
   const [tab, setTab] = useState<Tab>("all");
+  const [live, setLive] = useState(true);
 
   const scoped = useMemo(() => {
     if (!publicKey) return tasks;
@@ -102,6 +104,13 @@ export function DashboardPage() {
           </Link>
           <button
             type="button"
+            onClick={() => setLive(true)}
+            className="app-cta"
+          >
+            Run live
+          </button>
+          <button
+            type="button"
             onClick={() => void reload()}
             className="app-cta-ghost text-[var(--app-muted)]"
           >
@@ -110,7 +119,13 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <div className="mt-6">
+      {live ? (
+        <div className="mt-6">
+          <LiveBoard onClose={() => setLive(false)} />
+        </div>
+      ) : null}
+
+      <div className={live ? "hidden" : "mt-6"}>
         <DemoControls
           compact
           role={mode === "hiring" ? "hiring" : "working"}
@@ -121,6 +136,8 @@ export function DashboardPage() {
         />
       </div>
 
+      {!live ? (
+      <>
       <div className="mt-7 flex gap-0.5 overflow-x-auto border-b border-[var(--app-border)]">
         {tabs.map((t) => {
           const n = t.id === "all" ? counts.all : counts[t.id] ?? 0;
@@ -213,6 +230,8 @@ export function DashboardPage() {
           ))}
         </ul>
       )}
+      </>
+      ) : null}
     </div>
   );
 }

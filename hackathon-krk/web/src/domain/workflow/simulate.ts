@@ -24,6 +24,7 @@ type Bot = {
 
 type SimTask = {
   id: string;
+  title: string;
   kind: "PAID" | "PRACTICE";
   requiredRating: number;
   reviewerCount: number;
@@ -37,14 +38,26 @@ export type SimClick = {
   assignment: string;
 };
 
+export type SimBoardStatus =
+  | "Qualifying"
+  | "Working"
+  | "InReview"
+  | "HiringSlot"
+  | "Paid"
+  | "Practice";
+
 export type SimTaskResult = {
   id: string;
+  title: string;
   kind: "PAID" | "PRACTICE";
   requiredRating: number;
   reviewerCount: number;
+  budget: number;
   eligible: number;
   clicks: SimClick[];
   notes: string[];
+  ghosted: boolean;
+  boardStatus: SimBoardStatus;
 };
 
 export type SimRound = {
@@ -74,6 +87,17 @@ function makeBots(count: number): Bot[] {
   }));
 }
 
+const TASK_TITLES = [
+  "Code review",
+  "Escrow patch",
+  "API timeout",
+  "Indexer lag",
+  "Wallet UX",
+  "Test flake",
+  "PDA seeds",
+  "Rent math",
+];
+
 function makeTasks(count: number): SimTask[] {
   return Array.from({ length: count }, (_, i) => {
     const kind = i % 3 === 0 ? "PRACTICE" : "PAID";
@@ -85,6 +109,7 @@ function makeTasks(count: number): SimTask[] {
       requiredRating,
       reviewerCount,
       budget: 40 + i * 15,
+      title: TASK_TITLES[i] ?? `Task ${i + 1}`,
     };
   });
 }
@@ -143,6 +168,8 @@ export function simulate(options: SimOptions): SimReport {
       }
 
       const notes: string[] = [];
+      let ghosted = false;
+      let boardStatus: SimBoardStatus = "Qualifying";
       notes.push(
         `Могли зайти ${eligible.length}. Натиснули ${clicks.length}.`
       );
@@ -166,6 +193,7 @@ export function simulate(options: SimOptions): SimReport {
             ? `Тренування: рейтинг виріс у ${gained}.`
             : "Ніхто не дорішав тренувальний набір."
         );
+        boardStatus = "Practice";
       } else if (!ranked.some((row) => row.assignment === "WORKER")) {
         notes.push("Фінішера немає — воркера не призначено.");
       } else {
@@ -183,8 +211,10 @@ export function simulate(options: SimOptions): SimReport {
         }
 
         const workerBot = bots.find((bot) => bot.id === worker.userId);
-        const ghosts = workerBot && random() < 0.22;
+        const ghosts = Boolean(workerBot && random() < 0.22);
+        let replaced = false;
         if (ghosts && workerBot) {
+          ghosted = true;
           workerBot.rating = Math.max(0, workerBot.rating - PRODUCT.ghostRatingPenalty);
           const next = ranked.find(
             (row) =>
@@ -200,7 +230,10 @@ export function simulate(options: SimOptions): SimReport {
             if (!queue.includes(id)) queue.push(id);
           }
           seated.length = 0;
-          if (next) worker = next;
+          if (next) {
+            worker = next;
+            replaced = true;
+          }
         }
 
         if (task.reviewerCount > 0) {
@@ -230,8 +263,16 @@ export function simulate(options: SimOptions): SimReport {
           );
           if (verdict.status === "APPROVED") {
             notes.push(`Виплата воркеру ${task.budget} USDC.`);
+            boardStatus = "Paid";
+          } else if (ghosted && seated.length === 0) {
+            boardStatus = "HiringSlot";
+          } else {
+            boardStatus = "InReview";
           }
+        } else if (ghosted && !replaced) {
+          boardStatus = "HiringSlot";
         } else {
+          boardStatus = "Paid";
           notes.push(
             `Воркер ${worker.userId} закриває задачу без рев’ю. ${task.budget} USDC.`
           );
@@ -246,12 +287,16 @@ export function simulate(options: SimOptions): SimReport {
 
       taskResults.push({
         id: task.id,
+        title: task.title,
         kind: task.kind,
         requiredRating: task.requiredRating,
         reviewerCount: task.reviewerCount,
+        budget: task.budget,
         eligible: eligible.length,
         clicks,
         notes,
+        ghosted,
+        boardStatus,
       });
     }
 
