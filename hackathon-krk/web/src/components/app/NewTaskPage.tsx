@@ -22,6 +22,7 @@ import {
 import { configPda, taskPda, vaultAta, vaultAuthorityPda } from "@/lib/pdas";
 import { errMsg, usePicoProgram } from "@/lib/hooks";
 import { saveTaskMeta } from "@/lib/program";
+import { createLocalTask } from "@/lib/demo";
 import { BtnPink, Field, Panel, inputClass, textareaClass } from "@/components/app/ui";
 
 function friendlyTxError(e: unknown): string {
@@ -45,6 +46,7 @@ export function NewTaskPage() {
   const { program, publicKey } = usePicoProgram();
 
   const [skillId, setSkillId] = useState(1);
+  const [delivery, setDelivery] = useState<"review" | "project">("review");
   const [brief, setBrief] = useState("");
   const [rewardUsd, setRewardUsd] = useState("50");
   const [days, setDays] = useState("3");
@@ -125,7 +127,7 @@ export function NewTaskPage() {
         })
         .rpc();
 
-      saveTaskMeta(task.toBase58(), { brief: brief.trim() });
+      saveTaskMeta(task.toBase58(), { brief: brief.trim(), delivery });
       router.push(`/app/tasks/${task.toBase58()}`);
     } catch (e) {
       setError(friendlyTxError(e));
@@ -141,27 +143,21 @@ export function NewTaskPage() {
       </p>
       <h1 className="app-page-title mt-1 text-3xl">Post a task</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Lock USDC for this task only. Choose N verifications and % across
-        Execution → Primary → Audit…
+        Publish stays on this device and shows up under Find tasks. Chain escrow
+        is a separate step once a wallet is connected.
       </p>
 
-      <Panel className="mt-4 !border-[var(--border-strong)] !bg-[var(--accent-soft)]">
-        <p className="text-sm font-semibold text-[var(--accent-ink)]">
-          Devnet redeploy required
-        </p>
-        <p className="mt-1 text-xs text-[var(--muted)]">
-          Frontend expects the slot program. Error 101 means paste{" "}
-          <code className="mono">programs/pico/src/lib.rs</code> into Playground →
-          Deploy, then <code className="mono">initializeConfig</code>.
-        </p>
-      </Panel>
       <Panel className="mt-6 space-y-4">
         <label className="block text-sm font-medium">
           Skill lane
           <select
             className={inputClass}
             value={skillId}
-            onChange={(e) => setSkillId(Number(e.target.value))}
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              setSkillId(next);
+              if (next === 5) setDelivery("project");
+            }}
           >
             {SKILLS.map((s) => (
               <option key={s.id} value={s.id}>
@@ -171,13 +167,41 @@ export function NewTaskPage() {
           </select>
         </label>
 
+        <div>
+          <p className="text-sm font-medium">Delivery</p>
+          <div className="mt-2 flex gap-2">
+            {(
+              [
+                ["review", "Code review"],
+                ["project", "Develop a project"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={delivery === value ? "chip chip-active" : "chip"}
+                onClick={() => setDelivery(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            A review reads existing code. A project is something the executor builds.
+          </p>
+        </div>
+
         <label className="block text-sm font-medium">
           Brief
           <textarea
             className={textareaClass}
             value={brief}
             onChange={(e) => setBrief(e.target.value)}
-            placeholder="Narrow scope: what to deliver + constraints"
+            placeholder={
+              delivery === "project"
+                ? "What to build, the constraints, and what done looks like"
+                : "What to review and the constraints"
+            }
           />
         </label>
 
@@ -248,11 +272,34 @@ export function NewTaskPage() {
 
         {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
 
-        <BtnPink loading={loading} onClick={() => void onCreate()} className="w-full">
-          Lock USDC &amp; publish
+        <BtnPink
+          loading={loading}
+          onClick={() => {
+            const task = createLocalTask({
+              client: publicKey,
+              skillId,
+              brief,
+              delivery,
+              rewardUsd: Number(rewardUsd) || 0,
+              days: Number(days) || 1,
+              reviewCount,
+            });
+            router.push(`/app/tasks/${task.publicKey.toBase58()}`);
+          }}
+          className="w-full"
+        >
+          Publish locally
         </BtnPink>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void onCreate()}
+          className="w-full text-center text-sm font-semibold text-[var(--app-muted)] hover:text-[var(--app-text)]"
+        >
+          {publicKey ? "Or lock USDC on Devnet" : "Devnet publish needs a wallet"}
+        </button>
         <p className="text-xs text-[var(--muted)]">
-          No prepaid wallet — escrow is per task. Cancel only while Qualifying.
+          Local publish does not move USDC. Cancel only while Qualifying.
         </p>
       </Panel>
     </div>

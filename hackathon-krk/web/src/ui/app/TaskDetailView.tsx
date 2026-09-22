@@ -6,7 +6,8 @@ import type { TaskAccount } from "@/lib/accounts";
 import type { TaskMeta } from "@/lib/offchain";
 import type { TaskCapabilities } from "@/platform";
 import { baseUnitsToUsdc, shortPk, skillLabel } from "@/lib/constants";
-import { isDemoTask } from "@/lib/demo";
+import { DEMO_WORKER_PK, isDemoTask } from "@/lib/demo";
+import { loadTrust, trustRequiredForReward } from "@/lib/presence";
 import { DemoBadge, DemoControls } from "@/components/app/DemoControls";
 import { SlotPipeline, SlotTable, statusTone } from "@/components/app/SlotTable";
 import { BtnGhost, BtnPink, Panel, StatusPill } from "@/components/app/ui";
@@ -49,6 +50,11 @@ export function TaskDetailView({
   const deadline = new Date(task.deadline.toNumber() * 1000);
   const demo = isDemoTask(task.publicKey);
   const hiringLike = caps.role === "client" || mode === "hiring";
+  const rewardUsd = baseUnitsToUsdc(task.reward.toNumber());
+  const trustNeed = trustRequiredForReward(rewardUsd);
+  const trust = loadTrust(wallet?.toBase58() ?? DEMO_WORKER_PK.toBase58());
+  const trustBlocked = caps.canQualify && trust < trustNeed;
+  const project = meta?.delivery === "project" || task.skillId === 5;
 
   return (
     <div className="space-y-6">
@@ -58,7 +64,7 @@ export function TaskDetailView({
             ← Tasks
           </Link>
           <h1 className="app-page-title mt-2 text-3xl sm:text-4xl">
-            {skillLabel(task.skillId)}
+            {project ? "Project" : "Review"} · {skillLabel(task.skillId)}
           </h1>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <p className="mono text-xs text-[var(--muted)]">
@@ -126,13 +132,19 @@ export function TaskDetailView({
           </p>
         ) : null}
 
-        {caps.canQualify ? (
+        {caps.canQualify && !trustBlocked ? (
           <Link
             href={`/app/tasks/${taskId}/qualify`}
             className="btn-primary btn-md"
           >
             Enter qualification (3 tests)
           </Link>
+        ) : null}
+        {trustBlocked ? (
+          <p className="w-full text-sm text-[var(--warn)]">
+            This pays ${rewardUsd.toFixed(0)} and needs trust {trustNeed}. Yours is {trust}.
+            Clients see that score, and a high-pay task stays closed until it is high enough.
+          </p>
         ) : null}
 
         {caps.showClientWaitingQualify ? (

@@ -1,19 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { shortPk } from "@/lib/constants";
+import { baseUnitsToUsdc, shortPk } from "@/lib/constants";
 import {
   QualifyEntry,
   loadQualifyBoard,
+  loadTaskMeta,
 } from "@/lib/program";
+import {
+  acceptSolution,
+  ensureQualifyProblems,
+  orderForParticipant,
+  sampleSolution,
+} from "@/domain/workflow/qualifyProblems";
 import {
   isDemoEnabled,
   isDemoTask,
+  loadReviewNotice,
   promoteDemoToWorking,
+  settleAfterFinish,
   simulateWorkerPassed,
+  type LocalRaceRole,
 } from "@/lib/demo";
 import { resolveDemoWorker } from "@/components/app/DemoControls";
 import { useAppMode } from "@/components/app/AppChrome";
@@ -21,38 +31,9 @@ import { BtnGhost, BtnPink, Panel } from "@/components/app/ui";
 import { recordQualifyEntry, useTask } from "@/domain";
 import { getTaskCapabilities, toTaskSnapshot } from "@/platform";
 
-const QUESTIONS = [
-  {
-    prompt: "Test 1 — pick the correct escrow rule",
-    options: [
-      "Client can reclaim after claim",
-      "Per-task vault; cancel only while Qualifying",
-      "Shared prepaid wallet pays all tasks",
-    ],
-    correct: 1,
-  },
-  {
-    prompt: "Test 2 — who is Execution Slot?",
-    options: [
-      "First to click claim",
-      "Fastest on Test 3 among finishers",
-      "Whoever has highest stake",
-    ],
-    correct: 1,
-  },
-  {
-    prompt: "Test 3 — Primary Verification reviews…",
-    options: [
-      "The client’s brief only",
-      "Execution deliverable",
-      "Platform fee math",
-    ],
-    correct: 1,
-  },
-];
-
 export function QualifyPage() {
   const params = useParams();
+  const router = useRouter();
   const taskId = typeof params.id === "string" ? params.id : "";
   const { publicKey } = useWallet();
   const [mode] = useAppMode();
@@ -61,9 +42,17 @@ export function QualifyPage() {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [times, setTimes] = useState<[number, number, number]>([0, 0, 0]);
   const [passed, setPassed] = useState(0);
-  const [choice, setChoice] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
   const [msg, setMsg] = useState("");
   const [failed, setFailed] = useState(false);
+  const [podiumRole, setPodiumRole] = useState<LocalRaceRole | null>(null);
+  const [stubPhase, setStubPhase] = useState("");
+  const [pasteNote, setPasteNote] = useState("");
+
+  function blockInsert(event: { preventDefault: () => void }) {
+    event.preventDefault();
+    setPasteNote("Paste is blocked. Write the solution here — copied code does not count.");
+  }
   const [board, setBoard] = useState(() =>
     taskId ? loadQualifyBoard(taskId) : { entries: [] as QualifyEntry[] }
   );
@@ -87,13 +76,26 @@ export function QualifyPage() {
 
   const worker = resolveDemoWorker(publicKey);
   const myEntry = board.entries.find((e) => e.wallet === worker.toBase58());
+  const problems = useMemo(() => {
+    if (!task) return [];
+    const meta = loadTaskMeta(task.publicKey.toBase58());
+    const brief = meta?.brief || "Implement the requested behavior.";
+    const reward = baseUnitsToUsdc(task.reward.toNumber());
+    const shared = ensureQualifyProblems(task.publicKey.toBase58(), brief, reward);
+    return orderForParticipant(shared, worker.toBase58());
+  }, [task, worker]);
+  const current = problems[round];
 
   useEffect(() => {
-    if (myEntry && myEntry.passedRound >= 3) {
-      setPassed(3);
-      setTimes(myEntry.timesMs);
+    if (!myEntry || myEntry.passedRound < 3 || !taskId || !isDemoTask(taskId)) return;
+    setPassed(3);
+    setTimes(myEntry.timesMs);
+    const outcome = settleAfterFinish(taskId, myEntry.wallet);
+    setPodiumRole(outcome.role);
+    if (outcome.role === "execution") {
+      router.replace(`/app/tasks/${taskId}/work`);
     }
-  }, [myEntry]);
+  }, [myEntry, taskId, router]);
 
   const leaderboard = useMemo(() => {
     return [...board.entries].sort((a, b) => {
@@ -103,15 +105,15 @@ export function QualifyPage() {
   }, [board]);
 
   function startRound() {
-    if (failed || passed >= 3) return;
+    if (failed || passed >= 3 || !current) return;
     setStartedAt(Date.now());
-    setChoice(null);
+    setDraft(current.stub);
     setMsg("");
   }
 
   function submitAnswer() {
-    if (!taskId || startedAt === null || choice === null) {
-      setMsg("Pick an answer (connect wallet or use demo worker)");
+    if (!taskId || startedAt === null || !current) {
+      setMsg("Start the timer, then write the function.");
       return;
     }
     if (!task) {
@@ -119,11 +121,10 @@ export function QualifyPage() {
       return;
     }
     const elapsed = Date.now() - startedAt;
-    const q = QUESTIONS[round];
     const wallet = worker.toBase58();
     try {
-      if (choice !== q.correct) {
-        setMsg("Incorrect — you are out of this series. Try other tasks.");
+      if (!acceptSolution(current, draft)) {
+        setMsg("That solution does not cover this problem. You are out of this series.");
         setFailed(true);
         const entry: QualifyEntry = {
           wallet,
@@ -167,20 +168,89 @@ export function QualifyPage() {
       if (round < 2) {
         setRound(round + 1);
         setStartedAt(null);
-        setChoice(null);
+        setDraft("");
         setMsg(
-          `Passed test ${round + 1} in ${elapsed} ms. Start test ${round + 2}.`
+          `Passed “${current.title}” in ${elapsed} ms. Start the next problem.`
         );
       } else {
-        setMsg(
-          `Finished all 3. T3 time ${elapsed} ms — status: worker on podium.`
-        );
         setStartedAt(null);
+        const outcome = isDemoTask(taskId)
+          ? settleAfterFinish(taskId, wallet)
+          : { role: "execution" as const };
+        setPodiumRole(outcome.role);
+        if (outcome.role === "execution") {
+          router.push(`/app/tasks/${taskId}/work`);
+          return;
+        }
+        setMsg(
+          outcome.role === "reviewer"
+            ? "You finished behind Execution. You will be notified when they submit the main task."
+            : "You finished outside the review seats."
+        );
       }
     } catch (e) {
       setMsg(e instanceof Error ? e.message : String(e));
       setStartedAt(null);
     }
+  }
+
+  async function playStub() {
+    if (!task || !taskId || problems.length < 3 || stubPhase) return;
+    setFailed(false);
+    setMsg("");
+    const wallet = worker.toBase58();
+    const nextTimes: [number, number, number] = [0, 0, 0];
+    for (let step = 0; step < 3; step++) {
+      const problem = problems[step];
+      const solution = sampleSolution(problem);
+      setRound(step);
+      setStartedAt(Date.now());
+      setDraft("");
+      setStubPhase(`Writing “${problem.title}”…`);
+      const started = Date.now();
+      for (let i = 1; i <= solution.length; i += 3) {
+        setDraft(solution.slice(0, i));
+        await new Promise((resolve) => setTimeout(resolve, 18));
+      }
+      setDraft(solution);
+      setStubPhase(`Submitting “${problem.title}”…`);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      nextTimes[step] = Math.max(1, Date.now() - started);
+      const entry: QualifyEntry = {
+        wallet,
+        timesMs: [...nextTimes] as [number, number, number],
+        passedRound: step + 1,
+        finishedAt: Date.now(),
+      };
+      setBoard(
+        recordQualifyEntry({
+          task,
+          entry,
+          mode,
+          role: caps.role,
+          wallet,
+        })
+      );
+      setTimes([...nextTimes] as [number, number, number]);
+      setPassed(step + 1);
+    }
+    setStartedAt(null);
+    setStubPhase("Opening the main task…");
+    const outcome = isDemoTask(taskId)
+      ? settleAfterFinish(taskId, wallet)
+      : { role: "execution" as const };
+    setPodiumRole(outcome.role);
+    if (outcome.role === "execution") {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      router.push(`/app/tasks/${taskId}/work`);
+      return;
+    }
+    setStubPhase("");
+    setMsg(
+      outcome.role === "reviewer"
+        ? "You finished behind Execution. You will be notified when they submit the main task."
+        : "You finished outside the review seats."
+    );
   }
 
   function simulatePass() {
@@ -271,12 +341,18 @@ export function QualifyPage() {
           Qualify
         </p>
         <h1 className="app-page-title mt-1.5 text-[2rem] leading-none sm:text-[2.2rem]">
-          Three timed tests
+          Three programming problems
         </h1>
         <p className="mt-2.5 text-[15px] leading-relaxed text-[var(--muted)]">
-          Pass each round or you&apos;re out of this series. Fastest T3 among
-          finishers → Execution; places 2…N+1 → verification slots.
+          The three problems come from this task&apos;s brief and are the same
+          for everyone. Your order is shuffled. Fastest finisher of all three
+          becomes Execution.
         </p>
+        {problems.length === 3 ? (
+          <p className="mt-2 text-[13px] text-[var(--app-muted)]">
+            Your order: {problems.map((item) => item.title).join(" → ")}
+          </p>
+        ) : null}
         {task ? (
           <p className="mt-1.5 text-[12px] text-[var(--muted)]">
             Need ≥ {task.slotCount} finishers for assign_team. Status:{" "}
@@ -293,9 +369,12 @@ export function QualifyPage() {
             Worker test stub
           </p>
           <div className="flex flex-wrap gap-1.5">
-            <BtnPink onClick={simulatePass} size="sm">
-              Simulate pass (3/3)
+            <BtnPink onClick={() => void playStub()} size="sm" disabled={Boolean(stubPhase)}>
+              {stubPhase || "Simulate writing, submit, open main task"}
             </BtnPink>
+            <BtnGhost onClick={simulatePass} size="sm">
+              Skip to passed
+            </BtnGhost>
             <BtnGhost onClick={promoteWorker} size="sm">
               Promote → Working / Execution
             </BtnGhost>
@@ -312,43 +391,44 @@ export function QualifyPage() {
 
       <Panel className="!shadow-none">
         <p className="text-[15px] font-semibold tracking-tight">
-          Test {Math.min(round + 1, 3)} / 3
+          Problem {Math.min(round + 1, 3)} / 3
+          {current ? ` · ${current.title}` : ""}
           {passed >= 3 ? " — complete · worker status" : ""}
           {failed ? " — failed" : ""}
         </p>
-        {passed < 3 && !failed ? (
+        {passed < 3 && !failed && current ? (
           <>
             <p className="mt-3 text-[14px] leading-relaxed text-[var(--app-text)]">
-              {QUESTIONS[round].prompt}
+              {current.prompt}
             </p>
-            <ul className="mt-4 space-y-2">
-              {QUESTIONS[round].options.map((opt, i) => (
-                <li key={opt}>
-                  <label
-                    className={`flex cursor-pointer items-center gap-3 rounded-[10px] border px-3 py-2.5 text-[14px] transition ${
-                      choice === i
-                        ? "border-[var(--border-strong)] bg-[var(--accent-soft)]"
-                        : "border-[var(--app-border)] hover:border-white/15"
-                    } ${startedAt === null ? "opacity-50" : ""}`}
-                  >
-                    <input
-                      type="radio"
-                      name="ans"
-                      checked={choice === i}
-                      onChange={() => setChoice(i)}
-                      disabled={startedAt === null}
-                      className="accent-[var(--app-accent)]"
-                    />
-                    {opt}
-                  </label>
-                </li>
-              ))}
-            </ul>
+            <textarea
+              value={startedAt === null ? current.stub : draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onPaste={blockInsert}
+              onDrop={blockInsert}
+              onBeforeInput={(event) => {
+                const input = event.nativeEvent as InputEvent;
+                if (input.inputType === "insertFromPaste" || input.inputType === "insertFromDrop") {
+                  blockInsert(event);
+                }
+              }}
+              onKeyDown={(event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "v") {
+                  blockInsert(event);
+                }
+              }}
+              readOnly={startedAt === null}
+              spellCheck={false}
+              className="mono mt-4 min-h-40 w-full rounded-[10px] border border-[var(--app-border)] bg-black/30 p-3 text-[13px] leading-relaxed text-[var(--app-text)]"
+            />
+            {pasteNote ? (
+              <p className="mt-2 text-[13px] text-[var(--warn)]">{pasteNote}</p>
+            ) : null}
             <div className="mt-5 flex flex-wrap gap-2">
               {startedAt === null ? (
                 <BtnPink onClick={startRound}>Start timer</BtnPink>
               ) : (
-                <BtnPink onClick={submitAnswer}>Submit answer</BtnPink>
+                <BtnPink onClick={submitAnswer}>Submit solution</BtnPink>
               )}
               {startedAt !== null ? (
                 <span className="self-center text-[12px] text-[var(--muted)]">
@@ -359,18 +439,29 @@ export function QualifyPage() {
           </>
         ) : passed >= 3 ? (
           <div className="mt-2 space-y-2">
-            <p className="text-[14px] text-[var(--ok)]">
-              Worker status: passedRound=3 · on podium
-              {myEntry ? ` · T3 ${myEntry.timesMs[2]} ms` : ""}.
-            </p>
-            <p className="text-[12px] text-[var(--muted)]">
-              Waiting for operator assign_team — or use Promote stub above.
-            </p>
+            {podiumRole === "reviewer" ? (
+              <>
+                <p className="text-[14px] text-[var(--app-text)]">
+                  You are a reviewer. The main task stays with Execution.
+                </p>
+                <p className="text-[13px] leading-relaxed text-[var(--app-muted)]">
+                  {loadReviewNotice(taskId)?.text ??
+                    "You will be notified when Execution submits the delivery."}
+                </p>
+              </>
+            ) : (
+              <p className="text-[14px] text-[var(--ok)]">
+                Finished all 3
+                {myEntry ? ` · T3 ${myEntry.timesMs[2]} ms` : ""}.
+              </p>
+            )}
           </div>
-        ) : (
+        ) : failed ? (
           <p className="mt-2 text-[14px] text-[var(--danger)]">
             Out of this series. Pick another task or Simulate pass.
           </p>
+        ) : (
+          <p className="mt-2 text-[14px] text-[var(--muted)]">Loading the problems…</p>
         )}
         {msg ? (
           <p className="mt-3 text-[13px] leading-relaxed text-[var(--muted)]">

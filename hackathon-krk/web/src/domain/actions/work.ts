@@ -42,5 +42,6 @@ export async function submitExecution(opts: {
     result: opts.result.trim(),
     explanation: opts.explanation.trim(),
     reviews: meta?.reviews,
+    qualifyProblems: meta?.qualifyProblems,
   });
 }

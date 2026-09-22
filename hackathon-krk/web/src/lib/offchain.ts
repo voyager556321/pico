@@ -7,11 +7,25 @@ export const ZERO = PublicKey.default;
 export const META_PREFIX = "pico:task:";
 export const QUALIFY_PREFIX = "pico:qualify:";
 
+/** Same three problems for every participant. Order is shuffled per person. */
+export type QualifyProblem = {
+  id: string;
+  title: string;
+  prompt: string;
+  stub: string;
+  mustInclude: string[];
+};
+
 export type TaskMeta = {
   brief: string;
   result?: string;
   explanation?: string;
   reviews?: Record<string, string>;
+  qualifyProblems?: QualifyProblem[];
+  /** Plain description of the real delivery, shown to Execution after qualify. */
+  executorBrief?: string;
+  /** Review of existing code, or a project the executor develops. */
+  delivery?: "review" | "project";
 };
 
 export function loadTaskMeta(taskKey: string): TaskMeta | null {

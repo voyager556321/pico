@@ -16,7 +16,7 @@ import {
   useTasks,
 } from "@/domain";
 import { getTaskCapabilities, toTaskSnapshot } from "@/platform";
-import { isDemoTask } from "@/lib/demo";
+import { assignLocalTeam, isDemoTask } from "@/lib/demo";
 
 export function OperatorPage() {
   const { publicKey } = useWallet();
@@ -115,8 +115,11 @@ export function OperatorPage() {
           Operator
         </h1>
         <p className="mt-2.5 text-[15px] leading-relaxed text-[var(--muted)]">
-          Record the off-chain Test 1→2→3 podium on-chain. Single-seat{" "}
-          <code className="mono text-xs">fill_slot</code> after declines.
+          Operator is not a worker and not the client. After people finish the
+          timed tests, this account seats the podium: fastest finisher becomes
+          Execution, the next places become reviewers. If someone declines a
+          seat, Operator fills that one seat. Locally the button below does
+          that on a demo task without Devnet.
         </p>
         {config ? (
           <p className="mt-2 text-xs text-[var(--muted)]">
@@ -159,12 +162,30 @@ export function OperatorPage() {
 
         <BtnPink
           loading={busy}
-          disabled={!selected || !caps.canAssignTeam}
-          onClick={() => void assignFromBoard()}
+          disabled={!selected || !isDemoTask(selected.publicKey)}
+          onClick={() => {
+            if (!selected) return;
+            const next = assignLocalTeam(selected.publicKey.toBase58());
+            if (!next) {
+              setError("Local seat works on a Qualifying demo task.");
+              return;
+            }
+            setError("");
+            setMsg("Podium seated locally. Task is now Working.");
+            void reload();
+          }}
           className="w-full"
         >
-          Assign team from local qualify board
+          Seat podium locally
         </BtnPink>
+        <button
+          type="button"
+          disabled={busy || !selected || !caps.canAssignTeam}
+          onClick={() => void assignFromBoard()}
+          className="w-full text-center text-sm font-semibold text-[var(--app-muted)] hover:text-[var(--app-text)] disabled:opacity-40"
+        >
+          Or assign on Devnet (operator wallet)
+        </button>
         {caps.blocks.assign_team ? (
           <p className="text-xs text-[var(--muted)]">{caps.blocks.assign_team}</p>
         ) : null}

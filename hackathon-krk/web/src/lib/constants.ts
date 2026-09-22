@@ -26,6 +26,7 @@ export const SKILLS = [
   { id: 2, label: "Debugging" },
   { id: 3, label: "QA" },
   { id: 4, label: "Design" },
+  { id: 5, label: "Build" },
 ] as const;
 
 export type SkillId = (typeof SKILLS)[number]["id"];

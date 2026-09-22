@@ -5,9 +5,11 @@ import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { loadTaskMeta } from "@/lib/program";
-import { isDemoTask } from "@/lib/demo";
+import { isDemoTask, loadReviewNotice } from "@/lib/demo";
 import { useAppMode } from "@/components/app/AppChrome";
 import { Panel } from "@/components/app/ui";
+import { useLocalBotPulse } from "@/components/app/LocalBotsLive";
+import { entrantsFor } from "@/lib/localBots";
 import { TaskDetailView } from "@/ui/app/TaskDetailView";
 import {
   cancelTask,
@@ -36,6 +38,7 @@ export function TaskDetailPage() {
   const { program } = usePicoProgram();
   const config = useConfig();
   const [tick, setTick] = useState(0);
+  const botPulse = useLocalBotPulse();
   const { task, loading, error, reload, bumpDemo } = useTask(taskId, tick);
   const [busy, setBusy] = useState(false);
   const [actionErr, setActionErr] = useState("");
@@ -100,7 +103,43 @@ export function TaskDetailPage() {
     ),
   };
 
+  const entrants = task.status === "Qualifying" ? entrantsFor(taskId) : [];
+  const notice = loadReviewNotice(taskId);
+
   return (
+    <div className="space-y-4">
+      {notice ? (
+        <Panel>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--app-muted)]">
+            Reviewers
+          </p>
+          <p className="mt-2 text-[15px]">{notice.text}</p>
+        </Panel>
+      ) : null}
+      {task.status === "Qualifying" ? (
+        <Panel>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--app-muted)]">
+            Local bots in this race
+          </p>
+          {entrants.length === 0 ? (
+            <p className="mt-2 text-sm text-[var(--app-muted)]">Waiting for bots to click…</p>
+          ) : (
+            <ul className="mt-3 flex flex-wrap gap-1.5" data-pulse={botPulse}>
+              {entrants.map((entrant) => (
+                <li
+                  key={entrant.id}
+                  className="rounded-full border border-[var(--app-border)] px-2.5 py-1 text-[12px] font-semibold"
+                >
+                  {entrant.id}
+                  <span className="ml-1.5 text-[var(--app-muted)]">
+                    {entrant.passed ? `${entrant.timeMs} ms` : "dropped"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+      ) : null}
     <TaskDetailView
       taskId={taskId}
       task={task}
@@ -123,5 +162,6 @@ export function TaskDetailPage() {
         setTick((t) => t + 1);
       }}
     />
+    </div>
   );
 }

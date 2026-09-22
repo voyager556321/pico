@@ -56,6 +56,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body:has(.app-dark) {
+  background: #0f1116;
+  color: #f3f4f6;
+}
+
 h1,
 h2,
 h3,
@@ -470,6 +475,77 @@ button {
   height: 6px;
 }
 
+.escrow-range {
+  position: relative;
+  height: 28px;
+}
+
+.escrow-range-track,
+.escrow-range-fill {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.escrow-range-track {
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.escrow-range-fill {
+  background: var(--accent);
+}
+
+.escrow-range-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.escrow-range-input::-webkit-slider-runnable-track {
+  height: 4px;
+  background: transparent;
+}
+
+.escrow-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border-radius: 999px;
+  border: 2px solid var(--accent);
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.escrow-range-input::-moz-range-track {
+  height: 4px;
+  background: transparent;
+  border: 0;
+}
+
+.escrow-range-input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid var(--accent);
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
 .sort-select {
   height: 40px;
   padding: 0 2rem 0 0.9rem;
@@ -763,15 +839,19 @@ button {
   background: var(--app-card);
   border: 1px solid var(--app-border);
   border-radius: var(--radius);
+  box-shadow: none;
   transition:
     border-color 0.18s ease,
     background 0.18s ease,
     transform 0.18s ease;
 }
 
+.app-dark .task-card:hover,
 .app-dark .app-task-card:hover {
   border-color: var(--app-border-hover);
   background: var(--app-elevated);
+  box-shadow: none;
+  transform: none;
 }
 
 .app-dark input,
@@ -781,6 +861,12 @@ button {
   background: #0f1116;
   color: var(--app-text);
   border-color: var(--app-border);
+}
+
+.app-dark .sort-select {
+  background: #0f1116
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238b93a3' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat right 0.75rem center;
 }
 
 .app-dark input:focus,
@@ -983,4 +1069,77 @@ button {
   font-weight: 700;
   letter-spacing: -0.025em;
   color: var(--text);
+}
+
+/* Landing on the Hiring palette (scoped so /app is unchanged) */
+.app-dark .landing-hero-dark {
+  background: transparent;
+}
+
+.app-dark .landing-hero-dark::after {
+  display: none;
+}
+
+.app-dark .pico-mark {
+  background: var(--app-accent);
+  color: var(--app-ink);
+  box-shadow: none;
+}
+
+.app-dark .nav-link {
+  color: var(--app-muted);
+}
+
+.app-dark .nav-link:hover {
+  color: var(--app-text);
+}
+
+.app-dark .nav-link-active {
+  color: var(--app-accent);
+}
+
+.app-dark .flow-step-n {
+  font-family: var(--font-app);
+}
+
+.app-dark .search-pill {
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--shadow);
+}
+
+.app-dark .search-pill input,
+.app-dark .range-input,
+.app-dark .filter-check {
+  background: transparent;
+  border-color: transparent;
+}
+
+.app-dark .btn-search:hover {
+  background: var(--accent-hover);
+  color: var(--app-ink);
+}
+
+.app-dark .tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.app-dark .tag-mode {
+  background: rgba(52, 211, 153, 0.12);
+  color: #6ee7b7;
+}
+
+.app-dark .tag-remote {
+  background: rgba(232, 168, 124, 0.16);
+  color: #f5d0b5;
+}
+
+.app-dark .heart-btn {
+  color: var(--app-muted);
+}
+
+.app-dark .heart-btn:hover {
+  color: var(--danger);
+  background: rgba(248, 113, 113, 0.1);
 }

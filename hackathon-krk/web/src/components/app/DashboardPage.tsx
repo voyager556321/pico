@@ -13,6 +13,8 @@ import { isDefaultPk } from "@/lib/program";
 import { useAppMode } from "@/components/app/AppChrome";
 import { DemoControls } from "@/components/app/DemoControls";
 import { LiveBoard } from "@/components/app/LiveBoard";
+import { useLocalBotPulse } from "@/components/app/LocalBotsLive";
+import { entrantsFor } from "@/lib/localBots";
 import { StatusPill } from "@/components/app/ui";
 import { statusTone } from "@/components/app/SlotTable";
 
@@ -30,7 +32,8 @@ export function DashboardPage() {
   const [mode] = useAppMode();
   const { tasks, loading, error, reload, bumpDemo } = useTasks();
   const [tab, setTab] = useState<Tab>("all");
-  const [live, setLive] = useState(true);
+  const [live, setLive] = useState(false);
+  const botPulse = useLocalBotPulse();
 
   const scoped = useMemo(() => {
     if (!publicKey) return tasks;
@@ -96,7 +99,7 @@ export function DashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/" className="app-cta-ghost">
+          <Link href="/app/find" className="app-cta-ghost">
             Find tasks
           </Link>
           <Link href="/app/tasks/new" className="app-cta">
@@ -200,8 +203,11 @@ export function DashboardPage() {
         </div>
       ) : (
         <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-          {filtered.map((t) => (
-            <li key={t.publicKey.toBase58()}>
+          {filtered.map((t) => {
+            const entrants =
+              t.status === "Qualifying" ? entrantsFor(t.publicKey.toBase58()) : [];
+            return (
+            <li key={`${t.publicKey.toBase58()}-${botPulse}`}>
               <Link
                 href={`/app/tasks/${t.publicKey.toBase58()}`}
                 className="app-task-card block p-4 sm:p-[1.1rem]"
@@ -222,12 +228,15 @@ export function DashboardPage() {
                     ${baseUnitsToUsdc(t.reward.toNumber()).toFixed(0)}
                   </p>
                   <p className="text-[12px] font-medium text-[var(--app-muted)]">
-                    N={t.reviewCount} · {t.slotCount} slots
+                    {t.status === "Qualifying"
+                      ? `${entrants.length} bots · ${t.slotCount} seats`
+                      : `N=${t.reviewCount} · ${t.slotCount} slots`}
                   </p>
                 </div>
               </Link>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
       </>

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { getAssociatedTokenAddressSync, getAccount } from "@solana/spl-token";
 import { USDC_MINT, shortPk } from "@/lib/constants";
+import { LocalBotsLive } from "@/components/app/LocalBotsLive";
+import { PresenceLive } from "@/components/app/PresenceLive";
 import { PicoMark } from "@/components/app/ui";
 
 export type AppMode = "hiring" | "working";
@@ -16,7 +18,7 @@ const MODE_KEY = "pico:appMode";
 export function useAppMode(): [AppMode, (m: AppMode) => void] {
   const [mode, setModeState] = useState<AppMode>("hiring");
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     try {
       const v = localStorage.getItem(MODE_KEY);
       if (v === "working" || v === "hiring") setModeState(v);
@@ -40,18 +42,31 @@ export function useAppMode(): [AppMode, (m: AppMode) => void] {
 function NavItem({
   href,
   label,
+  hint,
   active,
 }: {
   href: string;
   label: string;
+  hint?: string;
   active?: boolean;
 }) {
   return (
     <Link
       href={href}
-      className={active ? "app-nav-item app-nav-item-active" : "app-nav-item"}
+      className={
+        active
+          ? "app-nav-item app-nav-item-active !items-start"
+          : "app-nav-item !items-start"
+      }
     >
-      {label}
+      <span className="min-w-0">
+        <span className="block">{label}</span>
+        {hint ? (
+          <span className="mt-0.5 block text-[11px] font-normal leading-snug text-[var(--app-muted)]">
+            {hint}
+          </span>
+        ) : null}
+      </span>
     </Link>
   );
 }
@@ -89,6 +104,8 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   }, [publicKey, connection]);
 
   const isDash = pathname === "/app";
+  const isFind = pathname.startsWith("/app/find");
+  const isThreads = pathname.startsWith("/app/threads");
   const isNew = pathname.startsWith("/app/tasks/new");
   const isOp = pathname.startsWith("/app/operator");
   const isTask = pathname.startsWith("/app/tasks/") && !isNew;
@@ -124,11 +141,33 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
             <NavItem
               href="/app"
               label={mode === "hiring" ? "Hiring" : "Working"}
+              hint="Your board"
               active={isDash}
             />
-            <NavItem href="/" label="Find tasks" />
-            <NavItem href="/app/tasks/new" label="Post a task" active={isNew} />
-            <NavItem href="/app/operator" label="Operator" active={isOp} />
+            <NavItem
+              href="/app/find"
+              label="Find tasks"
+              hint="Open qualifies"
+              active={isFind}
+            />
+            <NavItem
+              href="/app/threads"
+              label="Threads"
+              hint="Topic rounds"
+              active={isThreads}
+            />
+            <NavItem
+              href="/app/tasks/new"
+              label="Post a task"
+              hint="Publish locally"
+              active={isNew}
+            />
+            <NavItem
+              href="/app/operator"
+              label="Operator"
+              hint="Seats the podium"
+              active={isOp}
+            />
             {isTask ? (
               <p className="mt-4 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--app-muted)]">
                 Task open
@@ -184,6 +223,25 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
                 </button>
               </div>
             </div>
+            <nav className="mb-5 flex gap-2 overflow-x-auto lg:hidden">
+              <Link href="/app" className={isDash ? "app-cta" : "app-cta-ghost"}>
+                Board
+              </Link>
+              <Link href="/app/find" className={isFind ? "app-cta" : "app-cta-ghost"}>
+                Find
+              </Link>
+              <Link href="/app/threads" className={isThreads ? "app-cta" : "app-cta-ghost"}>
+                Threads
+              </Link>
+              <Link href="/app/tasks/new" className={isNew ? "app-cta" : "app-cta-ghost"}>
+                Post
+              </Link>
+              <Link href="/app/operator" className={isOp ? "app-cta" : "app-cta-ghost"}>
+                Operator
+              </Link>
+            </nav>
+            <LocalBotsLive />
+            <PresenceLive pathname={pathname} />
             {children}
           </div>
 
