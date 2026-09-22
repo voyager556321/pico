@@ -1,24 +1,28 @@
 /**
- * Walk the product model in the terminal.
+ * One simulation pass in the terminal.
  *   yarn model
  */
-import { runModelScenarios } from "../src/domain/workflow/scenarios";
+import { simulate } from "../src/domain/workflow/simulate";
 
-async function main() {
-  const blocks = await runModelScenarios();
-  for (const block of blocks) {
-    console.log(`\n— ${block.title}`);
-    console.log(block.note);
-    for (const row of block.rows ?? []) {
+const report = simulate({
+  seed: Number(process.argv[2] ?? 7),
+  botCount: 8,
+  taskCount: 4,
+  rounds: 3,
+});
+
+for (const round of report.rounds) {
+  console.log(`\n=== Раунд ${round.index} ===`);
+  for (const task of round.tasks) {
+    console.log(
+      `\n${task.id} ${task.kind} rating>=${task.requiredRating} reviewers=${task.reviewerCount}`
+    );
+    console.log(`  кліки ${task.clicks.length}/${task.eligible}`);
+    for (const click of task.clicks) {
       console.log(
-        `  #${row.place} ${row.userId.padEnd(4)} ${row.assignment.padEnd(10)} ${row.timeMs ?? "—"} ms`
+        `  ${click.id.padEnd(8)} ${click.assignment.padEnd(10)} ${click.timeMs ?? "—"}`
       );
     }
-    for (const item of block.lines) console.log(`  ${item}`);
+    for (const note of task.notes) console.log(`  ${note}`);
   }
 }
-
-main().catch((error: unknown) => {
-  console.error(error);
-  process.exit(1);
-});
