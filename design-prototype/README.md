@@ -85,3 +85,11 @@ git add design-prototype
 git commit -m "Prototype: live design-system states for hiring screens"
 git push origin design
 ```
+
+Real elements, not pictures (new)
+
+22 of 24 screens are now built from real HTML elements exported from the Figma file: every text, card, badge and icon is a DOM element at the same position as in Figma (texts in Manrope, colors, radii, shadows and gradients from the layers). You can select and inspect them, and Claude's Design mode can target them. Live components (buttons, fields, chips, toggles) sit on top as before. Two Workroom tabs (Files & links, Activity) are still images.
+
+Your text stays (new)
+
+What you type in Create task carries through the whole flow: the title and description from step 1 (or from the Home composer, where Pico suggests a title from your description) show up in the stepper, in "What the test is based on", in the Summary before publishing and on the published task page. Switching category keeps your text. Everything you type or change is saved in this browser, so it survives a reload. "Reset demo" in the top bar clears it and starts over.
