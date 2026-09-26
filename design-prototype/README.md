@@ -88,7 +88,9 @@ git push origin design
 
 Real elements, not pictures (new)
 
-22 of 24 screens are now built from real HTML elements exported from the Figma file: every text, card, badge and icon is a DOM element at the same position as in Figma (texts in Manrope, colors, radii, shadows and gradients from the layers). You can select and inspect them, and Claude's Design mode can target them. Live components (buttons, fields, chips, toggles) sit on top as before. Two Workroom tabs (Files & links, Activity) are still images.
+All 24 screens are real HTML written into index.html, exported from the Figma file. Each screen is a <template id="scr-KEY"> (for example scr-home, scr-ct4). Every block carries data-name with its Figma layer name (for example data-name="Budget card"), every text is plain text, icons are <use> references to one SVG sprite. Positions, colors, radii, shadows, gradients and Manrope type come from the layers. Live components (buttons, fields, chips, toggles) sit on top as before.
+
+Editing with Claude Design mode: open this folder in a Claude code session, serve index.html on localhost, open it in the browser preview and use Design. Text edits and style edits land in the matching <template> block. If you move or resize something that has a live component on top (a button, field or chip), the live layer keeps its old position, so ask Claude to move both.
 
 Your text stays (new)
 
