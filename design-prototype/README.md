@@ -1,97 +1,64 @@
-# Pico — design prototype (branch `design`)
+# Pico — MVP prototype
 
-Clickable prototype of the Hiring-side screens from Figma (file "Blockchain hack Krakow", page `05 — Task Marketplace`).
-Screens are 1440px renders from Figma. On top of them sit **live components built from the Pico design system tokens**
-(colors, radii, type, Button Glow, Focus Ring), so you can test the states, not just the links.
-No backend, no wallet, sample data only. It lives in its own folder `design-prototype/` and does not touch the app.
+Clickable MVP of Pico (short tasks on Solana) for all three modes: **Hiring (Client)**, **Working (Worker)**, **Reviewer**.
+One self-contained `index.html`. Real HTML/CSS, no screenshots. Mock data and local demo state only: no backend, no wallet, no Solana, nothing is paid.
+Follows `user-flows-final.md`, `screen-map-final.md` and product decisions 1–45. Figma is the visual reference (dark UI, indigo accent, Manrope, sidebar pattern).
 
-## Open locally
-Double-click `index.html`. Use the "Screen" menu or click through. "Show clickable areas" outlines everything interactive.
-Keyboard works too: Tab moves focus (Focus Ring), Enter/Space activates, arrows move inside tabs and dropdowns, Esc closes a dropdown.
+## Open
+Double-click `index.html` (or open the artifact link). Top bar of the prototype:
+- **Screen** menu — every screen, grouped: Shared, Client, Client · task pages, Worker, Reviewer, Archive (old logic, not linked).
+- **Simulate** — plays the other side of the current screen (worker submits, reviewer returns a verdict, Pico decides a dispute, 14 days pass…). The label says what will happen next.
+- **Reset demo** — clears saved state and starts at Sign up / Log in.
+Everything you type and every transition is saved in this browser, so a reload keeps the state.
 
-## Component states you can test
-- **Button** (Primary / Secondary / Ghost / Danger × L / M / S): hover, pressed, focus, loading, disabled.
-  - Loading: Home → Create task (with text), Company profile → Save changes, Workroom → Send.
-  - Disabled: Save changes and Discard until you edit something; Send while the message is empty.
-- **Input**: default, hover, focus, filled, validating, success, error.
-  - Website: checks the format, then "Checking the link…" → verified (green check). Without https:// it adds it on blur.
-    To see the "doesn’t open" error, type an address with `broken` or ending in `.test`, e.g. `https://broken.test`.
-  - Notification email: format check. The original address shows as verified. A new valid address shows the "confirmation link after you save" note.
-  - Company name: empty → required error. Short description: live character counter (max 160), empty → error.
-  - Save with an error focuses the broken field and says how many fields to fix.
-- **Select**: opens a menu with a checkmark on the current option (My tasks, Activity, Settings, Company profile time zone).
-- **Search** (My tasks): focus state, clear button.
-- **Tabs**: hover, selected, focus. In the Workroom they switch screens; elsewhere they switch selection only (the list is static).
-- **Chips**: Landing = single choice, Company profile = multi-select (at least one must stay on), Home = fills the task composer.
-- **Toggle** (Settings): on / off, hover, focus, with a confirmation toast.
-- **FAQ** (Help & disputes): expand / collapse, one open at a time.
-- **Sidebar, task rows, links**: hover, pressed, focus; the current page is marked.
+## Demo paths
+**Client (Hiring)**
+Sign up → Client onboarding (3 steps) → Home (empty state) → Create task: Details → Scope & criteria → Worker test (generate, edit, preview, pass mark) → Budget (reward + 10% fee, optional verification) → Not enough balance → Add funds (Phantom) → Lock and publish → Finding Worker → Simulate: worker passes → Assigned → In Progress → Submitted → Request changes → Needs Revision → resubmit → Accept and release → Completed.
+If the worker declines a change request, the task page asks the client to choose terms for a new worker (proposed or current), shows what's left in escrow and what to add, then goes back to Finding Worker (or the client cancels).
+Log in (instead of Sign up) opens the seeded Northwind account with a task in every status: Draft, Finding Worker, Assigned, In Progress, Submitted, In Verification, Needs Revision, Dispute, Completed, Cancelled.
 
-## Create task flow (new)
-Start on **Home**: type in "Describe the result you need…" and press **Create task** (or click a suggestion chip).
-1. **Describe** — description (live counter, required), title (required), category chips switch Design / Development / QA questions, answer chips (one or several), selects, link fields with verification.
-2. **Scope & criteria** — Level and Deadline selects, copy-document link.
-3. **Worker test** — "What the test is based on" → **Generate test** → generating → questions Pico wrote (Edit / Regenerate / Preview). Continue is disabled until the test exists. No time limit.
-4. **Budget & publish** — type a budget: totals, Available → after, Locked → after update live. Independent verification toggle adds a 10% reviewer fee (assumption). Budget above the balance switches to the **Not enough balance** state.
-   Turning Independent verification on shows **How many reviewers?** (1 / 3 / 5, fee per reviewer = 10% of the budget, assumption) and recalculates everything.
-   **Add funds** opens the Phantom modal: amount + 50/100/200/Max, validation against the wallet (1,240.00 demo), Waiting for Phantom → Funds added (or "Prototype: reject in Phantom"). After adding, you can publish.
-5. **Lock and publish** → task page "Finding a worker" with the locked amount. **Candidates who passed**: click a row, View answers or Message to open the candidate panel with their test answers and a pre-assignment chat (you can send messages).
-Add funds also works from Home and Balance. Numbers on the static renders (Home, Balance) don't change — only the live fields do.
-Steps 2–4 are drawn on the Design example; from Development / QA a note says so.
+**Worker (Working)** — switch mode in the top bar
+Working onboarding in 4 steps (how it works → connect Phantom, incl. "not installed" and "rejected" → pick domain → benchmark intro) → Benchmark (PASS / FAIL) → Home → Relevant tasks (only tasks you're eligible for; unverified domains show a "Verify …" card, never the hidden tasks) → Task details (what happens after Accept) → Qualification test (live answer count; PASS → assigned, FAIL, Task already taken) or no-test task → Workroom:
+- Change request with Current vs Proposed terms: accept → new locked terms (added criteria marked); decline → confirmation → the task ends for the worker with 50% of the reward (decision 42);
+- Submit work: files with uploading / upload failed / retry, optional link, criteria checklist, submitting state;
+- Awaiting Review with the 14-day auto-payout timer, or In Verification;
+- Needs Revision from the client (one criterion) or the reviewer (Met / Not met per criterion) → resubmit, or dispute / appeal the verdict;
+- Dispute: opened by you or by the client (respond with evidence), evidence list, platform decision (full, partial with the split, refund, reopen, back to Needs Revision);
+- Stop by agreement both ways: the client asks (agree / decline) or you ask (reason → waiting → the client agrees / declines).
+Also: My work, Earnings, Profile (skills with Retake, benchmark history, reputation separate), Topics, Competition (no money), Settings (payout wallet change via Phantom, availability pause, notifications, sign out), Help & disputes with the worker's own disputes and FAQ.
 
-## Page logic (every task opens its own page)
-One task page, many states — the layout follows the state, the top card always says what happens next:
-| Task (Home / My tasks) | State | Page | What you can do |
-|---|---|---|---|
-| Sign-up regression test | Work submitted | Workroom (Review / Conversation / Files / Activity) | Accept and release, Request changes |
-| Landing copy QA | Dispute · your move | Dispute page | Reply in the thread, Add evidence, Accept the work instead |
-| Spring sale landing page, Pricing page redesign | Finding a worker | Task page · worker test | See test stats, candidates who passed (answers + chat), cancel and unlock funds |
-| Checkout layout fixes | In progress | Task page · conversation | Reply to the worker, propose a change, add links |
-| Payment webhook | Reviewer is checking | Task page · verification | Nothing to do; see the submission; chat |
-| Onboarding illustrations | Worker is revising | Task page · revision | See your change request, message the worker |
-| Launch banner set, Icon set cleanup | Paid | Read-only task page | Proof, delivered files, criteria met |
-| API docs review | Cancelled · refunded | Read-only task page | Proof, Create a similar task |
-| Mobile nav audit | Draft | Create task form, prefilled | Finish and publish |
-Balance (Locked by task, History) and Activity events open the same task pages. Help → Reply in dispute / Add evidence open the dispute.
-**Working mode** (Hiring / Working switch, Find work, View task, Switch to Working): Find work → a task → take the test (link + choice answers, validated) → Pico grades → Passed, on the candidate list.
+**Reviewer**
+Reviewer onboarding (what reviewers do, "criteria, not taste") → choose domains to review from verified skills (unverified → Get verified in Working; no skills → not eligible) → Home and Requests (only requests you're eligible for; "Review more domains" card instead of hidden requests) → Request: your share of the 10% fee, reviewers on the task, accept / decline with reason / expired (Simulate) → Review details: brief, locked criteria, approved change requests, submission → Start review → Workspace: Met / Not met per criterion, required note and optional evidence link for unmet criteria → verdict preview → confirm → submitting → PASS (worker paid, reward paid once) or NEEDS REVISION → waiting → re-review with previous marks. Appeal: read-only context, Pico decides (verdict kept → back to Needs Revision → re-review; overturned or partial → verification final → reward paid). Also: Completed reviews, Reviewer profile, Settings (domains, availability pause, notifications, shared payout wallet, sign out), Help & disputes with appeals on your verdicts.
 
-## Everything is wired (latest)
-- **Top bar on every app screen:** Search (or Ctrl/Cmd+K) finds pages and tasks; bell opens notifications that link to the right task; the wallet chip opens a wallet menu (copy address, add funds, Balance, disconnect); "Working" and all worker-side buttons lead to How it works (worker lane); the account block opens Company profile; the logo goes Home.
-- **Task rows** on Home and My tasks open the page for their state (review, conversation, activity, task page, Balance for paid/refunded, the form for the draft). Row chat icons open the chat, "…" opens a small menu.
-- **My tasks / Activity / Balance tabs** filter the list (non-matching rows are dimmed); My tasks search filters by task name.
-- **Workroom:** Accept and release → confirmation → Paid; Request changes → pick criteria + "What is missing?" (validated); Propose a change; Add link (validated).
-- **Help:** Contact support, Reply in dispute, Add evidence, Open a dispute — each is a form with validation.
-- **Settings:** Disconnect asks for confirmation. **Create task:** edit/add criteria, edit test questions, worker preview.
-- Proof links and "Open link" say where they would go (external, not linked in the prototype).
+## States covered
+Buttons default / hover / pressed / disabled / loading · inputs empty / filled / focus / error / disabled · modals, dropdowns, toasts · success, error, empty, loading · no tasks · insufficient balance · funds locked · qualification PASS / FAIL · task already taken · Needs Revision · Dispute (with platform decision) · Change request · mutual cancellation · Completed · Cancelled · file upload (uploading, failed, retry) · Phantom not installed / rejected / connected.
 
-## Where the flows go
-- Sidebar on every app screen → all menu pages.
-- Home / My tasks: "Sign-up regression test" row and "Review work" → Workroom; "Landing copy QA" row and "Reply" → Help & disputes; "View all tasks" → My tasks.
-- Workroom: tabs Review / Conversation / Files & links / Activity, "Message worker", "← My tasks", breadcrumb.
-- Activity: "Open workroom", "Open dispute". About Pico / How it works / Landing: "Create a task", "Hire for a task", "See how it works".
-- Buttons whose next screen isn’t designed yet (Add funds, Accept and release, Request changes, Disconnect, worker side…) respond with their states and a message saying what comes next. **Nothing is paid or released.**
+## Where the code is (for "change only this button")
+Inside `index.html`:
+- `<style>` → the block that starts with the `v2` comment holds the MVP components (`.sec`, `.steps`, `.ttable`, `.card.tech/.rev`, `.auth`, `.modal.wide`, `.seg`, `.meter`, `.cmp` change-request table, `.upi` / `.drop` file upload…). Base tokens (colors, radii, type) are at the top of `<style>`.
+- `<script>` → sections, in this order:
+  - **CORE** — demo data, statuses, money (fee, locked, available), shared components `P.btn`, `P.field`, `P.chip`, `P.tgl`, `P.tabs`, `P.steps`, `P.card`, `P.callout`, `P.empty`, top bar and sidebars, modals, Simulate.
+  - **CLIENT** — S1 Sign up / Log in, C1 onboarding, C3 Home, C4–C8 Create task, C21 My tasks, C22 Balance, C23 Activity, C26 Help & disputes.
+  - **CLIENT TASK PAGE** — C9–C20, one page per task; content follows the status.
+  - **WORKER** — W1–W23 (the workroom is `RENDER.wroom`: pending answers in `wPending`, status cards in `wStatus`). **REVIEWER** — R1–R11 plus reviewer Settings (the review page is `RENDER.rreview`, one page per request; content follows the state).
+Each screen is a `RENDER.<name>` function; each button is `P.btn('Label', {...})`, so a single button, field or color can be changed without touching the rest. Older Figma-rendered screens (Landing, Company profile, Settings, About, How it works) are `<template id="scr-KEY">` blocks.
 
-## Assumptions to confirm with the developer
-Link check (does the site respond), email confirmation flow, and whether Website is optional are simulated here, not real.
+## Rules confirmed on 29.09 (in the prototype)
+- Change request with a higher reward: the extra amount is locked when the client sends it.
+- Worker declines a change request (decision 42): the task ends for them and they get 50% of the current reward from the client's locked funds at the moment of the decline. The client then picks the terms for a new worker and adds the difference, or cancels the task. The 50% is a temporary value.
+- Retake: FAIL keeps the current verified level, a new PASS updates it.
+- No file size or type limits in the MVP; upload failures are only simulated ("Prototype: next upload fails").
+- Settings in Working mode is the worker's own screen; Reviewer mode has its own Settings too.
 
-## Put it on GitHub (branch `design` only — never `main`)
-GitHub Desktop: open the pico repo → Current branch: `design` → copy this folder into the repo as `design-prototype/` → Commit to design → Push origin.
-Terminal:
-```
-git checkout design
-git pull
-# copy this folder into the repo root as design-prototype/
-git add design-prototype
-git commit -m "Prototype: live design-system states for hiring screens"
-git push origin design
-```
+## Assumptions (confirm with the team)
+- After a declined change the new search uses the same qualification test.
+- Benchmark level: 75–99 → Mid, 100 → Senior. Retry cooldown after FAIL: TBD.
+- Reputation display format: TBD (shown as a score out of 100 with completed tasks, on-time rate and verified competition results).
+- Qualification off: the "12 eligible / 12 notified" counts are mock.
+- Worker Settings content (wallet, availability, notification types, "always on" for change requests, cancel requests, revisions and disputes) is a proposal.
+- Reviewer: no time is defined for a request to expire or for a missed review deadline; "expired" is shown through Simulate. Reviewer Settings content is a proposal, like the worker's.
+- Landing / About copy is unchanged from the earlier version ("up to 15 min", reviewer paid the same for PASS / NEEDS REVISION).
+- Older screens (Company profile, Settings, About, How it works, Landing) still show the earlier two-mode switch in their static header.
 
-Real elements, not pictures (new)
-
-All 24 screens are real HTML written into index.html, exported from the Figma file. Each screen is a <template id="scr-KEY"> (for example scr-home, scr-ct4). Every block carries data-name with its Figma layer name (for example data-name="Budget card"), every text is plain text, icons are <use> references to one SVG sprite. Positions, colors, radii, shadows, gradients and Manrope type come from the layers. Live components (buttons, fields, chips, toggles) sit on top as before.
-
-Editing with Claude Design mode: open this folder in a Claude code session, serve index.html on localhost, open it in the browser preview and use Design. Text edits and style edits land in the matching <template> block. If you move or resize something that has a live component on top (a button, field or chip), the live layer keeps its old position, so ask Claude to move both.
-
-Your text stays (new)
-
-What you type in Create task carries through the whole flow: the title and description from step 1 (or from the Home composer, where Pico suggests a title from your description) show up in the stepper, in "What the test is based on", in the Summary before publishing and on the published task page. Switching category keeps your text. Everything you type or change is saved in this browser, so it survives a reload. "Reset demo" in the top bar clears it and starts over.
+## GitHub
+If it goes to GitHub: branch `design` only, never `main`.
