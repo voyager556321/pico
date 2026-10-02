@@ -655,6 +655,9 @@ button,input,textarea{font-family:inherit}
 .meter i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:var(--indigo-400)}.meter i.ok{background:var(--status-success)}.meter i.bad{background:var(--status-error)}
 .meter u{position:absolute;top:-5px;bottom:-5px;width:2px;background:#fff;border-radius:1px}
 .meter-l{display:flex;justify-content:space-between;font:500 12px/16px var(--font);color:var(--text-muted);margin-top:8px}
+.codebox{width:100%;box-sizing:border-box;min-height:280px;margin:0;padding:14px 16px;border-radius:14px;border:1px solid var(--border-default);background:rgba(0,0,0,.35);color:var(--text-primary);font:500 13px/20px ui-monospace,Menlo,monospace;resize:vertical;tab-size:2;white-space:pre}
+.codebox:focus{outline:none;border-color:var(--indigo-500)}
+pre.codebox{min-height:0;white-space:pre-wrap}
 .topic{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--white-a4);border:1px solid var(--border-default)}
 .topic .tx{flex:1}.topic .tx b{display:block;font:600 14px/20px var(--font)}.topic .tx small{display:block;font:500 12px/16px var(--font);color:var(--text-muted)}
 .crit-check{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;background:var(--white-a4);border:1px solid var(--border-default)}
@@ -15129,6 +15132,43 @@ const BENCH = {
     {k:'Regression · Multiple choice', q:'What belongs in a regression checklist? Select all that apply.', o:['A · Core user flows','B · Previously fixed bugs','C · Only new features'], c:[0,1], multi:true}
   ]
 };
+const SKILL_CATS = ['Design','Development','QA & Testing','Linux'];
+const I2C_PUBLIC = {read_two:'Read 0x48, register 0x0F, 2 bytes → A1 B2', addr_range:'Address above 0x7f → -EINVAL', empty_len:'Empty length → -EINVAL', addr_nack:'Address NACK → -ENXIO', reg_nack:'Register NACK → -EIO'};
+const I2C_HEAD = `struct i2c_msg {
+  uint16_t addr;
+  uint16_t flags;
+  uint16_t len;
+  uint8_t *buf;
+};
+
+struct i2c_adapter {
+  int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs, int num);
+};
+
+#define I2C_M_RD 0x0001
+#define EINVAL 22
+#define EIO 5
+#define ENXIO 6
+
+`;
+const I2C_STUB = I2C_HEAD + `int i2c_read_reg(struct i2c_adapter *adap, uint16_t addr, uint8_t reg,
+                 uint8_t *buf, size_t len) {
+  return -EIO;
+}
+`;
+const I2C_PASS = I2C_HEAD + `int i2c_read_reg(struct i2c_adapter *adap, uint16_t addr, uint8_t reg, uint8_t *buf, size_t len) {
+  if (!adap || !adap->master_xfer || !buf || len == 0 || len > 65535 || addr > 0x7f) return -EINVAL;
+  uint8_t regb = reg;
+  struct i2c_msg msgs[2] = {
+    { .addr = addr, .flags = 0, .len = 1, .buf = &regb },
+    { .addr = addr, .flags = I2C_M_RD, .len = (uint16_t)len, .buf = buf },
+  };
+  int rc = adap->master_xfer(adap, msgs, 2);
+  if (rc < 0) return rc;
+  if (rc != 2) return -EIO;
+  return 0;
+}
+`;
 function seedWorker(){
   const T = {};
   const add = t => { T[t.id] = Object.assign({level:'Mid', qual:{on:true, pass:75, qs:qsFor(t.cat)}, my:'open', chat:[], files:[], events:[], ans:{}, rounds:0, deliv:[]}, t); };
@@ -15144,15 +15184,23 @@ function seedWorker(){
     desc:'Find why 3 login tests fail randomly in CI and make them stable.', crit:['3 tests pass 20 runs in a row.','Root cause written in the PR.','No new sleeps or retries.'], outcome:'free'});
   add({id:'retries', title:'Webhook retries for payouts', company:'Client #6604', cat:'Development', pay:160, days:4, posted:'5 h ago', topic:'Backend',
     desc:'Add retries with backoff to the payout webhook and a dead-letter queue.', crit:['5 retries with exponential backoff.','Failed events land in a dead-letter queue.','Tests for retry and give-up paths.'], outcome:'free'});
+  add({id:'i2cread', title:'Read a device register', company:'Client #1042', cat:'Linux', pay:140, days:3, posted:'1 h ago', topic:'Linux drivers', qual:{on:false, pass:75, qs:[]},
+    desc:'Write i2c_read_reg so a 7-bit device register can be read through one transfer.', crit:['Reads the register with a write, then I2C_M_RD.','Rejects a bad address, an empty length and a null buffer.','Returns the adapter error when the device NACKs.'], deliv:['The function, compiled against the harness'], outcome:'free'});
   add({id:'iconaudit', title:'Brand icons audit', company:'Client #3391', cat:'Design', pay:60, days:2, my:'completed', worker:'7310', paid:'Sep 14', paidAmt:60, how:'accepted',
     desc:'Audit 48 icons for stroke and grid consistency.', crit:['Every icon checked.','Issues listed per icon.'], events:[['Payout received','60.00 USDC to your Phantom','Sep 14, 12:10','money'],['Client accepted the work','All criteria met','Sep 14, 12:08','']]});
   add({id:'bannerset', title:'Social banner set', company:'Client #4821', cat:'Design', pay:110, days:3, my:'completed', worker:'7310', paid:'Sep 9', paidAmt:110, how:'pass',
     desc:'Six social banners for a payments app launch.', crit:['Six sizes.','Brand colors only.','PNG and Figma.'], events:[['Payout received','110.00 USDC to your Phantom','Sep 9, 16:40','money'],['Reviewer: PASS','All criteria met','Sep 9, 16:38','']]});
   return {phantom:false, domain:null, bench:{state:null, ans:{}}, skills:[], topics:{'Landing pages':true, 'Mobile UI':false, 'Checkout & forms':true, 'Design systems':false, 'Illustration':false, 'Accessibility':false},
     notify:'In-app and email', available:true, nt:{tasks:true, msgs:true, pay:true}, attempts:[], comp:{joined:{}, results:[]}, rep:{score:82, done:2, onTime:'100%'}, tasks:T,
-    order:['mcheckout','herofin','emptystates','dashcards','flaky','retries','iconaudit','bannerset'], obStep:0};
+    order:['mcheckout','herofin','emptystates','dashcards','flaky','retries','i2cread','iconaudit','bannerset'], obStep:0};
 }
 if (!V.wk) V.wk = seedWorker();
+if (V.wk && !V.wk.tasks.i2cread) {
+  V.wk.tasks.i2cread = {id:'i2cread', title:'Read a device register', company:'Client #1042', cat:'Linux', level:'Mid', pay:140, days:3, posted:'1 h ago', topic:'Linux drivers', qual:{on:false, pass:75, qs:[]}, my:'open', chat:[], files:[], events:[], ans:{}, rounds:0, deliv:['The function, compiled against the harness'], outcome:'free',
+    desc:'Write i2c_read_reg so a 7-bit device register can be read through one transfer.', crit:['Reads the register with a write, then I2C_M_RD.','Rejects a bad address, an empty length and a null buffer.','Returns the adapter error when the device NACKs.']};
+  const at = V.wk.order.indexOf('iconaudit');
+  if (!V.wk.order.includes('i2cread')) V.wk.order.splice(at < 0 ? V.wk.order.length : at, 0, 'i2cread');
+}
 const W = () => V.wk;
 const wWallet = () => (V.wk && V.wk.wallet) || '7xKX…9fQ2';
 const wt = id => W().tasks[id];
@@ -15170,7 +15218,7 @@ reg('onb-work', 'Worker onboarding', 'v2onbWork', {h:960});
 RENDER.v2onbWork = (root) => {
   root.className = 'app solo';
   const w = W(); if ((w.obStep || 0) > 1) w.obStep = 1; const step = w.obStep || 0, miss = w.phMissing && !w.phantom;
-  const DOMS = [['Design','sparkle'],['Development','tool'],['QA & Testing','check']];
+  const DOMS = [['Design','sparkle'],['Development','tool'],['QA & Testing','check'],['Linux','tool']];
   const ph = w.phantom ? ['Connected','success','7xKX…9fQ2'] : miss ? ['Not installed','warning','Install the extension'] : w.phErr ? ['Rejected','error','Try again'] : w.phBusy ? ['Waiting…','accent','Approve in Phantom'] : ['Not connected','','Payout wallet'];
   let o;
   if (step === 0) o = {eyebrow:'Working', title:'Get paid straight to your wallet', sub:'Connect Phantom to receive USDC for accepted work. Pico only reads your address.',
@@ -15183,13 +15231,17 @@ RENDER.v2onbWork = (root) => {
           : '<button type="button" class="pbtn p' + (w.phBusy ? ' loading' : '') + '" data-x="wob:connect"' + (w.phBusy ? ' disabled' : '') + '>' + (w.phBusy ? '<span class="spin"></span>Waiting for Phantom…' : (w.phErr ? 'Try again' : 'Connect Phantom')) + '</button>') + '</div>' +
       (miss ? P.line('Install the extension, then press “I’ve installed it”.') : w.phErr ? P.line('You rejected the request. Nothing was shared.', 'err') : w.phantom ? P.line('Payouts for accepted work go to 7xKX…9fQ2.', 'ok') : P.line('Phantom asks you to approve. Pico never holds your keys.')),
     cta: P.btn('Continue', {lg:true, x:'wob:next', dis:!w.phantom})};
-  else o = {eyebrow:'Working', title:'Pick your domain, verify once', sub:'A short test with fixed answers. Pass it and matching tasks open up.',
-    visual: '<div class="mk"><span class="tag">Skill Benchmark · ' + E(w.domain || 'Design') + '</span><div class="mk-q"><i class="ok">25</i><i class="ok">25</i><i class="ok">25</i><i>0</i></div><div><div class="meter"><i class="ok" style="width:75%"></i><u style="left:75%"></u></div><div class="meter-l"><span>0</span><span>Pass mark 75</span><span>100</span></div></div>' +
-      '<div class="mk-h"><div class="vk-amt">75<small>/ 100</small></div>' + pill('PASS', 'success', true) + '</div></div><div class="vx-gap"></div>' +
-      '<div class="mk soft"><div class="mk-h"><div class="mk-row"><span class="mk-dot ok">' + IC.check + '</span><div><b class="vk-co">' + E(w.domain || 'Design') + ' · Mid</b><span class="mk-s">Verified skill on your profile</span></div></div>' + pill('Verified', 'success', true) + '</div></div>',
+  else { const linux = w.domain === 'Linux';
+    o = {eyebrow:'Working', title:'Pick your domain, verify once', sub: linux ? 'One C function. Pico compiles it and scores the checks in the prompt.' : 'A short test with fixed answers. Pass it and matching tasks open up.',
+    visual: linux
+      ? '<div class="mk"><span class="tag">Skill Benchmark · Linux</span><pre class="codebox">int i2c_read_reg(...)</pre><div class="mk-h" style="margin-top:16px"><div class="vk-amt">75<small>/ 100</small></div>' + pill('Pass mark', '', true) + '</div></div><div class="vx-gap"></div>' +
+        '<div class="mk soft"><div class="mk-h"><div class="mk-row"><span class="mk-dot ok">' + IC.check + '</span><div><b class="vk-co">Linux · Mid</b><span class="mk-s">Verified when the public checks reach 75</span></div></div>' + pill('Verified', 'success', true) + '</div></div>'
+      : '<div class="mk"><span class="tag">Skill Benchmark · ' + E(w.domain || 'Design') + '</span><div class="mk-q"><i class="ok">25</i><i class="ok">25</i><i class="ok">25</i><i>0</i></div><div><div class="meter"><i class="ok" style="width:75%"></i><u style="left:75%"></u></div><div class="meter-l"><span>0</span><span>Pass mark 75</span><span>100</span></div></div>' +
+        '<div class="mk-h"><div class="vk-amt">75<small>/ 100</small></div>' + pill('PASS', 'success', true) + '</div></div><div class="vx-gap"></div>' +
+        '<div class="mk soft"><div class="mk-h"><div class="mk-row"><span class="mk-dot ok">' + IC.check + '</span><div><b class="vk-co">' + E(w.domain || 'Design') + ' · Mid</b><span class="mk-s">Verified skill on your profile</span></div></div>' + pill('Verified', 'success', true) + '</div></div>',
     body: '<div><span class="obs-lbl">Your domain</span>' + P.ich(DOMS.map(d => ({k:d[0], t:d[0], ic:d[1], on:w.domain === d[0]})), 'wob:domain-') + (w.err ? '<div class="mhelp error">' + w.err + '</div>' : '') + '</div>' +
-      '<div class="obs-meta">' + pill('4 questions', '') + pill('Pass mark 75', '') + pill('No time limit', '') + pill('No AI judging', '') + '</div>',
-    cta: P.btn('Start benchmark', {lg:true, x:'wob:start'}), back:'wob:back'};
+      '<div class="obs-meta">' + (linux ? pill('One function', '') + pill('Pass mark 75', '') + pill('Compiled here', '') + pill('Hidden checks stay hidden', '') : pill('4 questions', '') + pill('Pass mark 75', '') + pill('No time limit', '') + pill('No AI judging', '')) + '</div>',
+    cta: P.btn('Start benchmark', {lg:true, x:'wob:start'}), back:'wob:back'}; }
   root.innerHTML = P.obs(Object.assign({role:'work', n:2, step, top:P.btn('Back to Hiring', {v:'g', sm:true, x:'mode:hire'})}, o));
   wire2(root);
 };
@@ -15199,15 +15251,47 @@ X.wob = (a) => { const w = W();
   if (a.startsWith('domain-')){ w.domain = a.slice(7); w.err = null; rerender(); return; }
   if (a === 'next'){ if (!w.phantom) return; w.obStep = 1; rerender(); return; }
   if (a === 'back'){ w.obStep = 0; rerender(); return; }
-  if (a === 'start'){ if (!w.domain) { w.err = 'Pick a domain to start.'; rerender(); return; } w.bench = {state:'taking', cat:w.domain, ans:{}}; show('w-bench'); }
+  if (a === 'start'){ if (!w.domain) { w.err = 'Pick a domain to start.'; rerender(); return; } w.bench = {state:'taking', cat:w.domain, ans:{}, source: w.domain === 'Linux' ? I2C_STUB : ''}; show('w-bench'); }
 };
 SIM.v2onbWork = () => { const w = W(); const L = [['Skip: use a verified demo worker', () => { w.phantom = true; w.domain = 'Design'; w.skills = [{cat:'Design', level:'Mid', score:75, date:dayLabel(0)}]; w.attempts = [{cat:'Design', score:75, pass:true, date:dayLabel(0)}]; w.bench = {state:'passed', cat:'Design', score:75, ans:{}}; V.user.onb.work = true; show('w-home'); toast('Demo worker: Design · Mid, verified.', 'info'); }, 'Phantom connected · Design · Mid verified']];
   if ((w.obStep || 0) === 0 && !w.phantom && !w.phMissing && !w.phBusy) L.push(['Phantom isn’t installed', () => { w.phMissing = true; w.phErr = false; rerender(); }, 'Shows the install state']);
   if (w.phBusy) L.push(['Reject the request in Phantom', () => { w.phBusy = false; w.phErr = true; rerender(); }]); return L; };
 /* ---------- W4–W5 · Skill Benchmark + result ---------- */
 reg('w-bench', 'Worker · Skill Benchmark', 'v2bench', {h:1400});
+function i2cBench(root, w, b){
+  const pg = chrome(root, 'work', 'w-profile', [['Working', 'w-home'], ['Skill Benchmark']]);
+  const cat = 'Linux', had = verified(cat);
+  let h = '';
+  if (b.state === 'passed' || b.state === 'failed') {
+    const ok = b.state === 'passed', lvl = b.score === 100 ? 'Senior' : 'Mid', kept = !ok && had;
+    const checks = b.checks || [];
+    h += P.pgh(ok ? 'You’re verified in Linux' : kept ? 'Below the pass mark this time' : 'Not verified yet', ok ? 'Your skill is on your profile. Linux tasks at this level are open to you now.' : kept ? 'Your verified level stays Linux · ' + kept.level + '.' : 'The public checks did not reach 75.');
+    h += P.card(P.ch(ok ? 'check' : 'alert', ok ? 'PASS · Linux · ' + lvl : 'FAIL · ' + b.score + ' / 100', pill(ok ? 'Verified' : 'Retry later', ok ? 'success' : 'warning', true), ok ? 'ok' : 'warn') +
+      '<div class="score"><b>' + b.score + '</b><small>/ 100 · pass mark 75 · ' + (b.publicPassed || 0) + ' / ' + (b.publicTotal || 5) + ' public checks</small></div><div><div class="meter"><i class="' + (ok ? 'ok' : 'bad') + '" style="width:' + b.score + '%"></i><u style="left:75%"></u></div><div class="meter-l"><span>0</span><span>Pass mark 75</span><span>100</span></div></div>' +
+      (checks.length ? '<div class="lst">' + checks.map(row => '<div class="li"><span class="num">' + (row.pass ? IC.check : IC.x) + '</span><div class="tx"><b style="font-weight:500">' + E(I2C_PUBLIC[row.id] || row.id) + '</b></div>' + pill(row.pass ? 'Pass' : 'Fail', row.pass ? 'success' : 'error') + '</div>').join('') + '</div>' : '') +
+      P.callout(ok ? 'Level ' + lvl + ' in Linux. A score of 100 is Senior. Checks that are not in the prompt are scored privately and are not listed here.' : 'Checks that are not in the prompt are scored privately and are not listed here. You can retake later — the cooldown is still being defined.', ok ? 'success' : '') +
+      '<div class="acts">' + (ok ? P.btn('See relevant tasks', {x:'wbench:done'}) + P.btn('Open profile', {v:'s', go:'w-profile'}) : P.btn('Retake later', {v:'s', dis:true, title:'Cooldown TBD'}) + P.btn('Back to Working home', {v:'g', x:'wbench:home'})) + '</div>', ok ? 'ok' : 'warn');
+  } else {
+    if (!b.source) b.source = I2C_STUB;
+    h += P.pgh((had ? 'Retake · ' : 'Skill Benchmark · ') + 'Linux · Read a device register', 'Write i2c_read_reg. Pico compiles it here. The rating uses the five checks below. Pass mark 75.');
+    if (had) h += P.callout('Your current level: Linux · ' + had.level + ' (' + had.score + ' / 100, verified ' + had.date + '). A score of 100 verifies Senior.');
+    h += P.card(P.ch('tool', 'The function') +
+      '<p class="sub2">Read <b>len</b> bytes from register <b>reg</b> on a 7-bit address through one <b>master_xfer</b>: a write of the register, then a read (<b>I2C_M_RD</b>). Return 0 on success. Return <b>-EINVAL</b> (22) for a null buffer, an empty length, or an address above 0x7f. Return <b>-ENXIO</b> (6) when the adapter NACKs the address, and <b>-EIO</b> (5) when it NACKs the register. A correct read of address 0x48, register 0x0F, length 2 yields A1 B2.</p>' +
+      '<textarea id="i2c-src" class="codebox" spellcheck="false" aria-label="i2c_read_reg">' + E(b.source) + '</textarea>' +
+      (b.err ? '<pre class="codebox" style="min-height:0;margin-top:12px;border-color:var(--status-error);color:var(--status-warning)">' + E(b.err) + '</pre>' : '') +
+      '<div class="acts" style="justify-content:flex-end"><small class="muted" style="font:500 13px/18px var(--font);margin-right:auto">No virtual machine. Compiled in a temp folder on this machine, then deleted.</small>' + P.btn(b.busy ? 'Compiling…' : 'Submit benchmark', {x:'wbench:submit', dis:!!b.busy}) + '</div>');
+  }
+  pg.innerHTML = h; wire2(root);
+  const ta = root.querySelector('#i2c-src');
+  if (ta) {
+    ta.addEventListener('input', () => { b.source = ta.value; });
+    ta.addEventListener('keydown', e => { if (e.key !== 'Tab') return; e.preventDefault(); const s = ta.selectionStart, n = ta.selectionEnd; ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(n); ta.selectionStart = ta.selectionEnd = s + 2; b.source = ta.value; });
+  }
+}
 RENDER.v2bench = (root) => {
-  const w = W(), b = w.bench, cat = b.cat || w.domain || 'Design', qs = BENCH[cat];
+  const w = W(), b = w.bench, cat = b.cat || w.domain || 'Design';
+  if (cat === 'Linux') { i2cBench(root, w, b); return; }
+  const qs = BENCH[cat];
   const pg = chrome(root, 'work', 'w-profile', [['Working', 'w-home'], ['Skill Benchmark']]);
   let h = '';
   if (b.state === 'passed' || b.state === 'failed') {
@@ -15232,7 +15316,26 @@ function wireAnswers(root, ans){ const total = root.querySelectorAll('.q').lengt
   if (el.type === 'checkbox') { const a = new Set([].concat(ans[i] == null ? [] : ans[i])); el.checked ? a.add(o) : a.delete(o); ans[i] = [...a]; } else ans[i] = o;
   root.querySelectorAll('input[name=q' + i + ']').forEach(r => r.parentElement.classList.toggle('sel', r.checked));
   const c = root.querySelector('[data-cnt]'); if (c) c.innerHTML = pill(ansCount(ans) + ' of ' + total + ' answered', ansCount(ans) === total ? 'success' : ''); })); }
-X.wbench = (a, el) => { const w = W(), b = w.bench, qs = BENCH[b.cat || 'Design'];
+X.wbench = (a, el) => { const w = W(), b = w.bench;
+  if (a === 'submit' && (b.cat || w.domain) === 'Linux') {
+    if (b.busy) return;
+    b.busy = true; b.err = null; rerender();
+    const btn = stage.querySelector('[data-x="wbench:submit"]'); if (btn) { btn.classList.add('loading'); btn.disabled = true; }
+    fetch('/api/benchmark/grade', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({userId:'7310', userName:'Worker #7310', source: b.source || ''})})
+      .then(r => r.json())
+      .then(res => {
+        b.busy = false;
+        if (!res.compiled) { b.err = res.compileError || 'Compile failed.'; b.state = 'taking'; rerender(); return; }
+        b.score = Math.round((res.rating || 0) / 10); b.checks = res.publicIds || []; b.publicPassed = res.publicPassed; b.publicTotal = res.publicTotal;
+        b.state = b.score >= 75 ? 'passed' : 'failed'; b.err = null;
+        w.attempts = (w.attempts || []).concat({cat:'Linux', score:b.score, pass:b.state === 'passed', date:dayLabel(0)});
+        if (b.state === 'passed') { w.skills = w.skills.filter(s => s.cat !== 'Linux').concat({cat:'Linux', level:b.score === 100 ? 'Senior' : 'Mid', score:b.score, date:dayLabel(0)}); V.user.onb.work = true; }
+        rerender();
+      })
+      .catch(() => { b.busy = false; b.err = 'The grader did not answer. The prototype server has to be the one that compiles.'; rerender(); });
+    return;
+  }
+  const qs = BENCH[b.cat || 'Design'];
   if (a === 'submit') { const miss = qs.findIndex((q, i) => b.ans[i] == null || (Array.isArray(b.ans[i]) && !b.ans[i].length)); if (miss >= 0) { b.err = 'Answer question ' + (miss + 1) + ' before you submit.'; rerender(); return; }
     b.err = null; busy(el, 'Scoring…', 800, () => { b.score = scoreOf(qs, b.ans); b.state = b.score >= 75 ? 'passed' : 'failed';
       w.attempts = (w.attempts || []).concat({cat:b.cat, score:b.score, pass:b.state === 'passed', date:dayLabel(0)});
@@ -15241,7 +15344,9 @@ X.wbench = (a, el) => { const w = W(), b = w.bench, qs = BENCH[b.cat || 'Design'
   if (a === 'done') { V.user.onb.work = true; show('w-find'); return; }
   if (a === 'home') { V.user.onb.work = true; show('w-home'); }
 };
-SIM.v2bench = () => W().bench.state === 'taking' ? [['Fill in correct answers', () => { const b = W().bench; BENCH[b.cat || 'Design'].forEach((q, i) => b.ans[i] = q.multi ? q.c.slice() : q.c[0]); b.ans[3] = [0]; rerender(); }, '3 of 4 correct → 75 / 100'],['Fill in mostly wrong answers', () => { const b = W().bench; BENCH[b.cat || 'Design'].forEach((q, i) => b.ans[i] = q.multi ? [2] : (q.c[0] + 1) % 3); b.ans[0] = BENCH[b.cat || 'Design'][0].c[0]; rerender(); }, '→ FAIL · 25 / 100']] : [];
+SIM.v2bench = () => { const b = W().bench; if (b.state !== 'taking') return [];
+  if ((b.cat || W().domain) === 'Linux') return [['Fill a correct i2c_read_reg', () => { b.source = I2C_PASS; b.err = null; rerender(); }, 'Public checks pass'],['Reset to the stub', () => { b.source = I2C_STUB; b.err = null; rerender(); }, 'Compiles, public checks fail']];
+  return [['Fill in correct answers', () => { BENCH[b.cat || 'Design'].forEach((q, i) => b.ans[i] = q.multi ? q.c.slice() : q.c[0]); b.ans[3] = [0]; rerender(); }, '3 of 4 correct → 75 / 100'],['Fill in mostly wrong answers', () => { BENCH[b.cat || 'Design'].forEach((q, i) => b.ans[i] = q.multi ? [2] : (q.c[0] + 1) % 3); b.ans[0] = BENCH[b.cat || 'Design'][0].c[0]; rerender(); }, '→ FAIL · 25 / 100']]; };
 
 /* ---------- W6 · Working home ---------- */
 reg('w-home', 'Working · Home', 'v2whome', {h:1400});
@@ -15270,7 +15375,7 @@ RENDER.v2whome = (root) => {
 };
 function wNext(t){ if (t.cr && t.cr.status === 'pending' && WACTIVE.includes(t.my)) return 'Change request · your answer needed'; if (t.cx && t.cx.status === 'pending' && WACTIVE.includes(t.my)) return 'Client asks to cancel · your answer needed'; if (t.my === 'dispute' && t.dsp && t.dsp.by === 'client' && !t.dsp.resp) return 'Client opened a dispute · add your response'; if (t.my === 'cancelled') return t.closed ? 'Closed by the platform decision' : 'Cancelled by agreement'; if (t.my === 'ended') return 'You declined a change · ' + usd(t.paidAmt) + ' (50%) paid ' + (t.paid || '');
   return {assigned:'Press Start work when you begin · due ' + (t.due || dayLabel(t.days)), progress:'Due ' + (t.due || dayLabel(t.days)) + ' · submit when every criterion is met', review:'Client reviews by ' + (t.autoPay || dayLabel(14)) + ' · automatic payout after 14 days', verification:'Independent reviewer is checking', revision:'Resubmit by ' + (t.due || dayLabel(3)), dispute:'Pico decides by ' + (t.dsp ? t.dsp.decideBy : dayLabel(7)), completed:'Paid ' + (t.paid || ''), cancelled:'Cancelled'}[t.my] || ''; }
-X.wverify = cat => { W().bench = {state:'taking', cat, ans:{}}; show('w-bench'); };
+X.wverify = cat => { W().bench = {state:'taking', cat, ans:{}, source: cat === 'Linux' ? I2C_STUB : ''}; show('w-bench'); };
 
 /* ---------- W7 · Relevant tasks ---------- */
 reg('w-find', 'Working · Relevant tasks', 'v2wfind', {h:1400});
@@ -15280,7 +15385,7 @@ RENDER.v2wfind = (root) => {
   /* Only eligible tasks are ever listed (decision: a task is shown only to eligible workers). */
   const F = {Relevant: t => eligible(t) && t.my === 'open', 'Followed topics': t => eligible(t) && w.topics[t.topic] && t.my === 'open', 'Your results': t => ['failed','taken'].includes(t.my)};
   const f = F[V.ui.wfilter] ? V.ui.wfilter : 'Relevant', list = T.filter(F[f]);
-  const missing = ['Design','Development','QA & Testing'].filter(c => !verified(c));
+  const missing = SKILL_CATS.filter(c => !verified(c));
   let h = P.pgh('Relevant tasks', 'Shown only when your verified skill matches the domain and level. The first qualified worker gets the task.');
   if (w.skills.length && w.available === false) h += wPaused();
   else if (!w.skills.length) h += P.card(P.ch('alert', 'Verify a skill to see tasks', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Pico shows a task only to workers with a verified skill in its domain and level. Nothing is listed until you pass a benchmark.</p><div class="acts">' + P.btn('Take the ' + (w.domain || 'Design') + ' benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
@@ -15589,7 +15694,7 @@ RENDER.v2wprof = (root) => {
   h += P.card(P.ch('activity', 'Verified results') + (w.comp.results.length ? '<div class="lst">' + w.comp.results.map(r => '<div class="li"><span class="ext">' + r.score + '</span><div class="tx"><b>' + E(r.title) + '</b><small>Verified ' + r.date + ' · automatic scoring</small></div>' + pill('Verified', 'success', true) + '</div>').join('') + '</div>' : P.empty('Join a challenge in Level up to add verified results.')));
   pg.innerHTML = h; wire2(root);
 };
-X.wverifynext = () => { const have = W().skills.map(s => s.cat); const next = ['Design','Development','QA & Testing'].find(c => !have.includes(c)); if (!next) { toast('All domains are verified.', 'info'); return; } X.wverify(next); };
+X.wverifynext = () => { const have = W().skills.map(s => s.cat); const next = SKILL_CATS.find(c => !have.includes(c)); if (!next) { toast('All domains are verified.', 'info'); return; } X.wverify(next); };
 
 /* ---------- W8 · Task alerts (followed topics + where alerts go) ---------- */
 const TOPIC_INFO = {
@@ -15754,7 +15859,7 @@ function seedReviewer(){
 if (!V.rv) V.rv = seedReviewer();
 const RV = () => V.rv, rv = id => RV().reviews[id];
 const rFee = r => Math.round(r.reward * 10) / 100;
-const DOMAINS = ['Design','Development','QA & Testing'], DICON = {'Design':'sparkle', 'Development':'tool', 'QA & Testing':'check'};
+const DOMAINS = SKILL_CATS, DICON = {'Design':'sparkle', 'Development':'tool', 'QA & Testing':'check', 'Linux':'tool'};
 /* Domains the reviewer chose; defaults to every verified domain */
 const rDomains = () => { const v = W().skills.map(s => s.cat); return (RV().domains || v).filter(d => v.includes(d)); };
 const rEligible = r => { const s = W().skills.find(x => x.cat === r.cat); return !!s && LV[s.level] >= LV[r.level] && rDomains().includes(r.cat); };
