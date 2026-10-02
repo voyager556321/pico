@@ -658,6 +658,17 @@ button,input,textarea{font-family:inherit}
 .codebox{width:100%;box-sizing:border-box;min-height:280px;margin:0;padding:14px 16px;border-radius:14px;border:1px solid var(--border-default);background:rgba(0,0,0,.35);color:var(--text-primary);font:500 13px/20px ui-monospace,Menlo,monospace;resize:vertical;tab-size:2;white-space:pre}
 .codebox:focus{outline:none;border-color:var(--indigo-500)}
 pre.codebox{min-height:0;white-space:pre-wrap}
+.sess{position:fixed;right:16px;top:72px;z-index:90;width:360px;max-height:calc(100vh - 96px);overflow:auto;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;background:#1c1c22;border:1px solid #44444f;box-shadow:0 24px 64px rgba(0,0,0,.55);font:500 13px/18px var(--font);color:#f4f4f5}
+.sess[hidden]{display:none}
+.sess h3{margin:0;font:700 14px/20px var(--font)}
+.sess .row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.sess button{font:700 12px/16px var(--font);border-radius:8px;padding:7px 10px;cursor:pointer;border:1px solid #44444f;background:#25252c;color:#f4f4f5}
+.sess .muted{color:#8f8f9a;font-weight:500}
+.sess .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sess .stats div{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04)}
+.sess .stats b{display:block;font:800 18px/22px var(--font)}
+.sess .stats small{font:500 11px/15px var(--font);color:#8f8f9a}
+.sess pre{margin:0;padding:14px 16px;border-radius:12px;background:#141418;border:1px solid #34343e;font:500 13px/22px ui-monospace,Menlo,monospace;white-space:pre-wrap;color:#f4f4f5}
 .topic{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--white-a4);border:1px solid var(--border-default)}
 .topic .tx{flex:1}.topic .tx b{display:block;font:600 14px/20px var(--font)}.topic .tx small{display:block;font:500 12px/16px var(--font);color:var(--text-muted)}
 .crit-check{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;background:var(--white-a4);border:1px solid var(--border-default)}
@@ -996,6 +1007,7 @@ pre.codebox{min-height:0;white-space:pre-wrap}
   <span class="spacer"></span>
   <label class="hint" for="screen">Screen</label>
   <select id="screen"></select>
+  <button id="sessBtn" class="tbtn" type="button" aria-pressed="false" title="Private session log. Not shown on the worker result or profile.">Session</button>
   <button id="reset" class="tbtn" type="button" title="Clears everything you typed and published in this prototype">Reset demo</button>
   <button id="toggle" class="tbtn" type="button" aria-pressed="false">Show clickable areas</button>
 </header>
@@ -15257,8 +15269,101 @@ SIM.v2onbWork = () => { const w = W(); const L = [['Skip: use a verified demo wo
   if ((w.obStep || 0) === 0 && !w.phantom && !w.phMissing && !w.phBusy) L.push(['Phantom isn’t installed', () => { w.phMissing = true; w.phErr = false; rerender(); }, 'Shows the install state']);
   if (w.phBusy) L.push(['Reject the request in Phantom', () => { w.phBusy = false; w.phErr = true; rerender(); }]); return L; };
 /* ---------- W4–W5 · Skill Benchmark + result ---------- */
+/* Private session log for the Linux benchmark. Stored apart from the worker profile. Paste never changes the score. */
+const TRACE_KEY = 'pico:i2c-trace';
+let TRACE = null, SESS_ON = false, SESS_VIEW = null;
+const loadTraces = () => { try { const r = JSON.parse(localStorage.getItem(TRACE_KEY) || '[]'); return Array.isArray(r) ? r : []; } catch (e) { return []; } };
+const saveTraces = list => { try { localStorage.setItem(TRACE_KEY, JSON.stringify(list.slice(0, 30))); } catch (e) {} };
+const mmss = ms => { const s = Math.max(0, Math.floor((ms || 0) / 1000)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+const lineCount = text => { if (!text) return 0; const n = String(text).split('\n').length; return String(text).endsWith('\n') ? Math.max(1, n - 1) : n; };
+function persistTrace(){ if (!TRACE) return; const all = loadTraces().filter(s => s.id !== TRACE.id); all.unshift(TRACE); saveTraces(all); }
+function traceStart(){
+  TRACE = {id: Date.now().toString(36), startedAt: Date.now(), events:[{t:0, k:'start'}], pastes:0, lines:0, largest:0, firstPaste:null, lastEdit:null, typing:false, typingAt:null, submitAt:null, score:null};
+  persistTrace(); paintTrace();
+}
+function bindTrace(b){
+  if (b.traceId) TRACE = loadTraces().find(s => s.id === b.traceId) || TRACE;
+  if ((!b.state || b.state === 'taking') && !(TRACE && TRACE.id === b.traceId)) { traceStart(); b.traceId = TRACE.id; }
+}
+function traceAdd(k, extra){
+  if (!TRACE) traceStart();
+  TRACE.events.push(Object.assign({t: Date.now() - TRACE.startedAt, k}, extra || {}));
+  persistTrace(); paintTrace();
+}
+function traceTyping(){
+  if (!TRACE) traceStart();
+  const t = Date.now() - TRACE.startedAt;
+  TRACE.lastEdit = t;
+  if (!TRACE.typing) { TRACE.typing = true; TRACE.typingAt = t; traceAdd('typing'); }
+  else { persistTrace(); paintTrace(); }
+}
+function tracePaste(lines){
+  const n = typeof lines === 'number' ? lines : lineCount(lines);
+  if (!n) return;
+  if (!TRACE) traceStart();
+  const t = Date.now() - TRACE.startedAt;
+  TRACE.pastes = (TRACE.pastes || 0) + 1;
+  TRACE.lines = (TRACE.lines || 0) + n;
+  TRACE.largest = Math.max(TRACE.largest || 0, n);
+  TRACE.lastEdit = t;
+  if (TRACE.firstPaste == null) TRACE.firstPaste = t;
+  traceAdd('paste', {lines: n});
+}
+function traceSubmit(){ if (!TRACE) traceStart(); TRACE.submitAt = Date.now() - TRACE.startedAt; traceAdd('submit'); }
+function traceScore(score, passedAll){ if (!TRACE) traceStart(); TRACE.score = score; traceAdd('score', {score, passedAll: !!passedAll}); }
+function playback(s){
+  if (!s) return 'No session yet.';
+  const lines = s.events.map(e => {
+    const tm = mmss(e.t);
+    if (e.k === 'start') return tm + '  start';
+    if (e.k === 'typing') return tm + '  typing started';
+    if (e.k === 'paste') return tm + '  pasted ' + e.lines + ' line' + (e.lines === 1 ? '' : 's');
+    if (e.k === 'submit') return tm + '  submit';
+    if (e.k === 'score') return tm + '  score ' + e.score + (e.passedAll ? '  ·  all public checks passed' : '');
+    if (e.k === 'compile') return tm + '  compile failed';
+    return tm + '  ' + e.k;
+  });
+  if (s.score != null) lines.push(s.score + '%');
+  return lines.join('\n');
+}
+function paintTrace(){
+  const panel = document.getElementById('sess'); if (!panel || panel.hidden) return;
+  const s = (SESS_VIEW && loadTraces().find(x => x.id === SESS_VIEW)) || TRACE;
+  const when = t => t == null ? '—' : mmss(t);
+  panel.innerHTML = '<div class="row"><h3>Session</h3><button type="button" data-a="off">Close</button></div>' +
+    '<span class="muted">Private. Not shown on the worker result, profile, or tasks. Paste does not change the score.</span>' +
+    (s ? '<div class="stats">' +
+      '<div><b>' + (s.pastes || 0) + '</b><small>Pastes</small></div>' +
+      '<div><b>' + (s.lines || 0) + '</b><small>Lines pasted</small></div>' +
+      '<div><b>' + (s.largest || 0) + '</b><small>Largest paste</small></div>' +
+      '<div><b>' + when(s.firstPaste) + '</b><small>First paste</small></div>' +
+      '</div>' +
+      '<div class="stats">' +
+      '<div><b>' + when(0) + '</b><small>Start test</small></div>' +
+      '<div><b>' + when(s.typingAt) + '</b><small>Typing started</small></div>' +
+      '<div><b>' + when(s.lastEdit) + '</b><small>Last edit</small></div>' +
+      '<div><b>' + (s.score == null ? '—' : s.score) + '</b><small>Score</small></div>' +
+      '</div><pre>' + E(playback(s)) + '</pre>' +
+      (loadTraces().length > 1 ? '<div class="row" style="flex-wrap:wrap;justify-content:flex-start">' + loadTraces().slice(0, 6).map(x => '<button type="button" data-a="view" data-id="' + x.id + '">' + (x.id === s.id ? 'This test' : mmss((x.events.find(e => e.k === 'score') || x.events[x.events.length - 1] || {}).t) + (x.score == null ? '' : ' · ' + x.score + '%')) + '</button>').join('') + '</div>' : '') +
+      '<div class="row"><button type="button" data-a="copy">Copy</button><button type="button" data-a="clear">Clear log</button></div>'
+      : '<span class="muted">Open the Linux benchmark to start a session.</span>');
+  panel.querySelectorAll('[data-a]').forEach(btn => btn.addEventListener('click', () => {
+    const a = btn.dataset.a;
+    if (a === 'off') setSess(false);
+    if (a === 'view') { SESS_VIEW = btn.dataset.id === (s && s.id) ? null : btn.dataset.id; paintTrace(); }
+    if (a === 'copy' && s) { const shown = SESS_VIEW ? (loadTraces().find(x => x.id === SESS_VIEW) || s) : s; const txt = playback(shown); (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Session copied.', 'success'), () => { window.prompt('Copy the session:', txt); }); }
+    if (a === 'clear') { TRACE = null; SESS_VIEW = null; saveTraces([]); const b = W().bench; if (b) delete b.traceId; paintTrace(); }
+  }));
+}
+function setSess(v){ SESS_ON = v; const btn = document.getElementById('sessBtn'), panel = document.getElementById('sess'); if (btn) btn.setAttribute('aria-pressed', String(v)); if (panel) { panel.hidden = !v; if (v) paintTrace(); } }
+(function initSess(){
+  const btn = document.getElementById('sessBtn'); if (!btn || document.getElementById('sess')) return;
+  const panel = document.createElement('aside'); panel.id = 'sess'; panel.className = 'sess'; panel.hidden = true; document.body.appendChild(panel);
+  btn.addEventListener('click', () => setSess(!SESS_ON));
+})();
 reg('w-bench', 'Worker · Skill Benchmark', 'v2bench', {h:1400});
 function i2cBench(root, w, b){
+  bindTrace(b);
   const pg = chrome(root, 'work', 'w-profile', [['Working', 'w-home'], ['Skill Benchmark']]);
   const cat = 'Linux', had = verified(cat);
   let h = '';
@@ -15284,8 +15389,15 @@ function i2cBench(root, w, b){
   pg.innerHTML = h; wire2(root);
   const ta = root.querySelector('#i2c-src');
   if (ta) {
-    ta.addEventListener('input', () => { b.source = ta.value; });
-    ta.addEventListener('keydown', e => { if (e.key !== 'Tab') return; e.preventDefault(); const s = ta.selectionStart, n = ta.selectionEnd; ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(n); ta.selectionStart = ta.selectionEnd = s + 2; b.source = ta.value; });
+    ta.addEventListener('paste', e => { const text = e.clipboardData ? e.clipboardData.getData('text') : ''; tracePaste(text); });
+    ta.addEventListener('drop', e => { const text = e.dataTransfer ? e.dataTransfer.getData('text') : ''; tracePaste(text); });
+    ta.addEventListener('input', e => {
+      b.source = ta.value;
+      const kind = e.inputType || '';
+      if (kind === 'insertFromPaste' || kind === 'insertFromDrop') return;
+      if (kind.startsWith('insert') || kind.startsWith('delete')) traceTyping();
+    });
+    ta.addEventListener('keydown', e => { if (e.key !== 'Tab') return; e.preventDefault(); const s = ta.selectionStart, n = ta.selectionEnd; ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(n); ta.selectionStart = ta.selectionEnd = s + 2; b.source = ta.value; traceTyping(); });
   }
 }
 RENDER.v2bench = (root) => {
@@ -15319,15 +15431,16 @@ function wireAnswers(root, ans){ const total = root.querySelectorAll('.q').lengt
 X.wbench = (a, el) => { const w = W(), b = w.bench;
   if (a === 'submit' && (b.cat || w.domain) === 'Linux') {
     if (b.busy) return;
-    b.busy = true; b.err = null; rerender();
+    b.busy = true; b.err = null; traceSubmit(); rerender();
     const btn = stage.querySelector('[data-x="wbench:submit"]'); if (btn) { btn.classList.add('loading'); btn.disabled = true; }
     fetch('/api/benchmark/grade', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({userId:'7310', userName:'Worker #7310', source: b.source || ''})})
       .then(r => r.json())
       .then(res => {
         b.busy = false;
-        if (!res.compiled) { b.err = res.compileError || 'Compile failed.'; b.state = 'taking'; rerender(); return; }
+        if (!res.compiled) { b.err = res.compileError || 'Compile failed.'; b.state = 'taking'; traceAdd('compile'); rerender(); return; }
         b.score = Math.round((res.rating || 0) / 10); b.checks = res.publicIds || []; b.publicPassed = res.publicPassed; b.publicTotal = res.publicTotal;
         b.state = b.score >= 75 ? 'passed' : 'failed'; b.err = null;
+        traceScore(b.score, res.publicPassed === res.publicTotal && res.publicTotal > 0);
         w.attempts = (w.attempts || []).concat({cat:'Linux', score:b.score, pass:b.state === 'passed', date:dayLabel(0)});
         if (b.state === 'passed') { w.skills = w.skills.filter(s => s.cat !== 'Linux').concat({cat:'Linux', level:b.score === 100 ? 'Senior' : 'Mid', score:b.score, date:dayLabel(0)}); V.user.onb.work = true; }
         rerender();
@@ -15345,7 +15458,7 @@ X.wbench = (a, el) => { const w = W(), b = w.bench;
   if (a === 'home') { V.user.onb.work = true; show('w-home'); }
 };
 SIM.v2bench = () => { const b = W().bench; if (b.state !== 'taking') return [];
-  if ((b.cat || W().domain) === 'Linux') return [['Fill a correct i2c_read_reg', () => { b.source = I2C_PASS; b.err = null; rerender(); }, 'Public checks pass'],['Reset to the stub', () => { b.source = I2C_STUB; b.err = null; rerender(); }, 'Compiles, public checks fail']];
+  if ((b.cat || W().domain) === 'Linux') return [['Fill a correct i2c_read_reg', () => { b.source = I2C_PASS; b.err = null; tracePaste(lineCount(I2C_PASS)); rerender(); }, 'Public checks pass'],['Reset to the stub', () => { b.source = I2C_STUB; b.err = null; tracePaste(lineCount(I2C_STUB)); rerender(); }, 'Compiles, public checks fail']];
   return [['Fill in correct answers', () => { BENCH[b.cat || 'Design'].forEach((q, i) => b.ans[i] = q.multi ? q.c.slice() : q.c[0]); b.ans[3] = [0]; rerender(); }, '3 of 4 correct → 75 / 100'],['Fill in mostly wrong answers', () => { BENCH[b.cat || 'Design'].forEach((q, i) => b.ans[i] = q.multi ? [2] : (q.c[0] + 1) % 3); b.ans[0] = BENCH[b.cat || 'Design'][0].c[0]; rerender(); }, '→ FAIL · 25 / 100']]; };
 
 /* ---------- W6 · Working home ---------- */
@@ -16367,7 +16480,7 @@ regTask = function(id){ _v2RegTask(id); const g = [...sel.querySelectorAll('optg
   setTimeout(() => { try { applyAll(); } catch (e) {} }, 0);
 })();
 
-document.getElementById('reset').addEventListener('click',()=>{window.__noSave=true;try{localStorage.removeItem(LSK)}catch(e){}location.hash='#auth';location.reload()});
+document.getElementById('reset').addEventListener('click',()=>{window.__noSave=true;try{localStorage.removeItem(LSK);localStorage.removeItem(TRACE_KEY)}catch(e){}location.hash='#auth';location.reload()});
 show(location.hash.slice(1)||(V.user.signedIn?(MODE_HOME[V.user.lastMode]||'home'):'auth'),false);
 document.fonts&&document.fonts.ready.then(()=>{if(S[cur]&&S[cur].html)refit()});
 </script>
