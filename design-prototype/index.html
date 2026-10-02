@@ -897,6 +897,92 @@ button,input,textarea{font-family:inherit}
 .vx-gap{height:32px}
 .mk-seg{flex:none}.mk-seg em.nm{background:rgba(251,146,60,.14);color:var(--status-revision)}.obs>.fac{opacity:.25}
 
+/* ===== 01.10 · comment pass: alerts, level up, deadline, reviewers, chats, rules, client profile, footer ===== */
+.flash{animation:flashx 1.6s ease}
+@keyframes flashx{0%,40%{box-shadow:0 0 0 2px var(--text-accent)}100%{box-shadow:0 0 0 0 transparent}}
+.dline{display:flex;align-items:center;gap:12px}.dline .mfield{flex:none}.dline-t{font:500 14px/20px var(--font);color:var(--text-secondary)}
+.stpr{display:inline-flex;align-items:center;height:44px;border-radius:10px;border:1px solid var(--border-strong);background:var(--white-a4);overflow:hidden}
+.stpr button{width:40px;height:100%;border:0;background:transparent;color:var(--text-primary);font:600 18px/1 var(--font);cursor:pointer}
+.stpr button:hover:not([disabled]){background:var(--white-a10)}.stpr button[disabled]{color:var(--text-disabled);cursor:not-allowed}
+.stpr input{width:48px;height:100%;border:0;border-left:1px solid var(--border-default);border-right:1px solid var(--border-default);background:transparent;color:var(--text-primary);font:700 16px/1 var(--font);text-align:center;outline:0}
+.drop{flex-direction:column;gap:4px;padding:22px}.drop b{font:600 14px/20px var(--font);color:var(--text-primary)}.drop small{font:500 12px/16px var(--font);color:var(--text-muted)}
+.drop .drop-i{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--white-a6);color:var(--text-accent);margin-bottom:4px}.drop .drop-i svg{width:18px;height:18px}
+/* task alerts */
+.tpg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tpc{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:14px;border:1px solid var(--border-default);background:var(--white-a4);transition:border-color var(--dur,.15s),background var(--dur,.15s)}
+.tpc.on{border-color:var(--tint-accent-border);background:var(--tint-accent)}
+.tpc-h{display:flex;gap:12px;align-items:flex-start}.tpc-h .tx{flex:1;min-width:0}.tpc-h b{display:block;font:700 15px/20px var(--font)}.tpc-h small{display:block;margin-top:2px;font:400 13px/18px var(--font);color:var(--text-muted)}
+.tpc-l span{display:block;font:600 11px/16px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+.tpc-l ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}.tpc-l li{position:relative;padding-left:14px;font:500 13px/18px var(--font);color:var(--text-secondary)}
+.tpc-l li:before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--text-accent)}
+.tpc-f{display:flex;align-items:center;justify-content:space-between;margin-top:auto}.tpc-f small{font:600 12px/16px var(--font);color:var(--text-muted)}.tpc.on .tpc-f small{color:var(--text-accent)}
+.chg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.chc{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:18px;border-radius:14px;border:1px solid var(--border-default);background:var(--white-a4);color:var(--text-primary);text-align:left;cursor:pointer;font-family:var(--font)}
+.chc:hover{border-color:var(--border-strong)}.chc:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+.chc.on{border-color:var(--tint-accent-border);background:var(--tint-accent)}.chc.lock{cursor:default}
+.chc-i{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--white-a6);color:var(--text-secondary);margin-bottom:6px}.chc.on .chc-i{background:var(--tint-accent-strong,rgba(91,91,240,.3));color:var(--text-accent)}.chc-i svg{width:20px;height:20px}
+.chc b{font:700 14px/20px var(--font)}.chc small{font:400 12px/17px var(--font);color:var(--text-muted)}
+.chc-c{position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-strong);display:grid;place-items:center;color:#fff}
+.chc.on .chc-c{background:var(--indigo-500,#5b5bf0);border-color:transparent}.chc-c svg{width:13px;height:13px}
+/* level up result */
+.res{display:flex;gap:40px;align-items:center;padding:8px 0 4px}
+.res-n{display:flex;align-items:baseline;gap:8px;flex:none}.res-n b{font:800 96px/1 var(--font);letter-spacing:-.04em;color:var(--status-success)}.res-n span{font:700 24px/1 var(--font);color:var(--text-muted)}
+.res-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}.res-t h3{margin:0;font:800 28px/34px var(--font)}
+.res-s{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.res-s div{padding:14px 16px;border-radius:12px;background:var(--white-a4);border:1px solid var(--border-default)}
+.res-s b{display:block;font:800 24px/30px var(--font)}.res-s small{font:500 12px/16px var(--font);color:var(--text-muted)}
+/* chats */
+.chx{display:grid;grid-template-columns:340px 1fr;height:640px;border-radius:16px;border:1px solid var(--border-default);background:var(--surface-primary);overflow:hidden}
+.chx-l{display:flex;flex-direction:column;border-right:1px solid var(--border-default);overflow:auto;padding:8px}
+.chx-i{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;border:1px solid transparent;background:transparent;color:inherit;text-align:left;cursor:pointer;font-family:var(--font)}
+.chx-i:hover{background:var(--white-a4)}.chx-i.on{background:linear-gradient(var(--white-a10),var(--white-a10)),var(--surface-secondary);border-color:var(--border-strong)}
+.chx-i .av{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--white-a6);font:700 12px/1 var(--font);color:var(--text-secondary)}
+.chx-i .tx{flex:1;min-width:0;display:flex;flex-direction:column}.chx-i b{font:700 14px/20px var(--font)}.chx-i small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:500 12px/17px var(--font)}
+.chx-i .t1{color:var(--text-secondary)}.chx-i .t2{color:var(--text-muted)}
+.chx-n{flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--indigo-500,#5b5bf0);color:#fff;font:700 11px/20px var(--font);text-align:center}
+.chx-r{display:flex;flex-direction:column;min-width:0}
+.chx-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border-default)}.chx-h b{display:block;font:700 15px/20px var(--font)}.chx-h small{font:500 12px/16px var(--font);color:var(--text-muted)}
+.chx-m{flex:1;overflow:auto;padding:20px;margin:0}
+.chx-c{display:flex;flex-direction:column;gap:8px;padding:16px 20px;border-top:1px solid var(--border-default)}.chx-c small{font:500 12px/16px var(--font)}
+/* rules */
+.rlx{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start}
+.rlx-n{position:sticky;top:24px;display:flex;flex-direction:column;gap:2px}
+.rlx-n button{padding:9px 12px;border-radius:10px;border:0;background:transparent;color:var(--text-secondary);font:600 13px/18px var(--font);text-align:left;cursor:pointer}
+.rlx-n button:hover{background:var(--white-a4);color:var(--text-primary)}.rlx-n button.on{background:var(--white-a6);color:var(--text-primary)}
+.rlx-b{display:flex;flex-direction:column;gap:16px}.rlx-b .card{scroll-margin-top:24px}
+.rlx-l{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font:400 14px/21px var(--font);color:var(--text-secondary)}.rlx-l li::marker{color:var(--text-muted);font-weight:700}
+/* client profile */
+.cpx{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}
+.cpx-v{display:flex;flex-direction:column;gap:16px;padding:20px;border-radius:14px;border:1px solid var(--border-strong);background:var(--white-a4)}
+.cpx-v .tag{align-self:flex-start;font:700 11px/16px var(--font);letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+.cpx-s{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cpx-s div{padding:12px;border-radius:10px;background:var(--white-a4)}.cpx-s b{display:block;font:800 20px/26px var(--font)}.cpx-s small{font:500 11px/15px var(--font);color:var(--text-muted)}
+.cpx-t h3{margin:0 0 8px;font:800 22px/28px var(--font)}.cpx-t p{margin:0 0 16px;font:400 14px/21px var(--font);color:var(--text-secondary)}
+.cpx-t ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}.cpx-t li{display:flex;gap:10px;align-items:center;font:500 13px/18px var(--font);color:var(--text-secondary)}.cpx-t li svg{width:18px;height:18px;flex:none;color:var(--text-accent)}
+/* footer */
+.ftx{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;margin:auto 0 0;padding:32px 0 28px;border-top:1px solid var(--border-default)}
+.ftx-b .logo{display:inline-flex;align-items:center;gap:8px;font:800 18px/1 var(--font);color:var(--text-primary)}.ftx-b .logo i{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:var(--indigo-500,#5b5bf0);font-style:normal;font-size:13px;color:#fff}
+.ftx-b p{margin:12px 0 0;max-width:280px;font:400 13px/19px var(--font);color:var(--text-muted)}
+.ftx-c{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.ftx-c b{font:700 11px/16px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.ftx-c button{padding:0;border:0;background:none;color:var(--text-secondary);font:500 13px/18px var(--font);cursor:pointer;text-align:left}.ftx-c button:hover{color:var(--text-primary)}.ftx-c button:focus-visible{outline:none;box-shadow:var(--focus-ring);border-radius:4px}
+.ftx-s{grid-column:1/-1;display:flex;justify-content:space-between;padding-top:20px;border-top:1px solid var(--border-default);font:500 12px/16px var(--font);color:var(--text-muted)}
+.res.low .res-n b{color:var(--status-warning)}
+.rqp{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:12px;border:1px solid var(--border-default);background:var(--white-a4)}
+.rqp-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.rqp-h b{font:700 13px/18px var(--font)}.rqp-h span{font:500 12px/16px var(--font);color:var(--text-muted)}
+.rqp ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font:500 13px/19px var(--font);color:var(--text-secondary)}.rqp li::marker{color:var(--text-accent);font-weight:700}
+.rqp-e{font:400 13px/19px var(--font);color:var(--text-muted)}
+.chc.lock:not(.on){opacity:.55}
+/* public draft pages */
+.pubx{min-height:1200px;display:flex;flex-direction:column;background:var(--bg-page,#0f0f12)}
+.pubx-h{display:flex;align-items:center;gap:32px;padding:20px 64px;border-bottom:1px solid var(--border-default)}
+.pubx-h .logo{display:inline-flex;align-items:center;gap:8px;border:0;background:none;color:var(--text-primary);font:800 18px/1 var(--font);cursor:pointer}.pubx-h .logo i{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:var(--indigo-500,#5b5bf0);font-style:normal;font-size:13px;color:#fff}
+.pubx-h nav{display:flex;gap:4px;flex:1}.pubx-h nav button,.pubx-f nav button{padding:8px 12px;border:0;border-radius:8px;background:none;color:var(--text-secondary);font:600 14px/20px var(--font);cursor:pointer}.pubx-h nav button:hover,.pubx-f nav button:hover{color:var(--text-primary);background:var(--white-a4)}.pubx-h nav button.on{color:var(--text-primary);background:var(--white-a6)}
+.pubx-m{width:100%;max-width:760px;margin:0 auto;padding:64px 24px;display:flex;flex-direction:column;gap:28px;flex:1}
+.pubx-t{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding-bottom:12px;border-bottom:1px solid var(--border-default)}.pubx-t h1{margin:0;font:800 44px/52px var(--font);letter-spacing:-.02em}.pubx-t p{margin:0;font:400 17px/26px var(--font);color:var(--text-secondary)}.pubx-t small{font:500 12px/16px var(--font);color:var(--text-muted)}
+.pubx-s h2{margin:0 0 10px;font:700 20px/28px var(--font)}.pubx-s p{margin:0 0 8px;font:400 15px/24px var(--font);color:var(--text-secondary)}
+.pubx-f{display:flex;align-items:center;justify-content:space-between;padding:24px 64px;border-top:1px solid var(--border-default);font:500 12px/16px var(--font);color:var(--text-muted)}.pubx-f nav{display:flex;gap:4px}
+.app:has(> .pubx){display:block}.pubx{grid-column:1/-1;width:100%}
+.app{min-height:max(900px,var(--appmin,900px))}.mn > .pg{flex:none}.mn > .ftx{margin-top:auto}
+.mn > .pg{margin-bottom:20px}
+
 </style>
 </head>
 <body>
@@ -14115,12 +14201,12 @@ chrome = function(root, mode, active, crumbs){
   mode = mode === 'work' ? 'work' : mode === 'rev' ? 'rev' : 'hire';
   V.user.lastMode = mode;
   const NAV = {
-    hire:[['WORKSPACE',[['home','Home','home'],['mytasks','My tasks','tasks'],['balance','Balance','wallet'],['activity','Activity','activity']]],['ACCOUNT',[['company','Company profile','user'],['settings','Settings','settings'],['help','Help & disputes','help']]],['PICO',[['about','About Pico','info'],['how','How it works','arrow']]]],
-    work:[['WORKING',[['w-home','Home','home'],['w-find','Relevant tasks','search'],['w-mywork','My work','tasks'],['w-earn','Earnings','wallet']]],['GROWTH',[['w-profile','Profile & skills','user'],['w-topics','Topics','bell'],['w-comp','Competition','sparkle']]],['ACCOUNT',[['w-settings','Settings','settings'],['help','Help & disputes','help']]]],
+    hire:[['WORKSPACE',[['home','Home','home'],['mytasks','My tasks','tasks'],['chats','Chats','chat'],['balance','Balance','wallet'],['activity','History','activity']]],['ACCOUNT',[['client-profile','Client profile','user'],['client-settings','Settings','settings'],['help','Help & disputes','help']]],['PICO',[['about','About Pico','info'],['how','How it works','arrow']]]],
+    work:[['WORKING',[['w-home','Home','home'],['w-find','Relevant tasks','search'],['w-mywork','My work','tasks'],['w-chats','Chats','chat'],['w-earn','Earnings','wallet']]],['GROWTH',[['w-profile','Profile & skills','user'],['w-topics','Task alerts','bell'],['w-comp','Level up','sparkle']]],['ACCOUNT',[['w-settings','Settings','settings'],['help','Help & disputes','help']]]],
     rev:[['REVIEWING',[['r-home','Home','home'],['r-requests','Review requests','tasks'],['r-history','Completed reviews','activity']]],['PROFILE',[['r-profile','Reviewer profile','user']]],['ACCOUNT',[['r-settings','Settings','settings'],['help','Help & disputes','help']]]]
   }[mode];
   const cn = typeof companyName === 'function' ? companyName() : 'Northwind Studio';
-  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, 'Company account','company'], work:['73','Worker #7310','Also Northwind Studio','w-profile'], rev:['73','Reviewer #7310','Verified reviewer','r-profile']}[mode];
+  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, 'Company account','client-profile'], work:['73','Worker #7310','Same account as Hiring','w-profile'], rev:['73','Reviewer #7310','Verified reviewer','r-profile']}[mode];
   let sb = '<aside class="sb"><div class="brandrow"><button class="logo" data-go="' + MODE_HOME[mode] + '" aria-label="Pico home"><i>P</i>Pico</button><span class="icb">' + IC.side + '</span></div>' +
     '<button class="srch" data-act="search">' + IC.search + '<span>Search…</span><kbd>⌘</kbd><kbd>K</kbd></button>';
   NAV.forEach(([lbl, items], gi) => { if (gi) sb += '<hr>'; sb += '<div class="lbl">' + lbl + '</div><div class="nv">' + items.map(([k, l, ic]) => '<button class="ni' + (k === active ? ' on' : '') + '" data-go="' + k + '"' + (k === active ? ' aria-current="page"' : '') + '>' + IC[ic] + l + '</button>').join('') + '</div>'; });
@@ -14337,11 +14423,11 @@ RENDER.v2onbHire = (root) => {
   const cn = O.company.trim() || 'Your company', ini = c => c.split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase() || 'YC';
   const NEEDS = [['Design','sparkle'],['Development','tool'],['QA & Testing','check']];
   let o;
-  if (O.step === 0) o = {eyebrow:'Hiring', title:'Your company, on every task', sub:'Workers see this name on your tasks. You can change it any time.',
+  if (O.step === 0) o = {eyebrow:'Hiring', title:'Workers see your track record, not your name', sub:'On Pico you’re Client #4821. Your company name stays private.',
     visual: '<div class="vk-stack"><div class="mk vk b3"></div><div class="mk vk b2"></div><div class="mk vk b1"><span class="tag">Worker view</span>' +
-      '<div class="mk-h"><div class="mk-row"><span class="vk-av" data-ci>' + E(ini(cn)) + '</span><div><b class="vk-co" data-cn>' + E(cn) + '</b><span class="mk-s">Posted just now</span></div></div><span class="pill success">' + IC.lock.replace('<svg', '<svg width="12" height="12"') + 'Locked in escrow</span></div>' +
+      '<div class="mk-h"><div class="mk-row"><span class="vk-av">C#</span><div><b class="vk-co">Client #4821</b><span class="mk-s">New client · posted just now</span></div></div><span class="pill success">' + IC.lock.replace('<svg', '<svg width="12" height="12"') + 'Locked in escrow</span></div>' +
       '<div class="vk-t">Landing page hero</div><div class="row2">' + pill(O.needs[0] || 'Design', '') + pill('Mid and above', '') + pill('3 days', '') + '</div><div class="vk-amt">120.00<small>USDC</small></div></div></div>',
-    body: P.field({label:'Company name', value:O.company, ph:'e.g. Northwind Studio', err:O.err.company, bind:'ui.onbH.company'}) +
+    body: P.field({label:'Company name · private', value:O.company, ph:'e.g. Northwind Studio', err:O.err.company, bind:'ui.onbH.company', help:'For receipts and support. Never shown to workers.'}) +
       '<div><span class="obs-lbl">You usually need</span>' + P.ich(NEEDS.map(n => ({k:n[0], t:n[0], ic:n[1], on:O.needs.includes(n[0])})), 'onbh:need-') + (O.err.needs ? '<div class="mhelp error">' + O.err.needs + '</div>' : '') + '</div>',
     cta: P.btn('Continue', {lg:true, x:'onbh:next'}), top: P.btn('Skip for now', {v:'g', sm:true, x:'onbh:skip'})};
   else o = {eyebrow:'Hiring', title:'Pay only for work that meets your criteria', sub:'The budget locks when you publish. It’s released when you accept, on PASS, or 14 days after submission.',
@@ -14450,14 +14536,14 @@ RENDER.v2balance = (root) => {
   const hist = [];
   (V.ledger[V.user.acct] || []).forEach(l => hist.push(l));
   T.forEach(t => t.events.filter(e => e[3] === 'money').forEach(e => hist.push([e[0], t.title + ' · ' + e[1], e[2], 'money'])));
-  h += P.card(P.ch('activity', 'History', pill(hist.length + ' entries', '')) + (hist.length ? P.timeline(hist) : P.empty('No money movements yet.')));
+  h += '<div class="row2" style="justify-content:space-between;align-items:center;padding:4px 4px 0"><small class="muted" style="font:500 13px/18px var(--font)">' + (hist.length ? hist.length + (hist.length === 1 ? ' money movement' : ' money movements') + ' so far.' : 'No money movements yet.') + ' Every lock, payout and refund is in History.</small>' + P.btn('Open money history', {v:'g', sm:true, x:'histmoney'}) + '</div>';
   pg.innerHTML = h; wire2(root);
 };
 
 /* =================== C23 · Activity =================== */
-reg('activity', 'Activity', 'v2activity', {h:1400});
+reg('activity', 'History', 'v2activity', {h:1400});
 RENDER.v2activity = (root) => {
-  const pg = chrome(root, 'hire', 'activity', [['Activity']]);
+  const pg = chrome(root, 'hire', 'activity', [['History']]);
   const f = V.ui.afilter || 'All';
   const all = [];
   clientTasks().forEach(t => t.events.forEach(e => all.push([e[0], t.title + ' · ' + e[1], e[2], e[3], t.id])));
@@ -14465,11 +14551,12 @@ RENDER.v2activity = (root) => {
   all.sort((a, b) => recent(a) - recent(b));
   const F = {All: () => true, Money: e => e[3] === 'money', Work: e => !e[3] || e[3] === 'rev', Disputes: e => e[3] === 'err'};
   const list = all.filter(F[f]);
-  let h = P.pgh('Activity', 'Everything that happened on your tasks: money, work and decisions.');
+  let h = P.pgh('History', 'Everything that happened on your tasks: money, work and decisions.');
   h += P.tabs(Object.keys(F).map(k => [k, k, all.filter(F[k]).length]), f, 'afilter');
   h += P.card(list.length ? P.timeline(list) : P.empty('No activity yet. It appears here as soon as you publish a task.'));
   pg.innerHTML = h; wire2(root);
 };
+X.histmoney = () => { V.ui.afilter = 'Money'; show('activity'); };
 X.afilter = f => { V.ui.afilter = f; rerender(); };
 
 /* =================== C26 · Help & disputes =================== */
@@ -14483,7 +14570,7 @@ RENDER.v2help = (root) => {
     (ds.length ? '<div class="lst">' + ds.map(t => '<button type="button" class="li click" data-go="' + taskKey(t.id) + '"><span class="ext">' + t.cat.slice(0,2).toUpperCase() + '</span><div class="tx"><b>' + E(t.title) + '</b><small>Criterion ' + (t.dsp.crit + 1) + ' · ' + (t.dsp.status === 'decided' ? 'Decided · ' + t.dsp.decision.label : 'Platform review · decision by ' + t.dsp.decideBy) + '</small></div>' + (t.dsp.status === 'decided' ? pill('Decided', '') : pill('Funds locked', 'error', true)) + '</button>').join('') + '</div>' : P.empty('No disputes. If you and the worker disagree about a criterion, open one from the task page.')));
   h += P.card(P.ch('help', 'How disputes work') + '<div class="grid4">' + [['1','Pick the criterion','Disputes are judged against the locked criteria.'],['2','Funds stay locked','Nothing is paid or refunded until a decision.'],['3','Both sides add evidence','Task, criteria, change requests, submission and history.'],['4','Pico decides','Manual review. Decision within 7 days.']].map(s => '<div class="srow" style="flex-direction:column"><span class="bnum">' + s[0] + '</span><div class="tx"><b>' + s[1] + '</b><small>' + s[2] + '</small></div></div>').join('') + '</div>' +
     P.callout('Possible decisions: pay the worker in full or in part, refund you, reopen the task, or send it back to Needs Revision.'));
-  const faq = [['What if I don’t review submitted work?','If you take no action for 14 days after the worker submits, the worker is paid automatically from escrow.'],['Can I add requirements after a worker is assigned?','Only through a change request. The worker has to accept it; until then the current terms apply.'],['Who checks the work if I add Independent Verification?','A qualified reviewer with a verified skill in the same category and level. PASS releases the payment with no extra approval from you.'],['Can I cancel a task?','Before a worker is assigned — yes, the full amount returns to Available. After assignment only by agreement with the worker, or through a dispute.'],['Does chat count as a requirement?','No. Chat is context only. Requirements live in the locked criteria and accepted change requests.']];
+  const faq = [['What if I don’t review submitted work?','If you take no action for 14 days after the worker submits, the worker is paid automatically from escrow.'],['Can I add requirements after a worker is assigned?','Only through a change request. The worker has to accept it; until then the current terms apply.'],['Who checks the work if I add Independent Verification?','A qualified reviewer with a verified skill in the same category and level. PASS releases the payment with no extra approval from you.'],['Can I cancel a task?','No, not on your own. If no worker qualifies within 7 days, the task closes and the money returns to Available automatically. After a worker is assigned you can stop together with them, or open a dispute.'],['Does chat count as a requirement?','No. Chat is context only. Requirements live in the locked criteria and accepted change requests.']];
   h += P.card(P.ch('info', 'Common questions') + '<div class="lst">' + faq.map((q, i) => '<div class="li" style="flex-direction:column;align-items:stretch;gap:6px"><button type="button" class="linkb" style="text-align:left;font-size:14px;color:var(--text-primary)" data-x="faq:' + i + '">' + (V.ui.faq === i ? '− ' : '+ ') + q[0] + '</button>' + (V.ui.faq === i ? '<small style="font:400 13px/19px var(--font);color:var(--text-secondary)">' + q[1] + '</small>' : '') + '</div>').join('') + '</div>');
   pg.innerHTML = h; wire2(root);
 };
@@ -14511,11 +14598,11 @@ function newDraft(desc){
 }
 function draftFromTask(t){ return {id:t.id, cat:t.cat, title:t.title, desc:t.desc, crit:t.crit.slice(), deliv:(t.deliv || []).slice(), level:t.level || 'Mid', days:String(t.days || 3), links:[], qual:{on:true, gen:false, qs:[], pass:75}, reward:fmt(t.reward).replace(/,/g,''), iv:!!t.iv, err:{}, saved:t.saved}; }
 const D = () => { if (!V.draft) newDraft(''); return V.draft; };
-const CT_STEPS = d => [['Describe', d.title ? d.cat + ' · ' + d.title : 'Task and category'],['Scope', d.deliv.length + ' deliverables · ' + d.days + ' days'],['Qualification', d.qual.on ? (d.qual.gen === true ? 'On · pass mark ' + d.qual.pass + ' / 100' : 'Optional · On') : 'Optional · Off'],['Budget & publish','Lock funds']];
+const CT_STEPS = d => [['Describe', reqsOf(d.desc).length ? reqsOf(d.desc).length + (reqsOf(d.desc).length === 1 ? ' requirement' : ' requirements') : 'Task and requirements'],['Scope', d.days + ' days · ' + d.links.length + ' materials'],['Qualification', d.qual.gen === true ? 'Pass mark ' + d.qual.pass + ' / 100' : 'Required'],['Budget & publish','Lock funds']];
 const CT_KEYS = ['ct-details','ct-scope','ct-qual','ct-budget'];
 function ctFrame(root, i, body, foot){
   const d = D(), pg = chrome(root, 'hire', 'home', [['Home','home'],['New task']]);
-  pg.innerHTML = P.pgh('Create a task', 'Answer a few questions. Pico turns them into a brief, deliverables and an optional qualification test.', '<span class="meta2">' + (d.saved ? 'Draft saved · ' + d.saved : 'Not saved yet') + '</span>' + P.btn('Save draft', {v:'s', x:'ctsave'})) +
+  pg.innerHTML = P.pgh('Create a task', 'Answer a few questions. Pico turns them into a brief and a qualification test.', '<span class="meta2">' + (d.saved ? 'Draft saved · ' + d.saved : 'Not saved yet') + '</span>' + P.btn('Save draft', {v:'s', x:'ctsave'})) +
     P.steps(CT_STEPS(d), i, 'ctjump') + body + '<div class="foot">' + (i ? P.btn('Back', {v:'g', x:'ctback:' + i}) : P.btn('Cancel', {v:'g', x:'ctcancel'})) + '<div class="nx">' + foot + '</div></div>';
   wire2(root);
 }
@@ -14527,24 +14614,31 @@ X.ctsave = () => {
   d.saved = clockNow();
   const id = d.id || ('t' + Date.now().toString(36));
   const T = V.tasks[id] || {id, qual:{on:true, pass:75, qs:qsFor(d.cat)}, chat:[], files:[], events:[], cands:[], rounds:0};
-  Object.assign(T, {title:d.title.trim(), cat:d.cat, desc:d.desc, crit:d.crit.filter(c => c.trim()), deliv:d.deliv.filter(c => c.trim()), level:d.level, days:+d.days, reward:num(d.reward), iv:d.iv, status:'draft', saved:dayLabel(0)});
+  Object.assign(T, {title:d.title.trim(), cat:d.cat, desc:d.desc, crit:(reqsOf(d.desc).length ? reqsOf(d.desc) : d.crit.filter(c => c.trim())), deliv:d.deliv.filter(c => c.trim()), level:d.level, days:+d.days, reward:num(d.reward), iv:d.iv, status:'draft', saved:dayLabel(0)});
   V.tasks[id] = T; d.id = id; const ord = V.user.acct === 'new' ? V.orderNew : V.order; if (!ord.includes(id)) ord.unshift(id);
   rerender(); toast('Draft saved. Find it in My tasks → Drafts. Nothing is locked.', 'success');
 };
 
+/* Requirements = the client's description, one per line (decision 01.10) */
+function reqsOf(t){ return String(t || '').split(/\n+/).map(x => x.replace(/^\s*(?:[-–•*]|\d+[.)])\s*/, '').trim()).filter(x => x.length > 2); }
+function reqPreview(R){ return '<div class="rqp-h"><b>Acceptance criteria</b><span>' + (R.length ? R.length + (R.length === 1 ? ' requirement' : ' requirements') + ' · lock when a worker is assigned' : 'Appear here as you type') + '</span></div>' +
+  (R.length ? '<ol>' + R.map(r => '<li>' + E(r) + '</li>').join('') + '</ol>' : '<div class="rqp-e">Each line you write becomes one requirement here.</div>'); }
 /* C4 · Details */
 reg('ct-details', 'Create task · 1 Describe', 'v2ct1', {h:1400});
 RENDER.v2ct1 = (root) => {
   const d = D();
-  const body = P.sec('What do you need?', 'Pick a category and describe the result. Pico drafts the deliverables from this.',
+  const R = reqsOf(d.desc);
+  const body = P.sec('What do you need?', 'Describe everything you need. Each line becomes a requirement the work is checked against.',
     '<div class="fg"><span class="mlabel">Category</span><div class="chips">' + ['Design','Development','QA & Testing'].map(c => P.chip(c, d.cat === c, 'ctcat:' + c)).join('') + '</div><div class="mhelp">Only workers with a verified skill in this category can take the task.</div></div>' +
     P.field({id:'ctTitle', label:'Task title', value:d.title, ph:'e.g. Spring sale landing page', err:d.err.title, bind:'draft.title', help:'Workers see this first. Keep it short and specific.'}) +
-    P.field({id:'ctDesc', label:'Describe the result', type:'textarea', rows:4, value:d.desc, ph:'What should exist when the task is done? Who is it for?', err:d.err.desc, bind:'draft.desc', help:'At least 20 characters. Chat can’t add requirements later, so be specific here.'}));
-  ctFrame(root, 0, body, '<small>Next: deliverables, level and deadline</small>' + P.btn('Continue', {lg:true, x:'ct1next'}));
+    P.field({id:'ctDesc', label:'What you need, in full', type:'textarea', rows:7, value:d.desc, ph:'One requirement per line, for example:\nDesktop 1440 and mobile 375 frames\nUses our brand colors and fonts\nError state for a declined card', err:d.err.desc, bind:'draft.desc', help:'One requirement per line. These are the acceptance criteria: the worker, the reviewer and Pico check the work against them. Chat can’t add requirements later.'}) +
+    '<div class="rqp" id="ctReq">' + reqPreview(R) + '</div>');
+  ctFrame(root, 0, body, '<small>Next: level, deadline and materials</small>' + P.btn('Continue', {lg:true, x:'ct1next'}));
+  const ta = root.querySelector('#ctDesc'), pv = root.querySelector('#ctReq'); if (ta && pv) ta.addEventListener('input', () => { pv.innerHTML = reqPreview(reqsOf(ta.value)); });
 };
-X.ctcat = c => { const d = D(); if (d.cat === c) return; d.cat = c; d.crit = CRIT_DEF[c].slice(); d.deliv = DELIV_DEF[c].slice(); d.qual.gen = false; d.qual.qs = []; rerender(); toast('Deliverables redrafted for ' + c + '.', 'info'); };
+X.ctcat = c => { const d = D(); if (d.cat === c) return; d.cat = c; d.crit = CRIT_DEF[c].slice(); d.deliv = DELIV_DEF[c].slice(); d.qual.gen = false; d.qual.qs = []; rerender(); toast('Category set to ' + c + '. The test will be written for it.', 'info'); };
 X.ct1next = () => { const d = D(); d.err = {};
-  if (!d.title.trim()) d.err.title = 'Add a title.'; if ((d.desc || '').trim().length < 20) d.err.desc = 'Describe the result in at least 20 characters.';
+  if (!d.title.trim()) d.err.title = 'Add a title.'; if (!reqsOf(d.desc).length) d.err.desc = 'Write at least one requirement.'; else d.crit = reqsOf(d.desc);
   if (d.err.title || d.err.desc) { rerender(); toast('Fill in the highlighted fields to continue.', 'error'); return; } show('ct-scope'); };
 
 /* C5 · Scope & acceptance criteria */
@@ -14556,11 +14650,14 @@ RENDER.v2ct2 = (root) => {
       (vague ? '<span class="fb" style="color:var(--status-warning)">Hard to check. Try: “' + E(vague) + '” ' + '<button class="linkb" data-x="critfix:' + i + '">Use this</button></span>' : '') + (empty ? '<span class="fb" style="color:var(--status-error)">Write the criterion or remove it.</span>' : '') + '</div>' +
       P.btn('Remove', {v:'d', sm:true, x:'critdel:' + i, dis:d.crit.length <= 1}) + '</div>'; }).join('');
   const delivRows = d.deliv.map((c, i) => '<div class="li"><span class="num">' + (i + 1) + '</span><div class="tx"><div class="mfield" style="height:40px"><input data-deliv="' + i + '" value="' + E(c) + '" placeholder="e.g. Figma file with named layers" aria-label="Deliverable ' + (i + 1) + '"></div></div>' + P.btn('Remove', {v:'d', sm:true, x:'delivdel:' + i}) + '</div>').join('');
-  const body = P.sec('Deliverables', 'What the worker hands over. The work is checked against these.', (d.deliv.length ? '<div class="lst">' + delivRows + '</div>' : P.empty('No deliverables yet.')) + '<div>' + P.btn('Add deliverable', {v:'g', icon:'plus', x:'delivadd'}) + '</div>') +
-    P.sec('Level and deadline', 'Who can take the task and how long they have.', P.field({label:'Level', type:'select', value:d.level, bind:'draft.level', opts:[['Junior','Junior · first paid projects'],['Mid','Mid · 2+ years of similar work'],['Senior','Senior · 5+ years, leads projects']], help:'Only workers with a verified skill at this level or above can take the task.'}) +
-      P.field({label:'Deadline', type:'select', value:d.days, bind:'draft.days', opts:[['2','2 days after assignment'],['3','3 days after assignment'],['5','5 days after assignment'],['7','7 days after assignment']], help:'The 14-day auto-payout starts at submission, not here.'})) +
-    P.sec('Materials', 'Files and links the worker needs. Shared only after assignment.', (d.links.length ? P.files(d.links, 'Check') : P.empty('No materials yet.')) + '<div>' + P.btn('Add link', {v:'g', icon:'plus', x:'linkadd'}) + '</div>', pill('Private until assignment', ''));
-  ctFrame(root, 1, body, '<small>Next: optional qualification test</small>' + P.btn('Continue to qualification', {lg:true, x:'ct2next'}));
+  const dErr = d.err.days;
+  const body = P.sec('Level and deadline', 'Who can take the task and how long they have.', P.field({label:'Level', type:'select', value:d.level, bind:'draft.level', opts:[['Junior','Junior · first paid projects'],['Mid','Mid · 2+ years of similar work'],['Senior','Senior · 5+ years, leads projects']], help:'Only workers with a verified skill at this level or above can take the task.'}) +
+      '<div class="fg"><label class="mlabel" for="ctDays">Deadline</label><div class="dline"><div class="mfield' + (dErr ? ' error' : '') + '" style="width:140px"><input id="ctDays" data-bind="draft.days" inputmode="numeric" value="' + E(d.days) + '" aria-describedby="ctDaysH"><span class="suffix">days</span></div><span class="dline-t">after a worker is assigned</span></div><div class="mhelp' + (dErr ? ' error' : '') + '" id="ctDaysH">' + E(dErr || '1 to 30 days. The 14-day auto-payout starts at submission, not here.') + '</div></div>') +
+    P.sec('Materials', 'Files and links the worker needs. Shared only after assignment.',
+      '<button type="button" class="drop" data-x="matfile"><span class="drop-i">' + IC.file + '</span><b>Add files</b><small>PDF, Word, text, images, ZIP · any size</small></button>' +
+      (d.links.length ? P.files(d.links.map((l, i) => l), 'Check') : P.empty('No materials yet.')) +
+      '<div class="row2">' + P.btn('Add link', {v:'g', icon:'plus', x:'linkadd'}) + '<small class="muted" style="font:500 13px/18px var(--font)">Google Docs, Sheets, Figma, Notion or any URL</small></div>', pill('Private until assignment', ''));
+  ctFrame(root, 1, body, '<small>Next: qualification test</small>' + P.btn('Continue to qualification', {lg:true, x:'ct2next'}));
   root.querySelectorAll('[data-crit]').forEach(el => { const f = el.parentElement; el.addEventListener('focus', () => f.classList.add('focus')); el.addEventListener('blur', () => { f.classList.remove('focus'); const had = !!VAGUE[d.crit[+el.dataset.crit]]; d.crit[+el.dataset.crit] = el.value; if (had !== !!VAGUE[el.value]) rerender(); }); el.addEventListener('input', () => { d.crit[+el.dataset.crit] = el.value; }); });
   root.querySelectorAll('[data-deliv]').forEach(el => { const f = el.parentElement; el.addEventListener('focus', () => f.classList.add('focus')); el.addEventListener('blur', () => f.classList.remove('focus')); el.addEventListener('input', () => { d.deliv[+el.dataset.deliv] = el.value; }); });
 };
@@ -14569,9 +14666,13 @@ X.critdel = i => { const d = D(); d.crit.splice(+i, 1); d.qual.gen = false; rere
 X.critadd = () => { const d = D(); d.crit.push(''); rerender(); setTimeout(() => { const els = stage.querySelectorAll('[data-crit]'); els[els.length - 1] && els[els.length - 1].focus(); }, 30); };
 X.delivdel = i => { D().deliv.splice(+i, 1); rerender(); };
 X.delivadd = () => { D().deliv.push(''); rerender(); setTimeout(() => { const els = stage.querySelectorAll('[data-deliv]'); els[els.length - 1] && els[els.length - 1].focus(); }, 30); };
+X.matfile = () => { const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = '.pdf,.doc,.docx,.txt,.md,.rtf,.odt,.png,.jpg,.jpeg,.svg,.zip,.fig,.csv,.xlsx,.pptx';
+  inp.addEventListener('change', () => { const fs = [...inp.files]; if (!fs.length) return; fs.forEach(f => { const ext = (f.name.split('.').pop() || 'file').toUpperCase().slice(0, 4), kb = f.size / 1024; D().links.push([ext, f.name, (kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(kb)) + ' KB') + ' · shared after assignment']); }); rerender(); toast(fs.length === 1 ? fs[0].name + ' added.' : fs.length + ' files added.', 'success'); });
+  inp.click(); };
 X.linkadd = () => { DLG.addlink.after = () => { const v = DS.v; closeDlg(); D().links.push(['URL', v.name || 'Link', v.url || 'Shared after assignment']); rerender(); toast('Link added. Pico checked that it opens.', 'success'); }; openDlg('addlink'); };
-X.ct2next = () => { const d = D(); d.err = {};
-  show('ct-qual'); };
+X.ct2next = () => { const d = D(); d.err = {}; const n = String(d.days).trim();
+  if (!/^\d+$/.test(n) || +n < 1 || +n > 30) { d.err.days = !n ? 'Enter the number of days.' : 'Enter a whole number from 1 to 30.'; rerender(); toast('Check the deadline.', 'error'); return; }
+  d.days = String(+n); show('ct-qual'); };
 
 /* C6 · Task qualification (optional, deterministic) */
 reg('ct-qual', 'Create task · 3 Qualification', 'v2ct3', {h:1600});
@@ -14586,18 +14687,14 @@ function qCard(q, i, o){ o = o || {};
 }
 RENDER.v2ct3 = (root) => {
   const d = D(), Q = d.qual;
-  const tg = '<div class="tgrow' + (Q.on ? ' on' : '') + '">' + P.tgl(Q.on, 'qtoggle', 'Test workers first') + '<div class="tx"><b>Test workers first</b><small>' + (Q.on ? 'On · the first eligible worker to reach ' + Q.pass + ' / 100 gets the task' : 'Off · the first eligible worker to accept gets the task') + '</small></div></div>';
-  const how = Q.on ? [['1','You publish','Funds lock at publish'],['2','Eligible workers take the test',d.cat + ' · ' + d.level + ' and above'],['3','Pico scores every answer','Fixed answers, no manual review'],['4','First to reach ' + Q.pass + ' / 100 gets it','You get a notification']]
-                   : [['1','You publish','Funds lock at publish'],['2','Pico shows it to eligible workers','Verified ' + d.cat + ' · ' + d.level + ' and above'],['3','First to accept gets it','You get a notification']];
-  let body = P.sec('Qualification test', 'Optional. Pico writes a short test from your task. Answers are scored automatically against fixed correct answers.',
-    '<div class="grid' + (how.length === 4 ? '4' : '2') + '" style="' + (how.length === 3 ? 'grid-template-columns:repeat(3,1fr)' : '') + '">' + how.map(s => '<div class="srow" style="flex-direction:column"><span class="bnum">' + s[0] + '</span><div class="tx"><b>' + s[1] + '</b><small>' + s[2] + '</small></div></div>').join('') + '</div>' +
-    P.callout(Q.on ? 'If nobody reaches the pass mark, the task keeps waiting for the next qualified worker. You can cancel any time before assignment — the funds return to Available.' : 'Without a test, eligibility comes only from each worker’s verified skill and level. Turn the test on if the task needs something more specific.'), tg);
+  Q.on = true;
+  let body = '';
   if (Q.on) {
-    if (Q.gen === true) body += P.sec('Test questions', 'Pico wrote these from your task and deliverables. Each question has fixed correct answers, so scores are automatic. Edit anything that’s off.', Q.qs.map((q, i) => qCard(q, i, {edit:true})).join('') +
+    if (Q.gen === true) body += P.sec('Test questions', 'Pico wrote these from your task. Each question has fixed correct answers, so scores are automatic. Edit anything that’s off.', Q.qs.map((q, i) => qCard(q, i, {edit:true})).join('') +
         '<div class="row2" style="justify-content:space-between">' + P.btn('Regenerate', {v:'g', x:'qgen'}) + P.btn('Preview as a worker', {v:'s', sm:true, x:'qpreview'}) + '</div>', pill(Q.qs.length + ' questions · 100 pts', ''));
     else body += P.sec('What the test is based on', 'Pico builds the test only from what you filled in. Change any of it and generate again.',
-        Q.gen === 'loading' ? '<div class="gen"><span class="spin lg" style="color:var(--text-accent)"></span><b>Generating the test…</b><small>Reading your category, level, description and ' + d.deliv.length + ' deliverables.</small></div>'
-        : '<div class="kv2">' + [['Category and level', d.cat + ' · ' + d.level],['Task', d.title || '—'],['Deliverables', d.deliv.length + ' items']].map(r => '<div class="r"><span>' + r[0] + '</span><b>' + E(r[1]) + '</b></div>').join('') + '</div><div class="row2">' + P.btn('Generate test', {icon:'sparkle', x:'qgen'}) + '<small class="muted" style="font:500 13px/18px var(--font)">Takes a few seconds. You can edit any question after.</small></div>');
+        Q.gen === 'loading' ? '<div class="gen"><span class="spin lg" style="color:var(--text-accent)"></span><b>Generating the test…</b><small>Reading your category, level, description and materials.</small></div>'
+        : '<div class="kv2">' + [['Category and level', d.cat + ' · ' + d.level],['Task', d.title || '—'],['Materials', d.links.length + (d.links.length === 1 ? ' item' : ' items')]].map(r => '<div class="r"><span>' + r[0] + '</span><b>' + E(r[1]) + '</b></div>').join('') + '</div><div class="row2">' + P.btn('Generate test', {icon:'sparkle', x:'qgen'}) + '<small class="muted" style="font:500 13px/18px var(--font)">Takes a few seconds. You can edit any question after.</small></div>');
     body += P.sec('Pass mark', 'Suggested by Pico from the questions. You can change it before you publish.',
       P.field({label:'Pass mark', type:'select', value:String(Q.pass), bind:'draft.qual.pass', opts:[['50','50 / 100 · 2 of 4 questions correct'],['75','75 / 100 · 3 of 4 questions correct'],['100','100 / 100 · all 4 correct']], help:'Workers see their score and this pass mark after the test.'}) +
       P.field({label:'Who can take it', type:'select', value:'x', dis:true, opts:[['x', d.cat + ' workers · ' + d.level + ' and above']], help:'Only workers with a verified skill in this category and level can take the test.'}));
@@ -14622,12 +14719,12 @@ RENDER.v2ct4 = (root) => {
   let body = P.sec('Budget', 'What the worker gets when the work is accepted or passes verification.',
     P.field({id:'ctReward', label:'Worker reward, USDC', type:'number', value:d.reward, bind:'draft.reward', err:rewardErr, help:'Available on Pico: ' + usd(GS.avail)}) +
     (m.short > 0 ? '<div>' + P.btn('Add funds', {v:'s', sm:true, icon:'plus', x:'funds'}) + '</div>' : '') +
-    '<div class="tgrow' + (d.iv ? ' on' : '') + '"><div class="tx"><b>Independent verification</b><small>A qualified reviewer checks the work against your deliverables instead of you. Fee: 10% of the worker reward, locked with it and paid once per task.</small></div><span class="fee">+ ' + usd(Math.round(m.b * 10) / 100) + '</span>' + P.tgl(d.iv, 'ivtoggle', 'Independent verification') + '</div>' +
-    (d.iv ? '<div class="fg"><span class="mlabel">Reviewers</span><div class="chips">' + P.chip('1 reviewer', true) + P.chip('Multiple reviewers · later', false, '', true) + '</div><div class="mhelp">One 10% fee per task. If more reviewers are added to a task later, they share it.</div></div>' : ''));
-  body += P.sec('Summary', 'Check before you publish. Scope locks when a worker is assigned.', P.kv([['Task', E(d.title)],['Category · level', d.cat + ' · ' + d.level],['Deadline', d.days + ' days after assignment'],['Deliverables', d.deliv.length + ' items'],['Qualification', Q.on ? 'On · ' + Q.qs.length + ' questions · pass mark ' + Q.pass + ' / 100' : 'Off · first eligible worker to accept'],['Review', d.iv ? 'Independent verification · 1 reviewer' : 'By you · auto-payout 14 days after submission']]));
+    '<div class="tgrow' + (d.iv ? ' on' : '') + '"><div class="tx"><b>Independent verification</b><small>A qualified reviewer checks the work against your requirements instead of you. Fee: 10% of the worker reward, locked with it and paid once.</small></div><span class="fee">+ ' + usd(Math.round(m.b * 10) / 100) + '</span>' + P.tgl(d.iv, 'ivtoggle', 'Independent verification') + '</div>' +
+    (d.iv ? P.line('1 reviewer checks the work. The full 10% fee goes to them.', 'ok') : ''));
+  body += P.sec('Summary', 'Check before you publish. Scope locks when a worker is assigned.', P.kv([['Task', E(d.title)],['Category · level', d.cat + ' · ' + d.level],['Deadline', d.days + ' days after assignment'],['Materials', d.links.length + (d.links.length === 1 ? ' item' : ' items')],['Qualification', Q.qs.length + ' questions · pass mark ' + Q.pass + ' / 100'],['Review', d.iv ? 'Independent verification · 1 reviewer' : 'By you · auto-payout 14 days after submission']]));
   body += P.sec('Funds', 'Money is locked before work begins, so workers know it exists.', P.kv([['Worker reward', fmt(m.b)],['Verification fee (10%)', d.iv ? fmt(m.fee) : 'Off · 0.00'],['Total to lock', usd(m.total), 'tot']]) +
     P.kv([['Available', m.short > 0 ? fmt(GS.avail) + ' · short by ' + usd(m.short) : fmt(GS.avail) + ' → ' + usd(GS.avail - m.total), m.short > 0 ? 'err' : ''],['Locked in tasks', m.short > 0 ? usd(BAL.locked) + ' · no change' : fmt(BAL.locked) + ' → ' + usd(BAL.locked + m.total)]]) +
-    P.callout(m.short > 0 ? 'Nothing is locked yet. Add ' + usd(m.short) + ' from Phantom or lower the reward.' : usd(m.total) + ' moves from Available to Locked. It goes to the worker when ' + (d.iv ? 'the reviewer passes the work' : 'you accept, or automatically 14 days after submission') + '. If you cancel before a worker is assigned, it returns to Available.', m.short > 0 ? 'error' : ''),
+    P.callout(m.short > 0 ? 'Nothing is locked yet. Add ' + usd(m.short) + ' from Phantom or lower the reward.' : usd(m.total) + ' moves from Available to Locked. It goes to the worker when ' + (d.iv ? 'the reviewer passes the work' : 'you accept, or automatically 14 days after submission') + '. If no worker qualifies within 7 days, it returns to Available automatically.', m.short > 0 ? 'error' : ''),
     m.short > 0 ? pill('Not enough balance', 'error', true) : pill('Locks at publish', 'success', true));
   ctFrame(root, 3, body, '<small>' + (m.short > 0 ? 'Add funds to continue' : 'You’ll confirm once in Phantom') + '</small>' + P.btn('Lock ' + usd(m.total) + ' and publish', {lg:true, x:'publish', dis:!m.ok}));
   const r = root.querySelector('#ctReward'); if (r) { r.addEventListener('blur', () => { d.reward = fmt(num(d.reward)).replace(/,/g,''); rerender(); }); r.addEventListener('keydown', e => { if (e.key === 'Enter') r.blur(); }); }
@@ -14637,12 +14734,12 @@ X.publish = () => {
   const d = D(), m = draftMoney(); if (!m.ok) return;
   phantomFlow({title:'Lock ' + usd(m.total) + ' and publish?', sub:E(d.title) + ' · ' + d.cat, cta:'Confirm in Phantom',
     rows:[['Worker reward', fmt(m.b)],['Verification fee', d.iv ? fmt(m.fee) : 'Off'],['Moves to Locked', usd(m.total)],['Available after', usd(GS.avail - m.total)]],
-    note:'Phantom asks you to sign once. The funds stay locked in escrow until the work is accepted, or return to Available if you cancel before assignment.',
+    note:'Phantom asks you to sign once. The funds stay locked in escrow until the work is accepted, or return to Available if no worker qualifies within 7 days.',
     doneTitle:'Published · ' + usd(m.total) + ' locked', doneRows:() => [['Locked for this task', usd(m.total)],['Available now', usd(GS.avail)],['Status', 'Finding Worker']],
     doneText:() => d.qual.on ? 'Pico sent the qualification test to eligible ' + d.cat + ' workers. The first to reach ' + d.qual.pass + ' / 100 gets the task.' : 'Pico showed the task to eligible ' + d.cat + ' workers. The first to accept gets it.',
     doneCta:'Open the task', apply:() => {
       const id = d.id || ('t' + Date.now().toString(36));
-      const t = {id, title:d.title.trim(), cat:d.cat, level:d.level, days:+d.days, desc:d.desc, crit:d.crit.filter(c => c.trim()), deliv:d.deliv.filter(c => c.trim()), reward:m.b, iv:d.iv,
+      const t = {id, title:d.title.trim(), cat:d.cat, level:d.level, days:+d.days, desc:d.desc, crit:(reqsOf(d.desc).length ? reqsOf(d.desc) : d.crit.filter(c => c.trim())), deliv:d.deliv.filter(c => c.trim()), reward:m.b, iv:d.iv,
         qual:{on:d.qual.on, pass:+d.qual.pass, qs:d.qual.on ? d.qual.qs : qsFor(d.cat)}, status:'finding', funded:dayLabel(0), chat:[], files:d.links.slice(), cands:[], rounds:0, events:[], fresh:true};
       addEvent(t, d.qual.on ? 'Qualification started' : 'Shown to eligible workers', d.qual.on ? 'Test sent to eligible ' + d.cat + ' workers' : 'Verified ' + d.cat + ' · ' + d.level + ' and above');
       addEvent(t, 'Funds locked', usd(m.total) + ' from Available', 'money');
@@ -14688,7 +14785,7 @@ function statusCard(t){
   switch (t.status) {
     case 'assigned': return P.card(P.ch('user', 'Worker #' + t.worker + ' is assigned · not started yet') + '<p class="sub2">The task moves to In Progress when the worker presses Start work. Criteria are locked now; changes go through a change request the worker accepts.</p>');
     case 'progress': return P.card(P.ch('tool', 'Worker #' + t.worker + ' is on it · due ' + (t.due || dayLabel(t.days))) + '<p class="sub2">Nothing needed from you right now. You’ll review the work when it’s submitted. Chat is for questions; new scope goes through a change request.</p>' +
-        (t.cr && t.cr.status === 'pending' ? P.callout('Your change request is waiting for the worker. Until they answer, work continues on the current terms. If they decline, they get ' + usd(Math.round(t.reward * 50) / 100) + ' (50%) and you choose terms for a new worker.') : '') +
+        (t.cr && t.cr.status === 'pending' ? P.callout('Your change request is waiting for the worker. Until they answer, work continues on the current terms. If they decline, the current terms stay' + (t.cr && t.cr.extra ? ' and the extra ' + usd(t.cr.extra) + ' returns to Available' : '') + '.') : '') +
         (t.cx && t.cx.status === 'pending' ? P.callout('You asked to cancel together. Waiting for Worker #' + t.worker + '. Until they answer, work continues on the current terms.') : '') +
         '<div class="acts">' + P.btn('Open conversation' + (t.unread ? ' · ' + t.unread + ' new' : ''), {v:'s', sm:true, icon:'chat', x:'ctab:' + t.id + ':chat'}) + '</div>', 'accent');
     case 'review': { const left = t.daysLeft != null ? t.daysLeft : 14;
@@ -14705,19 +14802,27 @@ function statusCard(t){
         '<div class="acts">' + P.btn('Accept the work instead', {v:'s', x:'accept:' + t.id}) + P.btn('Add evidence', {v:'g', x:'evidence:' + t.id}) + '</div>', 'err'); }
     case 'completed': { const how = {accepted:'You accepted the work', auto:'Paid automatically — no response in 14 days', pass:'An independent reviewer passed every criterion, so the payout went out without an approval step', dispute:'Paid in full by the platform decision', partial:'Split by the platform decision'}[t.how] || 'Completed';
       return P.card(P.ch('lock', (t.how === 'partial' ? 'Decided ' : 'Paid ') + (t.paid || '') + ' · this workroom is read-only', '', 'ok') + '<p class="sub2">' + how + '. ' + (t.how === 'partial' ? usd(t.paidAmt) + ' went to Worker #' + t.worker + ' and ' + usd(t.refund || 0) + ' returned to your Available.' : usd(t.paidAmt || t.reward) + ' released' + (t.iv ? ' (' + fmt(t.reward) + ' to Worker #' + t.worker + ', ' + fmt(feeOf(t)) + ' verification fee to the reviewer)' : ' to Worker #' + t.worker) + '.') + ' Description, criteria, messages, files and the submission stay here as history.</p><div class="acts">' + P.btn('View proof ↗', {v:'g', sm:true, x:'toast:Proof opens the transaction on Solana Explorer. Not linked in the prototype.'}) + '</div>', 'ok'); }
-    case 'cancelled': return P.card(P.ch('lock', 'Cancelled ' + (t.cancelled || '') + ' · ' + usd(t.refund != null ? t.refund : t.reward + feeOf(t)) + ' back in Available', '', 'mut') + '<p class="sub2">' + ({before:'You cancelled before a worker was assigned. Nothing was paid.', agreement:'You and Worker #' + t.worker + ' agreed to stop the task. Unused funds returned to you.', refund:'The platform decision refunded the locked funds to you.'}[t.how] || 'Nothing was paid.') + ' This page stays here as history.</p><div class="acts">' + P.btn('View in Balance', {v:'g', sm:true, go:'balance'}) + '</div>');
+    case 'cancelled': return P.card(P.ch('lock', (t.how === 'expired' ? 'Closed ' : 'Cancelled ') + (t.cancelled || '') + ' · ' + usd(t.refund != null ? t.refund : t.reward + feeOf(t)) + ' back in Available', '', 'mut') + '<p class="sub2">' + ({expired:'No worker qualified within 7 days, so Pico closed the task and returned the money. You can create a new task from the same brief.', before:'You cancelled before a worker was assigned. Nothing was paid.', agreement:'You and Worker #' + t.worker + ' agreed to stop the task. Unused funds returned to you.', refund:'The platform decision refunded the locked funds to you.'}[t.how] || 'Nothing was paid.') + ' This page stays here as history.</p><div class="acts">' + P.btn('View in Balance', {v:'g', sm:true, go:'balance'}) + '</div>');
   }
   return '';
 }
 function critCard(t){
   const locked = !['finding','draft'].includes(t.status);
-  return P.card(P.ch('lock', 'Task description', locked ? pill('Locked ' + (t.assigned || ''), '') : pill('Locks at assignment', '')) + '<p class="sub2">' + E(t.desc) + '</p>' +
+  const same = typeof reqsOf === 'function' && reqsOf(t.desc).join('|') === t.crit.join('|');
+  return P.card(P.ch('lock', 'Agreed terms', locked ? pill('Locked ' + (t.assigned || '') + ' · source of truth', '') : pill('Locks at assignment', '')) +
+    '<p class="sub2 muted">' + (locked ? 'What Worker #' + t.worker + ' agreed to. Only a change request they accept can change it.' : 'What the worker agrees to when they take the task. It locks at assignment.') + '</p>' +
+    P.kv([['Reward', usd(t.reward) + (t.iv ? ' · + ' + usd(feeOf(t)) + ' reviewer fee' : '')],['Deadline', t.due ? t.due : t.days + ' days after assignment'],['Level', t.cat + ' · ' + (t.level || 'Mid') + ' and above'],['Review', t.iv ? 'Independent reviewer' : 'By you · auto-payout 14 days after submission']]) +
+    (same || !t.desc ? '' : '<div class="ch" style="margin-top:4px"><h2 style="font-size:15px">Brief</h2></div><p class="sub2">' + E(t.desc) + '</p>') +
     '<div class="ch" style="margin-top:4px"><h2 style="font-size:15px">Acceptance criteria</h2></div>' +
     '<div class="lst">' + t.crit.map((c, i) => { const nm = (t.req && t.status === 'revision' && t.req.crit === i) || (t.dsp && t.dsp.crit === i && t.status === 'dispute');
       return '<div class="li"' + (nm ? ' style="border-color:' + (t.status === 'dispute' ? 'var(--tint-error-border)' : 'rgba(251,146,60,.4)') + '"' : '') + '><span class="num">' + String(i + 1).padStart(2, '0') + '</span><div class="tx"><b style="font-weight:500">' + E(c) + '</b>' + (nm ? '<span class="fb"' + (t.status === 'dispute' ? ' style="color:var(--status-error)"' : '') + '>' + (t.status === 'dispute' ? 'In dispute' : 'Changes requested on this criterion') + '</span>' : '') + '</div><span class="lk">' + (locked ? IC.lock : '') + '</span></div>'; }).join('') + '</div>' +
     (t.deliv && t.deliv.length ? '<div class="ch" style="margin-top:4px"><h2 style="font-size:15px">Deliverables</h2></div><div class="lst">' + t.deliv.map((c, i) => '<div class="li"><span class="num">' + (i + 1) + '</span><div class="tx"><b style="font-weight:500">' + E(c) + '</b></div></div>').join('') + '</div>' : '') +
     (t.cr && t.cr.status === 'accepted' ? P.callout('Change request accepted ' + (t.cr.at || '') + ': ' + E(t.cr.summary) + '. These are the terms now.', 'success') : ''));
 }
+function followCard(t){ if (t.status !== 'completed') return '';
+  return P.card(P.ch('tasks', 'Need more work on this?') + '<p class="sub2 muted">This task is closed and paid on its agreed terms. New work goes into a follow-up task with its own locked budget.</p><div class="acts">' + P.btn('Create follow-up task', {v:'s', x:'followup:' + t.id}) + '</div>'); }
+X.followup = id => { const t = V.tasks[id]; V.draft = {id:null, cat:t.cat, title:'Follow-up: ' + t.title, desc:'', crit:[], deliv:[], level:t.level || 'Mid', days:String(t.days || 3), links:(t.files || []).slice(0, 3), qual:{on:true, gen:false, qs:[], pass:75}, reward:fmt(t.reward).replace(/,/g, ''), iv:!!t.iv, err:{}, saved:null, follow:t.id};
+  show('ct-details'); setTimeout(() => toast('Follow-up draft: same category, level, deadline and reward. Write the new requirements.', 'info'), 60); };
 function submissionCard(t){
   if (!t.sub) return '';
   const tone = {review:['Waiting for your review','warning'], verification:['With the reviewer','tech'], revision:['Changes requested','rev'], completed:['Accepted','success'], dispute:['In dispute','error']}[t.status] || ['Submitted',''];
@@ -14748,7 +14853,7 @@ function changeReqCard(t){
   if (!['assigned','progress','revision'].includes(t.status)) return '';
   const cr = t.cr, n = cr ? 1 : 0;
   return P.card(P.ch('arrow', 'Change requests <span class="pill" style="margin-left:6px">' + n + '</span>') +
-    (cr ? '<div class="li"><div class="tx"><b>Change request · ' + (cr.at || dayLabel(0)) + '</b><small>' + E(cr.summary) + '</small></div>' + (cr.status === 'pending' ? pill('Waiting for the worker', 'warning', true) : cr.status === 'accepted' ? pill('Accepted · new terms apply', 'success', true) : pill('Declined · worker left the task', '', true)) + '</div>' +
+    (cr ? '<div class="li"><div class="tx"><b>Change request · ' + (cr.at || dayLabel(0)) + '</b><small>' + E(cr.summary) + '</small></div>' + (cr.status === 'pending' ? pill('Waiting for the worker', 'warning', true) : cr.status === 'accepted' ? pill('Accepted · new terms apply', 'success', true) : pill('Declined · current terms stay', '', true)) + '</div>' +
       (cr.status !== 'pending' ? '<div>' + P.btn('Propose another change', {v:'s', sm:true, x:'cr:' + t.id}) + '</div>' : '')
     : '<div class="li" style="border-style:dashed;background:transparent"><div class="tx"><b>No change requests</b><small>New scope, deadline or reward needs the worker’s approval. Chat messages don’t change the task.</small></div>' + P.btn('Propose a change', {v:'s', sm:true, x:'cr:' + t.id}) + '</div>'));
 }
@@ -14776,14 +14881,14 @@ RENDER.ctask = (root, s) => {
   const pg = chrome(root, 'hire', 'mytasks', [['My tasks', 'mytasks'], [t.title]]);
   let h = '<button class="back" data-go="mytasks">← My tasks</button>' + heroFor(t) + statusCard(t);
   if (t.status === 'finding') {
-    h += (t.relist && t.relist.pending ? relistCard(t) : qualSection(t)) + critCard(t) + P.card(P.ch('activity', 'Task activity') + P.timeline(t.events)) +
-      P.card(P.ch('alert', 'Need to stop?', P.btn('Cancel task', {v:'d', sm:true, x:'canceltask:' + t.id}), 'err') + '<p class="sub2 muted">You can cancel until a worker is assigned. The ' + usd(lockedOf(t)) + ' returns to Available right away.</p>');
+    t.autoClose = t.autoClose || dayLabel(7);
+    h += (t.relist && t.relist.pending ? relistCard(t) : qualSection(t)) + P.card(P.ch('lock', 'If no one qualifies', pill('Auto-refund ' + t.autoClose, '', true)) + '<p class="sub2 muted">A published task can’t be cancelled. If no worker qualifies within 7 days, the task closes on ' + t.autoClose + ' and ' + usd(lockedOf(t)) + ' returns to Available automatically.</p>') + critCard(t) + P.card(P.ch('activity', 'Task activity') + P.timeline(t.events));
   } else if (t.status === 'cancelled') {
     h += critCard(t) + P.card(P.ch('activity', 'Task activity') + P.timeline(t.events));
   } else {
     const tab = V.ui.tab[t.id] || 'overview';
     h += P.tabs([['overview', t.sub && ['review','verification','revision','completed','dispute'].includes(t.status) ? 'Review' : 'Overview'],['chat','Conversation', t.unread ? t.unread + ' new' : (t.chat.length || ''), !!t.unread],['files','Files & links', t.files.length || ''],['activity','Activity']], tab, 'ctab:' + t.id);
-    if (tab === 'overview') h += disputeCard(t) + verdictCard(t) + submissionCard(t) + critCard(t) + changeReqCard(t) + stopCard(t);
+    if (tab === 'overview') h += disputeCard(t) + verdictCard(t) + submissionCard(t) + followCard(t) + critCard(t) + changeReqCard(t) + stopCard(t);
     if (tab === 'chat') { t.unread = 0;
       h += P.card(P.ch('chat', 'Conversation with Worker #' + t.worker) + '<div class="msgs" id="msgs">' + P.msgs(t.chat, 'Worker #' + t.worker) + '</div>' +
         (['completed'].includes(t.status) ? P.callout('This workroom is read-only.') : '<div class="composer"><div class="mfield"><input id="cMsg" placeholder="Write to Worker #' + t.worker + '…" aria-label="Message"></div>' + P.btn('Send', {x:'send:' + t.id}) + '</div>') +
@@ -14857,7 +14962,7 @@ X.cr = (id) => {
       '<div class="row3">' + (st.deadline ? P.field({id:'crDl', label:'New deadline', type:'select', value:st.dl, opts:[dayLabel(+t.days + 1), dayLabel(+t.days + 2), dayLabel(+t.days + 4)], help:'Was ' + (t.due || dayLabel(t.days))}) : '<div></div>') +
         (st.reward ? P.field({id:'crRw', label:'Worker reward, USDC', type:'number', value:st.rw, err: short > 0 ? 'Was ' + fmt(t.reward) + ' · +' + usd(ex) : st.err.rw, help:'Was ' + fmt(t.reward) + (ex > 0 ? ' · +' + usd(ex) : '')}) : '<div></div>') + '</div>' +
       P.mbox((ex > 0 ? (short > 0 ? [['Extra to lock when you send', '+' + usd(ex)],['Available', fmt(GS.avail) + ' · short by ' + usd(short), 'error']] : [['Extra to lock when you send', '+' + usd(ex)],['Available after sending', usd(GS.avail - ex)]]) : [['Extra to lock', 'Nothing · reward unchanged'],['Current terms', t.crit.length + ' criteria · ' + (t.due || dayLabel(t.days)) + ' · ' + usd(t.reward)]]).concat([['If the worker declines', usd(Math.round(t.reward * 50) / 100) + ' (50%) goes to them from your locked funds', 'warning']])) +
-      (short > 0 ? P.callout('Add ' + usd(short) + ' from Phantom or lower the new reward. Nothing is sent or locked yet.', 'warn') : P.callout('Until the worker answers, work continues on the current terms. If they decline, the task ends for them: they get 50% of the current reward, and you choose the terms for a new worker.')) +
+      (short > 0 ? P.callout('Add ' + usd(short) + ' from Phantom or lower the new reward. Nothing is sent or locked yet.', 'warn') : P.callout('Until the worker answers, work continues on the current terms. If they decline, the current terms stay and any extra you locked returns to Available. Much bigger new work? Create a follow-up task after this one is accepted.')) +
       P.mact(short > 0 ? [['Cancel','s','close'],['Add funds','s','funds'],['Send to worker','p','x',true]] : [['Cancel','s','close'],['Send to worker','p','send']]); },
     mount: m => { m.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => { st[b.dataset.k] = !st[b.dataset.k]; st.err = {}; drawM(); }));
       const c = m.querySelector('#crCrit'); c && c.addEventListener('input', () => st.crit = c.value);
@@ -14875,11 +14980,8 @@ function crAnswer(t, yes){
   const cr = t.cr; if (!cr || cr.status !== 'pending') return;
   cr.status = yes ? 'accepted' : 'declined'; cr.at = dayLabel(0);
   if (yes) { if (cr.crit) t.crit.push(cr.crit); if (cr.dl) t.due = cr.dl; if (cr.rw) { t.reward = cr.rw; t.extraLocked = Math.max(0, (t.extraLocked || 0) - cr.extra); } addEvent(t, 'Worker accepted the change request', cr.summary); note('Change request accepted', t.title + ' · new terms apply', taskKey(t.id)); }
-  else { const half = Math.round(t.reward * 50) / 100, w = t.worker;
-    t.paidOut = (t.paidOut || 0) + half; t.crPaid = (t.crPaid || 0) + half;
-    t.relist = {pending:true, worker:w, paid:half, cr, at:dayLabel(0), pick:'new'};
-    t.status = 'finding'; t.worker = null; t.assigned = null; t.started = null; t.sub = null; t.due = null; t.cands = []; t.chat = []; t.unread = 0; t.cx = null; t.cr = null;
-    addEvent(t, 'Worker declined the change request', 'Task ended for Worker #' + w + ' · ' + usd(half) + ' (50%) released to them', 'money'); note('Change request declined', t.title + ' · choose terms for a new worker', taskKey(t.id)); }
+  else { const ex = cr.extra || 0; if (ex) { GS.avail += ex; t.extraLocked = Math.max(0, (t.extraLocked || 0) - ex); }
+    addEvent(t, 'Worker declined the change request', 'Current terms stay' + (ex ? ' · ' + usd(ex) + ' back to Available' : ''), ex ? 'money' : 'warn'); note('Change request declined', t.title + ' · current terms stay', taskKey(t.id)); }
 }
 
 /* Mutual cancellation (C18, decision 41) */
@@ -14943,11 +15045,12 @@ SIM.ctask = (s) => {
       L.push(['A worker reaches ' + t.qual.pass + ' / 100 first', () => { const c = t.cands.find(x => x.st === 'taking'); const id = c ? c.id : '8120'; t.status = 'assigned'; t.worker = id; t.assigned = dayLabel(0); t.due = dayLabel(t.days); addEvent(t, 'Worker assigned', 'Worker #' + id + ' · first to reach ' + t.qual.pass + ' / 100'); note('Worker assigned', t.title + ' · Worker #' + id, taskKey(t.id)); SIMNOTE('Worker #' + id + ' reached the pass mark first and got the task. Criteria are locked now.'); }, 'First qualified worker gets the task']);
     } else L.push(['An eligible worker accepts the task', () => { t.status = 'assigned'; t.worker = '8120'; t.assigned = dayLabel(0); t.due = dayLabel(t.days); addEvent(t, 'Worker assigned', 'Worker #8120 · first eligible to accept'); note('Worker assigned', t.title + ' · Worker #8120', taskKey(t.id)); SIMNOTE('Worker #8120 accepted first and got the task.'); }, 'Qualification off · first eligible worker']);
   }
-  if (t.status === 'assigned' && t.cr && t.cr.status === 'pending') { L.push(['Worker accepts the change request', () => { crAnswer(t, true); SIMNOTE('Change request accepted. The new terms apply now.'); }]); L.push(['Worker declines the change request', () => { crAnswer(t, false); SIMNOTE('Declined. The worker got 50% of the reward. Choose the terms for a new worker.'); }, '→ 50% to the worker · new search']); }
+  if (t.status === 'finding') L.push(['7 days pass, no worker qualifies', () => { const back = lockedOf(t); refundAll(t, 'expired'); addEvent(t, 'Task closed automatically', 'No worker qualified in 7 days'); addEvent(t, 'Funds returned', usd(back) + ' to Available', 'money'); note('Task closed · funds returned', t.title + ' · ' + usd(back) + ' back in Available', taskKey(t.id)); SIMNOTE('No worker qualified in 7 days. ' + usd(back) + ' is back in Available.'); }]);
+  if (t.status === 'assigned' && t.cr && t.cr.status === 'pending') { L.push(['Worker accepts the change request', () => { crAnswer(t, true); SIMNOTE('Change request accepted. The new terms apply now.'); }]); L.push(['Worker declines the change request', () => { crAnswer(t, false); SIMNOTE('Declined. Work continues on the current terms.'); }, '→ current terms stay']); }
   if (t.status === 'assigned') L.push(['Worker presses Start work', () => { t.status = 'progress'; t.started = dayLabel(0); addEvent(t, 'Worker started', 'In Progress'); SIMNOTE('Worker #' + t.worker + ' started. The task is In Progress.'); }]);
   if (['assigned','progress','revision','review'].includes(t.status)) L.push(['Worker sends a message', () => { t.chat.push(['w', dayLabel(0) + ' · ' + clockNow(), 'Quick question about criterion 1 — is the mobile breakpoint 375 or 390?']); t.unread = (t.unread || 0) + 1; SIMNOTE('New message from Worker #' + t.worker + '.'); }]);
   if (t.status === 'progress') {
-    if (t.cr && t.cr.status === 'pending') { L.push(['Worker accepts the change request', () => { crAnswer(t, true); SIMNOTE('Change request accepted. The new terms apply now.'); }]); L.push(['Worker declines the change request', () => { crAnswer(t, false); SIMNOTE('Declined. The worker got 50% of the reward. Choose the terms for a new worker.'); }, '→ 50% to the worker · new search']); }
+    if (t.cr && t.cr.status === 'pending') { L.push(['Worker accepts the change request', () => { crAnswer(t, true); SIMNOTE('Change request accepted. The new terms apply now.'); }]); L.push(['Worker declines the change request', () => { crAnswer(t, false); SIMNOTE('Declined. Work continues on the current terms.'); }, '→ current terms stay']); }
     if (t.cx && t.cx.status === 'pending') { L.push(['Worker agrees to cancel', () => { const back = lockedOf(t); refundAll(t, 'agreement'); addEvent(t, 'Cancelled by agreement', usd(back) + ' back to Available', 'money'); note('Task cancelled by agreement', t.title, taskKey(t.id)); SIMNOTE('Cancelled by agreement. ' + usd(back) + ' is back in Available.'); }]); L.push(['Worker declines to cancel', () => { t.cx.status = 'declined'; addEvent(t, 'Worker declined to cancel', 'Work continues', 'warn'); SIMNOTE('The worker declined. Work continues on the current terms.'); }]); }
     L.push(['Worker submits the work', () => { submitWork(t); SIMNOTE(t.iv ? 'Submitted. An independent reviewer is checking it now.' : 'Submitted. Your review is next — auto-payout in 14 days.'); }, t.iv ? '→ In Verification' : '→ Awaiting Review']);
   }
@@ -15029,22 +15132,22 @@ const BENCH = {
 function seedWorker(){
   const T = {};
   const add = t => { T[t.id] = Object.assign({level:'Mid', qual:{on:true, pass:75, qs:qsFor(t.cat)}, my:'open', chat:[], files:[], events:[], ans:{}, rounds:0, deliv:[]}, t); };
-  add({id:'mcheckout', title:'Mobile checkout redesign', company:'Brightline', cat:'Design', pay:110, days:3, posted:'2 h ago', topic:'Checkout & forms',
-    desc:'Redesign the mobile checkout: address, delivery and payment on one scrollable page.', crit:['One-page flow at 375 px.','Uses the Brightline design system.','Figma prototype with the error states.'], deliv:['Figma file with the prototype'], outcome:'free'});
-  add({id:'herofin', title:'Hero section for a fintech landing', company:'Lumen Pay', cat:'Design', pay:90, days:2, posted:'40 min ago', topic:'Landing pages', qual:{on:false, pass:75, qs:[]},
+  add({id:'mcheckout', title:'Mobile checkout redesign', company:'Client #2207', cat:'Design', pay:110, days:3, posted:'2 h ago', topic:'Checkout & forms',
+    desc:'Redesign the mobile checkout: address, delivery and payment on one scrollable page.', crit:['One-page flow at 375 px.','Uses the client’s design system.','Figma prototype with the error states.'], deliv:['Figma file with the prototype'], outcome:'free'});
+  add({id:'herofin', title:'Hero section for a fintech landing', company:'Client #4821', cat:'Design', pay:90, days:2, posted:'40 min ago', topic:'Landing pages', qual:{on:false, pass:75, qs:[]},
     desc:'One hero section for a savings app landing: headline, supporting line, primary CTA and a product visual. Desktop and mobile.', crit:['Desktop 1440 and mobile 375 variants.','Headline 8 words or fewer.','Uses the Lumen Pay brand colors.'], deliv:['Figma file'], outcome:'free'});
-  add({id:'emptystates', title:'Onboarding empty states', company:'Kettle', cat:'Design', level:'Junior', pay:75, days:3, posted:'3 h ago', topic:'Mobile UI',
-    desc:'Five empty states for the Kettle app: no tasks, no messages, no results, offline and first run.', crit:['Five empty states with copy.','Illustrations use the Kettle palette.','Mobile 375 frames.'], deliv:['Figma file'], outcome:'taken'});
-  add({id:'dashcards', title:'Dashboard cards redesign', company:'Fernway', cat:'Design', pay:120, days:4, posted:'10 min ago', topic:'Design systems', qual:{on:false, pass:75, qs:[]},
+  add({id:'emptystates', title:'Onboarding empty states', company:'Client #3391', cat:'Design', level:'Junior', pay:75, days:3, posted:'3 h ago', topic:'Mobile UI',
+    desc:'Five empty states for a task-manager app: no tasks, no messages, no results, offline and first run.', crit:['Five empty states with copy.','Illustrations use the Kettle palette.','Mobile 375 frames.'], deliv:['Figma file'], outcome:'taken'});
+  add({id:'dashcards', title:'Dashboard cards redesign', company:'Client #5130', cat:'Design', pay:120, days:4, posted:'10 min ago', topic:'Design systems', qual:{on:false, pass:75, qs:[]},
     desc:'Redesign 6 dashboard cards so they share one layout and work at 3 widths.', crit:['6 cards on one shared component.','Works at 320, 480 and 640 px card widths.','Documented variants.'], deliv:['Figma component set'], outcome:'taken'});
-  add({id:'flaky', title:'Fix flaky login tests', company:'Fernway', cat:'QA & Testing', level:'Junior', pay:70, days:2, posted:'1 h ago', topic:'Test automation',
+  add({id:'flaky', title:'Fix flaky login tests', company:'Client #5130', cat:'QA & Testing', level:'Junior', pay:70, days:2, posted:'1 h ago', topic:'Test automation',
     desc:'Find why 3 login tests fail randomly in CI and make them stable.', crit:['3 tests pass 20 runs in a row.','Root cause written in the PR.','No new sleeps or retries.'], outcome:'free'});
-  add({id:'retries', title:'Webhook retries for payouts', company:'Orbital Pay', cat:'Development', pay:160, days:4, posted:'5 h ago', topic:'Backend',
+  add({id:'retries', title:'Webhook retries for payouts', company:'Client #6604', cat:'Development', pay:160, days:4, posted:'5 h ago', topic:'Backend',
     desc:'Add retries with backoff to the payout webhook and a dead-letter queue.', crit:['5 retries with exponential backoff.','Failed events land in a dead-letter queue.','Tests for retry and give-up paths.'], outcome:'free'});
-  add({id:'iconaudit', title:'Brand icons audit', company:'Kettle', cat:'Design', pay:60, days:2, my:'completed', worker:'7310', paid:'Sep 14', paidAmt:60, how:'accepted',
+  add({id:'iconaudit', title:'Brand icons audit', company:'Client #3391', cat:'Design', pay:60, days:2, my:'completed', worker:'7310', paid:'Sep 14', paidAmt:60, how:'accepted',
     desc:'Audit 48 icons for stroke and grid consistency.', crit:['Every icon checked.','Issues listed per icon.'], events:[['Payout received','60.00 USDC to your Phantom','Sep 14, 12:10','money'],['Client accepted the work','All criteria met','Sep 14, 12:08','']]});
-  add({id:'bannerset', title:'Social banner set', company:'Lumen Pay', cat:'Design', pay:110, days:3, my:'completed', worker:'7310', paid:'Sep 9', paidAmt:110, how:'pass',
-    desc:'Six social banners for the Lumen Pay launch.', crit:['Six sizes.','Brand colors only.','PNG and Figma.'], events:[['Payout received','110.00 USDC to your Phantom','Sep 9, 16:40','money'],['Reviewer: PASS','All criteria met','Sep 9, 16:38','']]});
+  add({id:'bannerset', title:'Social banner set', company:'Client #4821', cat:'Design', pay:110, days:3, my:'completed', worker:'7310', paid:'Sep 9', paidAmt:110, how:'pass',
+    desc:'Six social banners for a payments app launch.', crit:['Six sizes.','Brand colors only.','PNG and Figma.'], events:[['Payout received','110.00 USDC to your Phantom','Sep 9, 16:40','money'],['Reviewer: PASS','All criteria met','Sep 9, 16:38','']]});
   return {phantom:false, domain:null, bench:{state:null, ans:{}}, skills:[], topics:{'Landing pages':true, 'Mobile UI':false, 'Checkout & forms':true, 'Design systems':false, 'Illustration':false, 'Accessibility':false},
     notify:'In-app and email', available:true, nt:{tasks:true, msgs:true, pay:true}, attempts:[], comp:{joined:{}, results:[]}, rep:{score:82, done:2, onTime:'100%'}, tasks:T,
     order:['mcheckout','herofin','emptystates','dashcards','flaky','retries','iconaudit','bannerset'], obStep:0};
@@ -15161,8 +15264,8 @@ RENDER.v2whome = (root) => {
   if (w.skills.length && w.available === false) h += wPaused(); else
   h += '<section class="card"><div class="ch"><span class="si">' + IC.sparkle + '</span><h2>Relevant tasks</h2><span class="sp"></span>' + pill(w.skills.map(s => s.cat + ' · ' + s.level).join(' · ') || 'No verified skills', '') + '</div>' +
     (rel.length ? '<div class="grid3">' + rel.slice(0, 3).map(wCard).join('') + '</div>' : P.empty(w.skills.length ? 'No open tasks match right now. Topics you follow send a notification when one appears.' : 'Verify a skill to unlock tasks.')) + '</section>';
-  h += '<div class="grid2">' + P.card(P.ch('bell', 'Topics', P.btn('Manage', {v:'g', sm:true, go:'w-topics'})) + '<p class="sub2 muted">You follow ' + Object.values(w.topics).filter(Boolean).length + ' topics. New matching tasks come as notifications.</p><div class="chips">' + Object.keys(w.topics).filter(k => w.topics[k]).map(k => pill(k, 'accent')).join('') + '</div>') +
-    P.card(P.ch('sparkle', 'Competition', P.btn('Open', {v:'g', sm:true, go:'w-comp'})) + '<p class="sub2 muted">Practice challenges with automatic scoring. Verified results go to your profile. No money prizes.</p><div class="chips">' + pill(Object.keys(w.comp.joined).length + ' joined', '') + pill(w.comp.results.length + ' verified results', w.comp.results.length ? 'success' : '') + '</div>') + '</div>';
+  h += '<div class="grid2">' + P.card(P.ch('bell', 'Task alerts', P.btn('Manage', {v:'g', sm:true, go:'w-topics'})) + '<p class="sub2 muted">You follow ' + Object.values(w.topics).filter(Boolean).length + ' topics. You get alerts for new matching tasks.</p><div class="chips">' + Object.keys(w.topics).filter(k => w.topics[k]).map(k => pill(k, 'accent')).join('') + '</div>') +
+    P.card(P.ch('sparkle', 'Level up', P.btn('Open', {v:'g', sm:true, go:'w-comp'})) + '<p class="sub2 muted">Challenges in your domain with automatic scoring. Verified results go to your profile. No money prizes.</p><div class="chips">' + pill(Object.keys(w.comp.joined).length + ' joined', '') + pill(w.comp.results.length + ' verified results', w.comp.results.length ? 'success' : '') + '</div>') + '</div>';
   pg.innerHTML = h; wire2(root);
 };
 function wNext(t){ if (t.cr && t.cr.status === 'pending' && WACTIVE.includes(t.my)) return 'Change request · your answer needed'; if (t.cx && t.cx.status === 'pending' && WACTIVE.includes(t.my)) return 'Client asks to cancel · your answer needed'; if (t.my === 'dispute' && t.dsp && t.dsp.by === 'client' && !t.dsp.resp) return 'Client opened a dispute · add your response'; if (t.my === 'cancelled') return t.closed ? 'Closed by the platform decision' : 'Cancelled by agreement'; if (t.my === 'ended') return 'You declined a change · ' + usd(t.paidAmt) + ' (50%) paid ' + (t.paid || '');
@@ -15249,11 +15352,11 @@ function crSum(cr){ return [cr.add ? '+1 criterion: ' + cr.add : '', cr.dl && cr
 function wPending(t){
   if (!WACTIVE.includes(t.my)) return '';
   let h = '';
-  if (t.cr && t.cr.status === 'pending') { const half = Math.round(t.pay * 50) / 100;
+  if (t.cr && t.cr.status === 'pending') {
     h += P.card(P.ch('arrow', 'The client proposes a change', pill('Your answer needed', 'warning', true), 'warn') + '<p class="sub2">Until you answer, you work on the current terms.</p>' + crCompare(t, t.cr) +
     (t.cr.note ? '<div class="quote"><b>' + E(t.company) + '</b>' + E(t.cr.note) + '</div>' : '') +
-    P.kv([['If you accept','The proposed terms become the locked terms'],['If you decline','The task ends for you · you get ' + usd(half) + ' (50% of the reward)'],['After a decline','The client chooses the terms and looks for a new worker']]) +
-    '<div class="acts">' + P.btn('Accept new terms', {x:'wcr:' + t.id + ':yes'}) + P.btn('Decline · get ' + usd(half), {v:'s', x:'wcrno:' + t.id}) + '</div>', 'warn'); }
+    P.kv([['If you accept','The proposed terms become the locked terms'],['If you decline','You keep working on the current terms'],['Disagree with both?','Open a dispute from this workroom']]) +
+    '<div class="acts">' + P.btn('Accept new terms', {x:'wcr:' + t.id + ':yes'}) + P.btn('Decline · keep current terms', {v:'s', x:'wcr:' + t.id + ':no'}) + '</div>', 'warn'); }
   if (t.cx && t.cx.status === 'pending') h += P.card(P.ch('alert', 'The client asks to cancel together', pill('Your answer needed', 'warning', true), 'warn') + '<div class="quote"><b>' + E(t.company) + '</b>' + E(t.cx.reason || 'No reason given.') + '</div>' +
     P.kv([['If you agree','Task cancelled · nothing is paid to you'],['If you decline','Work continues on the current terms'],['Part of the work is done?','Decline and open a dispute · Pico can decide a partial payout']]) +
     '<div class="acts">' + P.btn('Agree to cancel', {v:'s', x:'wcx:' + t.id + ':yes'}) + P.btn('Decline', {v:'g', x:'wcx:' + t.id + ':no'}) + '</div>', 'warn');
@@ -15383,20 +15486,8 @@ X.wsubmitwork = id => { const t = wt(id), re = t.my === 'revision';
 /* W15 · answer a change request */
 X.wcr = a => { const [id, yes] = a.split(':'), t = wt(id), cr = t.cr; if (!cr) return; cr.status = yes === 'yes' ? 'accepted' : 'declined'; cr.answered = dayLabel(0);
   if (yes === 'yes') { if (cr.add) { t.crit.push(cr.add); (t.critAdded = t.critAdded || []).push(t.crit.length - 1); } if (cr.dl) t.due = cr.dl; if (cr.pay) t.pay = cr.pay; t.events.unshift(['You accepted the change request', crSum(cr), stamp(), '']); toast('New terms accepted. They’re part of the locked terms now.', 'success'); }
-  else { cr.status = 'pending'; X.wcrno(id); return; }
+  else { t.events.unshift(['You declined the change request', crSum(cr) + ' · current terms stay', stamp(), 'warn']); toast('Declined. You keep working on the current terms.', 'success'); }
   (t.crHist = t.crHist || []).unshift(cr); t.cr = null; rerender(); };
-/* Declining a change ends the task for the worker: 50% of the current reward, paid from the client's locked funds (decision 42) */
-function wEnd(t, half){ const cr = t.cr; cr.status = 'declined'; cr.answered = dayLabel(0); (t.crHist = t.crHist || []).unshift(cr); t.cr = null; t.cx = null; t.wcx = null;
-  t.my = 'ended'; t.how = 'crdecline'; t.paid = dayLabel(0); t.paidAmt = half;
-  t.events.unshift(['You declined the change request', crSum(cr) + ' · the task ended for you', stamp(), 'warn']); t.events.unshift(['Payout received', usd(half) + ' · 50% for a declined change', stamp(), 'money']);
-  note('Payout received', t.title + ' · ' + usd(half) + ' (50%)', wRoom(t.id), 'work'); }
-X.wcrno = id => { const t = wt(id); if (!t.cr) return; const half = Math.round(t.pay * 50) / 100, st = {s:'confirm'};
-  openM({render(){
-    if (st.s === 'done') return P.mhead('Change declined · ' + usd(half) + ' paid', 'Settled on Solana · just now') + P.mbox([['To', 'Your Phantom · ' + wWallet()],['For', '50% of the ' + usd(t.pay) + ' reward'],['The task', 'Ended for you · read-only']]) + P.callout('The client chooses the terms and looks for a new worker.', 'success') + P.mact([['View proof ↗','g','proof'],['Back to the task','p','close']]);
-    return P.mhead('Decline the change?', E(t.title) + ' · ' + t.company) + P.mbox([['You receive', usd(half) + ' · 50% of the reward', 'success'],['Paid to', 'Your Phantom · ' + wWallet()],['The task', 'Ends for you · the workroom becomes read-only'],['The client', 'Chooses the terms and looks for a new worker']]) +
-      P.callout('This can’t be undone. To keep the task, accept the new terms instead.', 'error') + P.mact(st.s === 'loading' ? [['Keep the task','s','x',true],['Declining…','d','x',true,true]] : [['Keep the task','s','close'],['Decline and get ' + usd(half),'d','go']]); },
-    on:{ go(){ st.s = 'loading'; PM.lock = true; drawM(); setTimeout(() => { if (!PM) return; PM.lock = false; wEnd(t, half); st.s = 'done'; drawM(); }, 1100); },
-      proof(){ toast('Proof opens the transaction on Solana Explorer. Not linked in the prototype.', 'info'); } }}); };
 /* W23 · stop by agreement: client asks → agree / decline; worker asks → client answers (Simulate) */
 X.wcx = a => { const [id, yes] = a.split(':'), t = wt(id);
   if (yes === 'yes') { t.my = 'cancelled'; t.cxBy = 'client'; t.cx.status = 'accepted'; t.events.unshift(['Cancelled by agreement', 'Nothing was paid', stamp(), '']); toast('Cancelled by agreement.', 'info'); }
@@ -15495,44 +15586,74 @@ RENDER.v2wprof = (root) => {
     P.card(P.ch('sparkle', 'Reputation') + '<div class="score"><b>' + w.rep.score + '</b><small>/ 100</small></div><p class="sub2 muted">Built from completed tasks, qualification results and verified competition results. Separate from your skill level.</p>' + P.kv([['Completed tasks', String(w.rep.done)],['On time', w.rep.onTime],['Verified competition results', String(w.comp.results.length)]])) + '</div>';
   const at = (w.attempts || []).slice().reverse();
   h += P.card(P.ch('sparkle', 'Benchmark history', pill(at.length + (at.length === 1 ? ' attempt' : ' attempts'), '')) + (at.length ? '<div class="lst">' + at.map(a => '<div class="li"><span class="ext">' + a.score + '</span><div class="tx"><b>' + a.cat + ' benchmark</b><small>' + a.date + ' · ' + a.score + ' / 100 · pass mark 75</small></div>' + pill(a.pass ? 'PASS' : 'FAIL', a.pass ? 'success' : 'warning', true) + '</div>').join('') + '</div>' : P.empty('No attempts yet.')) + '<p class="sub2 muted" style="font-size:12px">A new PASS updates your level. The cooldown between attempts is still being defined.</p>');
-  h += P.card(P.ch('activity', 'Verified results') + (w.comp.results.length ? '<div class="lst">' + w.comp.results.map(r => '<div class="li"><span class="ext">' + r.score + '</span><div class="tx"><b>' + E(r.title) + '</b><small>Verified ' + r.date + ' · automatic scoring</small></div>' + pill('Verified', 'success', true) + '</div>').join('') + '</div>' : P.empty('Join a challenge in Competition to add verified results.')));
+  h += P.card(P.ch('activity', 'Verified results') + (w.comp.results.length ? '<div class="lst">' + w.comp.results.map(r => '<div class="li"><span class="ext">' + r.score + '</span><div class="tx"><b>' + E(r.title) + '</b><small>Verified ' + r.date + ' · automatic scoring</small></div>' + pill('Verified', 'success', true) + '</div>').join('') + '</div>' : P.empty('Join a challenge in Level up to add verified results.')));
   pg.innerHTML = h; wire2(root);
 };
 X.wverifynext = () => { const have = W().skills.map(s => s.cat); const next = ['Design','Development','QA & Testing'].find(c => !have.includes(c)); if (!next) { toast('All domains are verified.', 'info'); return; } X.wverify(next); };
 
-/* ---------- W8 · Topics ---------- */
-reg('w-topics', 'Working · Topics', 'v2wtopics', {h:1100});
+/* ---------- W8 · Task alerts (followed topics + where alerts go) ---------- */
+const TOPIC_INFO = {
+  'Landing pages':{d:'Hero sections, promo pages and marketing sites.', ex:['Hero and pricing sections','Product launch pages','Marketing site sections']},
+  'Mobile UI':{d:'App screens and flows at 375 px.', ex:['Onboarding and sign-up flows','Settings and profile screens','Empty and error states']},
+  'Checkout & forms':{d:'Payments, sign-up and long forms.', ex:['Checkout and payment steps','Validation and error states','Multi-step forms']},
+  'Design systems':{d:'Components, tokens and documentation.', ex:['Component variants and states','Color and type tokens','Usage docs for components']},
+  'Illustration':{d:'Spot illustrations and icons.', ex:['Icon sets','Empty-state illustrations','Onboarding visuals']},
+  'Accessibility':{d:'Contrast, keyboard and screen readers.', ex:['Contrast fixes','Keyboard and focus order','Screen reader labels']}};
+const ALERT_CH = [['app','In-app','bell','The bell in the top bar. Always on.'],['email','Email','send','A short email per new task.'],['push','Browser push','alert','Later · not available yet.', true],['digest','Daily digest','activity','Later · not available yet.', true]];
+reg('w-topics', 'Working · Task alerts', 'v2wtopics', {h:1300});
 RENDER.v2wtopics = (root) => {
-  const pg = chrome(root, 'work', 'w-topics', [['Working', 'w-home'], ['Topics']]), w = W();
-  const desc = {'Landing pages':'Hero sections, promo pages, marketing sites','Mobile UI':'App screens, flows at 375 px','Checkout & forms':'Payments, sign-up, long forms','Design systems':'Components, tokens, documentation','Illustration':'Spot illustrations, icons','Accessibility':'Contrast, keyboard, screen readers'};
-  let h = P.pgh('Topics', 'Follow professional topics to get notified about matching tasks. Topics sort your relevant tasks; they don’t change what you’re eligible for.');
-  h += P.card(P.ch('bell', 'Your topics', pill(Object.values(w.topics).filter(Boolean).length + ' followed', 'accent')) + '<div class="lst">' + Object.keys(w.topics).map(k => '<div class="topic">' + P.tgl(w.topics[k], 'wtopic:' + k, k) + '<div class="tx"><b>' + k + '</b><small>' + desc[k] + '</small></div>' + pill(W().order.map(wt).filter(t => t.topic === k && t.my === 'open').length + ' open tasks', '') + '</div>').join('') + '</div>');
-  h += P.card(P.ch('settings', 'Notifications', P.btn('Open Settings', {v:'g', sm:true, go:'w-settings'})) + '<p class="sub2 muted">New tasks in these topics: ' + (w.nt && w.nt.tasks === false ? 'off' : 'on') + ' · channel: ' + E(w.notify) + '. Change it in Settings.</p>');
+  const pg = chrome(root, 'work', 'w-topics', [['Working', 'w-home'], ['Task alerts']]), w = W();
+  w.alertCh = w.alertCh || {app:true, email:true, push:false, digest:false};
+  const n = Object.values(w.topics).filter(Boolean).length;
+  let h = P.pgh('Task alerts', 'Follow topics to hear about new tasks first. Alerts only cover tasks you’re eligible for; topics don’t change what you can take.');
+  h += P.card(P.ch('bell', 'Topics you follow', pill(n + ' of ' + Object.keys(w.topics).length + ' followed', 'accent')) +
+    '<div class="tpg">' + Object.keys(w.topics).map(k => { const on = w.topics[k], I = TOPIC_INFO[k] || {d:'', ex:[]}, open = W().order.map(wt).filter(t => t.topic === k && t.my === 'open').length;
+      return '<div class="tpc' + (on ? ' on' : '') + '"><div class="tpc-h"><div class="tx"><b>' + k + '</b><small>' + I.d + '</small></div>' + P.tgl(on, 'wtopic:' + k, k) + '</div>' +
+        '<div class="tpc-l"><span>You’ll get alerts for</span><ul>' + I.ex.map(x => '<li>' + x + '</li>').join('') + '</ul></div>' +
+        '<div class="tpc-f">' + pill(open + ' open now', open ? '' : '') + '<small>' + (on ? 'Following' : 'Not following') + '</small></div></div>'; }).join('') + '</div>');
+  h += P.card(P.ch('settings', 'Where alerts go', P.btn('All notification settings', {v:'g', sm:true, x:'wsetnotif'})) + '<p class="sub2 muted">Applies to new tasks in the topics above. More channels come later.</p>' +
+    '<div class="chg">' + ALERT_CH.map(([k, t, ic, sub, soon]) => { const on = !soon && !!w.alertCh[k], lock = k === 'app' || soon;
+      return '<button type="button" class="chc' + (on ? ' on' : '') + (lock ? ' lock' : '') + '" data-x="walch:' + k + '" aria-pressed="' + on + '"' + (lock ? ' aria-disabled="true"' : '') + '><span class="chc-i">' + (IC[ic] || IC.bell) + '</span><b>' + t + '</b><small>' + sub + '</small><span class="chc-c">' + (on ? IC.check : '') + '</span></button>'; }).join('') + '</div>' +
+    
+    (n === 0 ? P.callout('You don’t follow any topics, so no task alerts are sent. Relevant tasks still show on Relevant tasks.', 'warn') : ''));
   pg.innerHTML = h; wire2(root);
 };
-X.wtopic = k => { const w = W(); w.topics[k] = !w.topics[k]; rerender(); toast(w.topics[k] ? 'Following ' + k + '. You’ll get notified about matching tasks.' : 'Stopped following ' + k + '.', 'success'); };
+X.wtopic = k => { const w = W(); w.topics[k] = !w.topics[k]; rerender(); toast(w.topics[k] ? 'Following ' + k + '. You’ll get alerts for new tasks in it.' : 'Stopped following ' + k + '.', 'success'); };
+X.walch = k => { const w = W(); if (k === 'app') { toast('In-app alerts are always on.', 'info'); return; } if (k === 'push' || k === 'digest') { toast('Not available yet. In-app and email work now.', 'info'); return; } w.alertCh[k] = !w.alertCh[k]; rerender(); toast((w.alertCh[k] ? 'On: ' : 'Off: ') + ALERT_CH.find(c => c[0] === k)[1] + ' alerts.', 'success'); };
+X.wsetnotif = () => { show('w-settings'); setTimeout(() => { const el = stage.querySelector('#wNotif'); if (el) { el.scrollIntoView({behavior:'smooth', block:'start'}); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1600); } }, 60); };
 
-/* ---------- W9 · Competition (verified results, no money prizes) ---------- */
-const COMPS = [{id:'c1', title:'Checkout form challenge', cat:'Design', ends:'Oct 5', people:128, brief:'Answer 4 questions about a checkout form. Scored automatically.'},
+/* ---------- W9 · Level up (challenges in your onboarding domain, verified results, no money prizes) ---------- */
+const COMPS = [{id:'c1', title:'Checkout form challenge', cat:'Design', ends:'Oct 5', people:128, brief:'4 questions about a checkout form. Scored automatically.'},
   {id:'c2', title:'Accessible components', cat:'Design', ends:'Oct 12', people:74, brief:'4 questions on accessible buttons, inputs and modals.'},
-  {id:'c3', title:'API reliability quiz', cat:'Development', ends:'Oct 9', people:96, brief:'4 questions on retries, idempotency and error codes.'}];
-reg('w-comp', 'Working · Competition', 'v2wcomp', {h:1200});
+  {id:'c4', title:'Mobile onboarding flow', cat:'Design', ends:'Oct 19', people:51, brief:'4 questions on first-run screens at 375 px.'},
+  {id:'c3', title:'API reliability quiz', cat:'Development', ends:'Oct 9', people:96, brief:'4 questions on retries, idempotency and error codes.'},
+  {id:'c5', title:'Frontend state bugs', cat:'Development', ends:'Oct 16', people:63, brief:'4 questions on loading, error and empty states in code.'},
+  {id:'c6', title:'Regression test plan', cat:'QA & Testing', ends:'Oct 11', people:40, brief:'4 questions on picking what to retest after a change.'}];
+reg('w-comp', 'Working · Level up', 'v2wcomp', {h:1300});
 RENDER.v2wcomp = (root) => {
-  const pg = chrome(root, 'work', 'w-comp', [['Working', 'w-home'], ['Competition']]), w = W(), open = V.ui.comp;
-  let h = P.pgh('Competition', 'Practice challenges with automatic scoring. A verified result goes to your profile and can count toward reputation. No money prizes in the MVP.');
+  const pg = chrome(root, 'work', 'w-comp', [['Working', 'w-home'], ['Level up']]), w = W(), open = V.ui.comp;
+  const dom = w.domain || (w.skills[0] && w.skills[0].cat) || 'Design';
+  let h = P.pgh('Level up', 'Challenges in your domain. Scored automatically against fixed answers. A verified result goes to your profile. No money prizes.');
   if (open) { const c = COMPS.find(x => x.id === open), st = w.comp.joined[open], qs = BENCH[c.cat];
     h += '<button class="back" data-x="wcomp:close">← All challenges</button>';
-    if (st && st.done) h += P.card(P.ch('check', c.title + ' · verified result', pill(st.score + ' / 100', 'success', true), 'ok') + '<p class="sub2">Added to your profile. Scored automatically against fixed answers.</p><div class="acts">' + P.btn('Open profile', {v:'s', go:'w-profile'}) + '</div>', 'ok');
+    if (st && st.done) { const right = qs.filter((q, i) => scoreOf([q], {0:st.ans[i]}) > 0).length, pass = true; st.date = st.date || dayLabel(0);
+      h += P.card('<div class="res' + (pass ? '' : ' low') + '"><div class="res-n"><b>' + st.score + '</b><span>/ 100</span></div><div class="res-t"><span class="mk-s">' + E(c.title) + ' · verified result</span><h3>Verified result</h3><div class="res-s"><div><b>' + right + ' of ' + qs.length + '</b><small>Correct answers</small></div><div><b>' + (qs.length - right) + '</b><small>Mistakes</small></div><div><b>' + st.date + '</b><small>Verified</small></div></div></div></div>' +
+        '<div class="acts">' + P.btn(V.ui.compRev ? 'Hide answers' : 'Review mistakes', {v:'s', x:'wcomp:rev'}) + P.btn('Open profile', {v:'g', go:'w-profile'}) + '</div>', 'ok');
+      if (V.ui.compRev) h += P.card(P.ch('check', 'Your answers', pill((qs.length - right) + ' mistake' + (qs.length - right === 1 ? '' : 's'), qs.length - right ? 'warning' : 'success', true)) + '<p class="sub2 muted">Green is the correct answer. Red is the answer you picked when it was wrong.</p>' + qs.map((q, i) => qCard(q, i, {review:true, ans:st.ans})).join(''));
+    }
     else h += P.card(P.ch('sparkle', c.title, pill(c.cat, '')) + '<p class="sub2 muted">' + c.brief + ' Ends ' + c.ends + '.</p>' + qs.map((q, i) => qCard(q, i, {take:true, ans:st.ans})).join('') + '<div class="acts" style="justify-content:flex-end">' + P.btn('Submit answers', {x:'wcomp:submit'}) + '</div>');
-  } else h += '<div class="grid3">' + COMPS.map(c => { const st = w.comp.joined[c.id]; return '<div class="tcard"><div class="row2">' + pill(c.cat, '') + pill('Ends ' + c.ends, '') + '</div><h3>' + c.title + '</h3><p class="sub2 muted" style="font-size:13px">' + c.brief + '</p><small class="why">' + c.people + ' participants · no money prize</small>' +
-      P.btn(st && st.done ? 'Result · ' + st.score + ' / 100' : st ? 'Continue' : 'Join challenge', {v: st && st.done ? 's' : 'p', x:'wcomp:open-' + c.id}) + '</div>'; }).join('') + '</div>';
+  } else { const mine = COMPS.filter(c => c.cat === dom);
+    h += '<div class="row2" style="gap:8px;align-items:center">' + pill(dom, 'accent', true) + '<small class="muted" style="font:500 13px/18px var(--font)">The domain you picked in onboarding. Verify another domain on Profile & skills to see its challenges.</small></div>';
+    h += mine.length ? '<div class="grid3">' + mine.map(c => { const st = w.comp.joined[c.id]; return '<div class="tcard"><div class="row2">' + pill(c.cat, '') + pill('Ends ' + c.ends, '') + '</div><h3>' + c.title + '</h3><p class="sub2 muted" style="font-size:13px">' + c.brief + '</p><small class="why">' + c.people + ' participants · no money prize</small>' +
+      P.btn(st && st.done ? 'Result · ' + st.score + ' / 100' : st ? 'Continue' : 'Join challenge', {v: st && st.done ? 's' : 'p', x:'wcomp:open-' + c.id}) + '</div>'; }).join('') + '</div>' : P.empty('No challenges in ' + dom + ' right now. New ones come every week.'); }
   pg.innerHTML = h; wire2(root); if (open && !(w.comp.joined[open] || {}).done) wireAnswers(root, w.comp.joined[open].ans);
 };
 X.wcomp = (a, el) => { const w = W();
-  if (a === 'close') { V.ui.comp = null; rerender(); return; }
-  if (a.startsWith('open-')) { const id = a.slice(5); w.comp.joined[id] = w.comp.joined[id] || {ans:{}}; V.ui.comp = id; rerender(); return; }
+  if (a === 'close') { V.ui.comp = null; V.ui.compRev = false; rerender(); return; }
+  if (a === 'rev') { V.ui.compRev = !V.ui.compRev; rerender(); return; }
+  if (a.startsWith('open-')) { const id = a.slice(5); w.comp.joined[id] = w.comp.joined[id] || {ans:{}}; V.ui.comp = id; V.ui.compRev = false; rerender(); return; }
   if (a === 'submit') { const c = COMPS.find(x => x.id === V.ui.comp), st = w.comp.joined[c.id], qs = BENCH[c.cat]; if (Object.keys(st.ans).length < qs.length) { toast('Answer every question first.', 'error'); return; }
-    busy(el, 'Scoring…', 800, () => { st.score = scoreOf(qs, st.ans); st.done = true; w.comp.results.push({title:c.title, score:st.score, date:dayLabel(0)}); w.rep.score = Math.min(100, w.rep.score + 1); rerender(); toast('Verified result: ' + st.score + ' / 100. Added to your profile.', 'success'); }); }
+    busy(el, 'Scoring…', 800, () => { st.score = scoreOf(qs, st.ans); st.done = true; st.date = dayLabel(0); w.comp.results.push({title:c.title, score:st.score, date:st.date}); rerender(); toast('Verified result: ' + st.score + ' / 100. Added to your profile.', 'success'); }); }
 };
 
 /* ---------- Help & disputes in Working mode (worker disputes + worker FAQ) ---------- */
@@ -15550,7 +15671,7 @@ RENDER.v2help = (root) => {
     P.callout('Possible decisions: pay you in full or in part, refund the client, reopen the task, or send it back to Needs Revision.'));
   const faq = [['When do I get paid?','When the client accepts, when an independent reviewer gives PASS, or automatically 14 days after you submit if the client doesn’t respond. USDC goes straight to your Phantom.'],
     ['Are qualification tests paid?','No. Tests are short and scored automatically against fixed answers. The first worker to reach the pass mark while the task is free gets the task.'],
-    ['Can the client change the task after I’m assigned?','Only through a change request. If you accept, the new terms apply. If you decline, the task ends for you, you get 50% of the reward, and the client looks for a new worker.'],
+    ['Can the client change the task after I’m assigned?','Only through a change request. If you accept, the new terms apply. If you decline, you keep working on the current terms.'],
     ['What if I can’t finish the task?','Ask the client to cancel together. If you both agree, the task is cancelled and nothing is paid. If you can’t agree, either side can open a dispute.'],
     ['Does chat change the requirements?','No. Requirements live in the locked criteria and accepted change requests. Chat is context only.']];
   h += P.card(P.ch('info', 'Common questions') + '<div class="lst">' + faq.map((q, i) => '<div class="li" style="flex-direction:column;align-items:stretch;gap:6px"><button type="button" class="linkb" style="text-align:left;font-size:14px;color:var(--text-primary)" data-x="faq:' + i + '">' + (V.ui.faq === i ? '− ' : '+ ') + q[0] + '</button>' + (V.ui.faq === i ? '<small style="font:400 13px/19px var(--font);color:var(--text-secondary)">' + q[1] + '</small>' : '') + '</div>').join('') + '</div>');
@@ -15576,10 +15697,10 @@ RENDER.v2wset = (root) => {
     P.kv([['Paid to this wallet', usd(W().order.map(wt).reduce((a, t) => a + (t.paidAmt || 0), 0))],['Locked for your active tasks', usd(W().order.map(wt).filter(t => WACTIVE.includes(t.my)).reduce((a, t) => a + t.pay, 0))]]));
   h += P.sec('Availability', 'Pause when you can’t take new work. Pico only shows tasks to available workers.',
     row(w.available !== false, 'wavail:toggle', 'Available for new tasks', w.available !== false ? 'You see relevant tasks and get notified about new ones.' : 'Paused: no relevant tasks, no new-task notifications. Assigned tasks continue.'));
-  h += P.sec('Notifications', 'How Pico tells you about tasks and payouts.',
+  h += '<div id="wNotif">' + P.sec('Notifications', 'How Pico tells you about tasks and payouts.',
     P.field({label:'Channel', type:'select', value:w.notify === 'Off' ? 'In-app only' : w.notify, bind:'wk.notify', opts:['In-app and email','In-app only'], help: w.notify === 'In-app only' ? 'Only in the bell in the top bar.' : 'In the bell and by email to ' + (V.user.email || 'your account email') + '.'}) +
-    '<div class="lst">' + row(w.nt.tasks, 'wnt:tasks', 'New tasks in topics you follow', 'Only tasks you’re eligible for. Topics are managed on the Topics page.') + row(w.nt.msgs, 'wnt:msgs', 'Messages from clients', 'New messages in your workrooms.') + row(w.nt.pay, 'wnt:pay', 'Payouts', 'When USDC is sent to your Phantom.') +
-    '<div class="topic"><span class="pill success" style="flex:none"><span class="dot"></span>Always on</span><div class="tx"><b>Change requests, cancel requests, revisions and disputes</b><small>They need your answer, so you can’t turn them off.</small></div></div></div>');
+    '<div class="lst">' + row(w.nt.tasks, 'wnt:tasks', 'New tasks in topics you follow', 'Only tasks you’re eligible for. Topics and alert channels are on Task alerts.') + row(w.nt.msgs, 'wnt:msgs', 'Messages from clients', 'New messages in your workrooms.') + row(w.nt.pay, 'wnt:pay', 'Payouts', 'When USDC is sent to your Phantom.') +
+    '<div class="topic"><span class="pill success" style="flex:none"><span class="dot"></span>Always on</span><div class="tx"><b>Change requests, cancel requests, revisions and disputes</b><small>They need your answer, so you can’t turn them off.</small></div></div></div>') + '</div>';
   h += P.sec('Account', 'One account for Hiring, Working and Reviewer modes.', P.kv([['Worker ID', '#7310'],['Email', E(V.user.email || 'Not set')],['Verified skills', w.skills.map(x => x.cat + ' · ' + x.level).join(', ') || 'None yet']]) + '<div class="acts">' + P.btn('Sign out', {v:'g', x:'signout'}) + '</div>');
   pg.innerHTML = h; wire2(root);
 };
@@ -15847,13 +15968,173 @@ RENDER.v2help = (root) => {
 
 
 /* =====================================================================
+   EXTRA: Chats (Hiring + Working), Rules, Client profile (anonymous),
+   global footer with quick links to the rules. Added 01.10.
+   ===================================================================== */
+const _svg = d => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+IC.mail = _svg('<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/>');
+IC.push = _svg('<rect x="6.5" y="3.5" width="11" height="17" rx="2.2"/><path d="M10.5 17.5h3"/>');
+IC.digest = _svg('<path d="M5 6.5h14M5 11.5h14M5 16.5h9"/>');
+IC.shield = _svg('<path d="M12 3.5l7 3v5.2c0 4.3-3 7.6-7 8.8-4-1.2-7-4.5-7-8.8V6.5z"/><path d="M9 12l2.2 2.2L15 10.4"/>');
+ALERT_CH.forEach(c => { c[2] = {app:'bell', email:'mail', push:'push', digest:'digest'}[c[0]]; });
+
+/* ---------- Chats: one list of task conversations per mode ---------- */
+const CHAT_CLIENT = ['assigned','progress','submitted','review','verification','revision','dispute','completed'];
+const CHAT_WORKER = ['assigned','progress','review','verification','revision','dispute','completed','ended'];
+function chatThreads(mode){
+  if (mode === 'work') return W().order.map(wt).filter(t => CHAT_WORKER.includes(t.my)).map(t => ({id:t.id, who:t.company, title:t.title, list:t.chat, unread:0, ro:['completed','cancelled','ended'].includes(t.my), st:WST[t.my] ? WST[t.my][0] : t.my, open:wRoom(t.id), t}));
+  return clientTasks().filter(t => CHAT_CLIENT.includes(t.status)).map(t => ({id:t.id, who:'Worker #' + t.worker, title:t.title, list:t.chat, unread:t.unread || 0, ro:t.status === 'completed', st:(STATUS[t.status] || [t.status])[0], open:'c-' + t.id, t}));
+}
+function chatsPage(root, mode){
+  const key = mode === 'work' ? 'w-chats' : 'chats';
+  const pg = chrome(root, mode, key, mode === 'work' ? [['Working', 'w-home'], ['Chats']] : [['Chats']]);
+  const th = chatThreads(mode); V.ui.chatSel = V.ui.chatSel || {};
+  let sel = th.find(x => x.id === V.ui.chatSel[mode]) || th[0];
+  let h = P.pgh('Chats', mode === 'work' ? 'One conversation per task, with the client. Chat is for questions; it doesn’t change the locked terms.' : 'One conversation per task, with its worker. Chat is for questions; new scope goes through a change request.');
+  if (!th.length) { h += P.card(P.empty(mode === 'work' ? 'No chats yet. A conversation opens when a task is assigned to you.' : 'No chats yet. A conversation opens when a worker is assigned to your task.')); pg.innerHTML = h; wire2(root); return; }
+  if (mode !== 'work' && sel) sel.t.unread = 0;
+  const last = x => x.list.length ? x.list[x.list.length - 1] : null;
+  h += '<div class="chx"><div class="chx-l" role="list">' + th.map(x => { const l = last(x);
+      return '<button type="button" role="listitem" class="chx-i' + (sel && x.id === sel.id ? ' on' : '') + '" data-x="chatsel:' + mode + ':' + x.id + '"><span class="av">' + E(((x.who.match(/\d+/) || ['··'])[0]).slice(-2)) + '</span><span class="tx"><b>' + E(x.who) + '</b><small class="t1">' + E(x.title) + '</small><small class="t2">' + (l ? (l[0] === 'y' ? 'You: ' : '') + E(l[2]) : 'No messages yet') + '</small></span>' + (x.unread && !(sel && x.id === sel.id) ? '<span class="chx-n">' + x.unread + '</span>' : '') + '</button>'; }).join('') + '</div>' +
+    '<div class="chx-r"><div class="chx-h"><div><b>' + E(sel.who) + '</b><small>' + E(sel.title) + ' · ' + E(sel.st) + '</small></div>' + P.btn('Open task', {v:'g', sm:true, go:sel.open}) + '</div>' +
+    '<div class="msgs chx-m" id="chxM">' + P.msgs(sel.list, sel.who) + '</div>' +
+    (sel.ro ? '<div class="chx-c">' + P.callout('This task is closed. The conversation is read-only.') + '</div>' : '<div class="chx-c"><div class="composer"><div class="mfield"><input id="chxIn" placeholder="Write to ' + E(sel.who) + '…" aria-label="Message"></div>' + P.btn('Send', {x:'chatsend:' + mode + ':' + sel.id}) + '</div><small class="muted">Chat can’t add requirements. Use a change request for new scope, deadline or reward.</small></div>') +
+    '</div></div>';
+  pg.innerHTML = h; wire2(root);
+  const m = root.querySelector('#chxM'); if (m) m.scrollTop = m.scrollHeight;
+  const inp = root.querySelector('#chxIn'); if (inp) { const f = inp.parentElement; inp.addEventListener('focus', () => f.classList.add('focus')); inp.addEventListener('blur', () => f.classList.remove('focus')); inp.addEventListener('keydown', e => { if (e.key === 'Enter') X.chatsend(mode + ':' + sel.id); }); }
+}
+reg('chats', 'Chats', 'v2chats', {h:1000});
+reg('w-chats', 'Working · Chats', 'v2wchats', {h:1000});
+RENDER.v2chats = root => chatsPage(root, 'hire');
+RENDER.v2wchats = root => chatsPage(root, 'work');
+X.chatsel = a => { const [mode, id] = a.split(':'); V.ui.chatSel = V.ui.chatSel || {}; V.ui.chatSel[mode] = id; rerender(); };
+X.chatsend = a => { const [mode, id] = a.split(':'), i = stage.querySelector('#chxIn'), v = i && i.value.trim(); if (!v) { i && i.focus(); return; }
+  const th = chatThreads(mode).find(x => x.id === id); if (!th) return; th.list.push(['y', dayLabel(0) + ' · ' + clockNow(), v]); rerender(); toast('Message sent to ' + th.who + '.', 'success'); };
+SIM.v2chats = () => { const th = chatThreads('hire').filter(x => !x.ro); return th.length ? [['Worker sends a message', () => { const x = th.find(y => y.id === (V.ui.chatSel || {}).hire) || th[0]; x.t.chat.push(['w', dayLabel(0) + ' · ' + clockNow(), 'Quick question: should the mobile frames use the same spacing scale?']); if (cur !== 'chats' || (V.ui.chatSel || {}).hire !== x.id) x.t.unread = (x.t.unread || 0) + 1; rerender(); toast('New message from ' + x.who + '.', 'info'); }]] : []; };
+SIM.v2wchats = () => { const th = chatThreads('work').filter(x => !x.ro); return th.length ? [['Client sends a message', () => { const x = th.find(y => y.id === (V.ui.chatSel || {}).work) || th[0]; x.t.chat.push(['w', dayLabel(0) + ' · ' + clockNow(), 'Looks good so far. Is the mobile variant coming today?']); rerender(); toast('New message from ' + x.who + '.', 'info'); }]] : []; };
+
+/* ---------- Rules: one page, linked from the footer ---------- */
+const RULES = [
+  ['money', 'Money and escrow', 'wallet', ['The client locks the reward (plus the 10% verification fee, if on) when the task is published.','Locked money can’t be moved by the client or by Pico while the task runs.','The worker is paid when the client accepts, when a reviewer gives PASS, or automatically 14 days after submission.','Every payout and refund goes on-chain to a Phantom wallet. Pico never holds your keys.']],
+  ['scope', 'Task scope', 'tasks', ['The client writes every requirement in the description, one per line. These are the acceptance criteria.','The requirements, deadline and reward are fixed when a worker is assigned.','Chat is for questions. It never adds requirements.','The client can change scope only through a change request the worker accepts.']],
+  ['changes', 'Change requests', 'arrow', ['After assignment the client can change scope, deadline or reward only through a change request.','A higher reward is locked when the client sends the request.','If the worker accepts, the new terms apply. If the worker declines, the current terms stay and the extra money returns to the client.','Change requests are possible until the work is accepted. New work after that is a follow-up task.']],
+  ['stopping', 'Stopping a task', 'alert', ['A published task can’t be cancelled by one side.','If no worker qualifies within 7 days, the task closes and the money returns to the client automatically.','After assignment, both sides can agree to stop. Unused money returns to the client. If you can’t agree, open a dispute.']],
+  ['quals', 'Qualification and levels', 'sparkle', ['Every task has a short qualification test, scored automatically against fixed answers.','The first eligible worker to reach the pass mark gets the task. Tests are not paid.','Levels come from the Skill Benchmark. A failed retake keeps your current level.']],
+  ['review', 'Independent review', 'check', ['One reviewer per task checks the work against the requirements, not taste.','Each unmet requirement needs a written note.','The 10% fee is paid once per task, to the reviewer.']],
+  ['disputes', 'Disputes', 'help', ['Either side can open a dispute on an assigned task. The money stays locked.','Both sides add evidence. Pico also sees the task, change requests, submission and chat.','Pico decides within 7 days: full or partial payout, refund, reopen, or back to Needs Revision.']],
+  ['privacy', 'Privacy', 'lock', ['Clients appear to workers as Client #ID with their track record. Company names stay private.','Workers appear as Worker #ID with verified skills and reputation.','Email, balance and other tasks are never shown to the other side.']]];
+reg('rules', 'Rules', 'v2rules', {h:1800});
+RENDER.v2rules = root => {
+  const mode = V.user.lastMode || 'hire';
+  const pg = chrome(root, mode, 'rules', [['Rules']]);
+  let h = P.pgh('Rules', 'How money, scope, reviews and disputes work on Pico. The same rules apply to clients, workers and reviewers.');
+  h += '<div class="rlx"><nav class="rlx-n" aria-label="Rules sections">' + RULES.map(r => '<button type="button" data-x="rules:' + r[0] + '"' + (V.ui.ruleAt === r[0] ? ' class="on"' : '') + '>' + r[1] + '</button>').join('') + '</nav><div class="rlx-b">' +
+    RULES.map(r => P.card(P.ch(r[2], r[1]) + '<ol class="rlx-l">' + r[3].map(x => '<li>' + E(x) + '</li>').join('') + '</ol>', '', 'rule-' + r[0])).join('') + '</div></div>';
+  pg.innerHTML = h; wire2(root);
+};
+X.rules = a => { V.ui.ruleAt = a || null; if (cur !== 'rules') show('rules'); else rerender(); if (a) setTimeout(() => { const el = stage.querySelector('#rule-' + a); if (el) { el.scrollIntoView({behavior:'smooth', block:'start'}); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1600); } }, 60); };
+
+/* ---------- Client profile: anonymous by design ---------- */
+reg('client-profile', 'Client profile', 'v2cprof', {h:1300});
+RENDER.v2cprof = root => {
+  const pg = chrome(root, 'hire', 'client-profile', [['Account', 'client-settings'], ['Client profile']]);
+  const T = clientTasks(), paid = T.filter(t => t.status === 'completed').length, disputes = T.filter(t => t.status === 'dispute' || t.dsp).length, active = T.filter(t => ['finding','assigned','progress','review','verification','revision','dispute'].includes(t.status)).length;
+  let h = P.pgh('Client profile', 'Workers never see your company name. They see your client ID and how you work with them.');
+  h += P.card('<div class="cpx"><div class="cpx-v"><span class="tag">What workers see</span><div class="mk-h"><div class="mk-row"><span class="vk-av">C#</span><div><b class="vk-co">Client #4821</b><span class="mk-s">On Pico since Sep 2026</span></div></div>' + pill('Funds locked on every task', 'success', true) + '</div>' +
+    '<div class="cpx-s"><div><b>' + paid + '</b><small>Tasks paid</small></div><div><b>1.6 days</b><small>Avg. time to review</small></div><div><b>' + disputes + '</b><small>Disputes</small></div><div><b>' + active + '</b><small>Active tasks</small></div></div></div>' +
+    '<div class="cpx-t"><h3>Your track record is your profile</h3><p>Workers decide whether to take a task from these numbers. They update on their own from your tasks; you can’t edit them.</p><ul><li>' + IC.shield + 'Paying on time and reviewing quickly raise trust.</li><li>' + IC.alert + 'Disputes you lose are shown to workers.</li><li>' + IC.lock + 'Name, email, balance and other tasks stay private.</li></ul></div></div>');
+  h += P.sec('Private details', 'Only you and Pico support see these. Used for receipts and support.',
+    P.field({label:'Company name', value:typeof companyName === 'function' ? companyName() : '', bind:'user.company', help:'Never shown to workers or reviewers.'}) +
+    P.field({label:'Email for receipts', value:V.user.email || '', bind:'user.email', ph:'you@company.com'}), pill('Private', '', true));
+  h += P.sec('Usual categories', 'Pico uses these to suggest a category when you create a task. Workers don’t see them.',
+    '<div class="chips">' + ['Design','Development','QA & Testing'].map(c => P.chip(c, (V.user.needs || ['Design']).includes(c), 'cneed:' + c)).join('') + '</div>', pill('Private', '', true));
+  pg.innerHTML = h; wire2(root);
+};
+X.cneed = c => { const n = V.user.needs = (V.user.needs || ['Design']).slice(); const i = n.indexOf(c); if (i >= 0) { if (n.length === 1) { toast('Keep at least one category.', 'error'); return; } n.splice(i, 1); } else n.push(c); rerender(); toast('Saved.', 'success'); };
+
+/* ---------- Footer on every app page ---------- */
+const FOOT = [['Rules', [['Money and escrow','rules:money'],['Task scope','rules:scope'],['Change requests','rules:changes'],['Stopping a task','rules:stopping']]],
+  ['Work and review', [['Qualification and levels','rules:quals'],['Independent review','rules:review'],['Disputes','rules:disputes'],['Privacy','rules:privacy']]],
+  ['Help and legal', [['Help & disputes','go:help'],['Pricing · draft','go:pub-pricing'],['Terms · draft','go:pub-terms'],['Privacy · draft','go:pub-privacy'],['Refund policy · draft','go:pub-refunds']]]];
+const _chromeBase = chrome;
+chrome = function(root, mode, active, crumbs){
+  const pg = _chromeBase(root, mode, active, crumbs);
+  pg.insertAdjacentHTML('afterend', '<footer class="ftx"><div class="ftx-b"><div class="logo"><i>P</i>Pico</div><p>Short tasks with money locked up front. Built on Solana · Devnet prototype.</p></div>' +
+    FOOT.map(([t, L]) => '<div class="ftx-c"><b>' + t + '</b>' + L.map(([l, a]) => { const [k, v] = [a.slice(0, a.indexOf(':')), a.slice(a.indexOf(':') + 1)];
+      return k === 'go' ? '<button type="button" data-go="' + v + '">' + l + '</button>' : k === 'x' ? '<button type="button" data-x="' + v + '">' + l + '</button>' : '<button type="button" data-x="rules:' + v + '">' + l + '</button>'; }).join('') + '</div>').join('') +
+    '<div class="ftx-s"><span>© 2026 Pico · Blockchain Hack Kraków</span><span>Prototype · no real money moves</span></div></footer>');
+  return pg;
+};
+
+/* ---------- Client settings (working version; replaces the static Figma page in the menu) ---------- */
+reg('client-settings', 'Settings', 'v2cset', {h:1200});
+RENDER.v2cset = root => {
+  const pg = chrome(root, 'hire', 'client-settings', [['Account', 'client-profile'], ['Settings']]);
+  const n = V.user.cnt = V.user.cnt || {email:true, assigned:true, submitted:true, crans:true, msgs:true};
+  const row = (on, x, title, sub) => '<div class="topic">' + P.tgl(on, x, title) + '<div class="tx"><b>' + title + '</b><small>' + sub + '</small></div></div>';
+  let h = P.pgh('Settings', 'Hiring mode · ' + (typeof companyName === 'function' ? companyName() : 'Your company') + '. Working and Reviewer settings stay in their modes.');
+  h += P.sec('Funding wallet', 'Pico takes money for tasks from this wallet only when you confirm in Phantom.',
+    '<div class="phantom"><span class="pi">' + ICON.wallet + '</span><div style="flex:1"><b>Phantom · Devnet</b><small>7xKX…9fQ2 · funds tasks</small></div>' + pill(GS.connected === false ? 'Not connected' : 'Connected', GS.connected === false ? '' : 'success', true) + P.btn('Add funds', {v:'s', sm:true, x:'funds'}) + '</div>' +
+    P.kv([['Available on Pico', usd(GS.avail)],['Locked in tasks', usd(BAL.locked)],['Paid out', usd(BAL.paid)]]));
+  h += '<div id="cNotif">' + P.sec('Notifications', 'In the bell in the top bar, always. Email is optional.',
+    '<div class="lst">' + '<div class="topic"><span class="pill success" style="flex:none"><span class="dot"></span>Always on</span><div class="tx"><b>In-app</b><small>Every event below appears in the bell.</small></div></div>' + row(n.email, 'cnt:email', 'Email', n.email ? 'Also by email to ' + E(V.user.email || 'your account email') + '.' : 'Off · in-app only.') + '</div>' +
+    '<span class="mlabel" style="margin-top:8px">What you hear about</span><div class="lst">' + row(n.assigned, 'cnt:assigned', 'Worker assigned', 'When the first qualified worker takes your task.') + row(n.submitted, 'cnt:submitted', 'Work submitted', 'Includes the date of the 14-day auto-payout.') + row(n.crans, 'cnt:crans', 'Answers to your change requests', 'Accepted or declined by the worker.') + row(n.msgs, 'cnt:msgs', 'Messages from workers', 'New messages in Chats.') +
+    '<div class="topic"><span class="pill success" style="flex:none"><span class="dot"></span>Always on</span><div class="tx"><b>Money, verdicts and disputes</b><small>Funds locked or returned, reviewer verdicts, disputes and auto-refunds. You can’t turn these off.</small></div></div></div>') + '</div>';
+  h += P.sec('Account', 'One account for Hiring, Working and Reviewer modes.', P.kv([['Client ID', '#4821 · what workers see'],['Email', E(V.user.email || 'Not set')]]) + '<div class="acts">' + P.btn('Client profile', {v:'g', go:'client-profile'}) + P.btn('Sign out', {v:'g', x:'signout'}) + '</div>');
+  pg.innerHTML = h; wire2(root);
+};
+X.cnt = k => { const n = V.user.cnt; n[k] = !n[k]; rerender(); toast((n[k] ? 'On: ' : 'Off: ') + ({email:'email notifications', assigned:'worker assigned', submitted:'work submitted', crans:'change request answers', msgs:'messages from workers'}[k]) + '.', 'success'); };
+
+/* ---------- Public pages (drafts): Pricing, Terms, Privacy, Refund policy ---------- */
+const PUB = {
+  'pub-pricing':['Pricing', 'What a task costs on Pico. Everything is paid in USDC on Solana.', [
+    ['Worker reward', ['You set it for each task. It’s locked when you publish and goes to the worker when the work is accepted.']],
+    ['Independent reviewer · optional', ['10% of the worker reward, added on top and locked with it. Paid once, to the one reviewer on the task.','Example: a 90 USDC reward with a reviewer locks 99 USDC.','The reviewer fee model is still being validated and may change.']],
+    ['Platform fee', ['Not decided yet. The MVP shows no platform fee.']],
+    ['Network fees', ['Solana network fees are paid in your Phantom wallet when you confirm a transaction. Phantom shows them before you approve.']],
+    ['For workers and reviewers', ['Joining, the Skill Benchmark and qualification tests are free. Tests are not paid.']]]],
+  'pub-terms':['Terms of use', 'How Pico works as a marketplace, in plain words.', [
+    ['Your account', ['One account for Hiring, Working and Reviewer modes. You connect your own Phantom wallet; Pico never holds your keys.']],
+    ['Tasks and requirements', ['The client writes every requirement in the task description, one per line. These are the acceptance criteria.','Requirements, deadline and reward lock when a worker is assigned. They change only through a change request the worker accepts.']],
+    ['Payment', ['The reward is locked before work starts. It’s released when the client accepts, when the reviewer passes the work, or 14 days after submission if the client doesn’t respond.']],
+    ['Disputes', ['Either side can open a dispute on an assigned task. Pico decides within 7 days. Pico’s decision is final in the MVP.']],
+    ['Conduct', ['Chat can’t add requirements. Don’t share contact details to move work off Pico.']]]],
+  'pub-privacy':['Privacy policy', 'What Pico shows to whom.', [
+    ['What the other side sees', ['Clients appear as Client #ID with their track record. Workers appear as Worker #ID with verified skills and reputation.','Company names, emails, balances and other tasks are never shown to the other side.']],
+    ['What Pico keeps', ['Your email, wallet address, tasks, messages, submissions and the history of every task. History is kept as evidence for disputes.']],
+    ['On-chain data', ['Payments and refunds are Solana transactions. They’re public on the blockchain and show wallet addresses, not names.']]]],
+  'pub-refunds':['Refund policy', 'When money returns to the client.', [
+    ['Before a worker is assigned', ['A published task can’t be cancelled by one side.','If no worker qualifies within 7 days, the task closes and the full locked amount returns to Available automatically.']],
+    ['After assignment', ['Both sides can agree to stop. Unused locked money returns to the client.','Without agreement, either side opens a dispute and Pico decides: full or partial payout, refund, reopen, or back to Needs Revision.']],
+    ['Change requests', ['Extra money locked for a change request returns to Available if the worker declines it.']],
+    ['After the work is accepted', ['Payouts are final. New work goes into a follow-up task.']]]]};
+Object.keys(PUB).forEach(k => reg(k, PUB[k][0] + ' · draft', 'v2pub', {h:1200, pub:k}));
+RENDER.v2pub = (root, s) => {
+  const [title, sub, secs] = PUB[s.pub];
+  root.innerHTML = '<div class="pubx"><header class="pubx-h"><button type="button" class="logo" data-go="landing"><i>P</i>Pico</button><nav>' + [['About','about'],['How it works','how'],['Pricing','pub-pricing']].map(([l, k]) => '<button type="button" data-go="' + k + '"' + (k === s.pub ? ' class="on"' : '') + '>' + l + '</button>').join('') + '</nav>' + P.btn(V.user.signedIn ? 'Open app' : 'Sign in', {v:'s', sm:true, go:V.user.signedIn ? MODE_HOME[V.user.lastMode || 'hire'] : 'auth'}) + '</header>' +
+    '<main class="pubx-m"><div class="pubx-t"><span class="pill warning"><span class="dot"></span>Draft · not legal advice</span><h1>' + E(title) + '</h1><p>' + E(sub) + '</p><small>Last updated Oct 1, 2026 · prototype text for the hackathon</small></div>' +
+    secs.map(([h, L]) => '<section class="pubx-s"><h2>' + E(h) + '</h2>' + L.map(x => '<p>' + E(x) + '</p>').join('') + '</section>').join('') + '</main>' +
+    '<footer class="pubx-f"><span>© 2026 Pico · Blockchain Hack Kraków</span><nav>' + [['Pricing','pub-pricing'],['Terms','pub-terms'],['Privacy','pub-privacy'],['Refund policy','pub-refunds'],['Rules','rules']].map(([l, k]) => '<button type="button" data-go="' + k + '">' + l + '</button>').join('') + '</nav></footer></div>';
+  wire2(root);
+};
+
+/* Footer always at the bottom: the app is at least as tall as the visible window, the footer takes the leftover space */
+function setAppMin(){ try { const w = Math.min(vp.parentElement.clientWidth || document.documentElement.clientWidth, 1440), s = w / 1440 || 1, top = Math.max(0, vp.getBoundingClientRect().top + scrollY);
+  document.documentElement.style.setProperty('--appmin', Math.ceil((innerHeight - top) / s) + 'px'); } catch (e) {} }
+const _showFoot = show; show = function(k, r){ setAppMin(); return _showFoot(k, r); };
+let _footT = null; addEventListener('resize', () => { clearTimeout(_footT); _footT = setTimeout(() => { if (cur) { const y = scrollY; setAppMin(); _showFoot(cur, false); scrollTo(0, y); } }, 150); });
+
+
+/* =====================================================================
    BOOT: screen picker grouped by role; legacy screens kept in an archive
    group (old logic, not linked from the product anymore).
    ===================================================================== */
 (function buildPicker(){
   const groups = [
     ['Shared', ['landing','auth']],
-    ['Client', ['onb-hire','home','ct-details','ct-scope','ct-qual','ct-budget','mytasks','balance','activity','company','settings','help','about','how']],
+    ['Client', ['onb-hire','home','ct-details','ct-scope','ct-qual','ct-budget','mytasks','balance','activity','chats','client-profile','rules','client-settings','help','about','how']],
+    ['Public · drafts', ['pub-pricing','pub-terms','pub-privacy','pub-refunds']],
     ['Client · task pages', Object.keys(S).filter(k => k.startsWith('c-'))],
     ['Worker', V2SCREENS.filter(k => k.startsWith('w-') || k === 'onb-work')],
     ['Reviewer', V2SCREENS.filter(k => k.startsWith('r-') || k === 'onb-rev')],
