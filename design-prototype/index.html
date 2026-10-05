@@ -16283,17 +16283,18 @@ X.cneed = c => { const n = V.user.needs = (V.user.needs || ['Design']).slice(); 
 
 /* ---------- Footer on every app page ---------- */
 const SUPPORT_EMAIL = 'support@pico.com';
-const FOOT_ON = ['home', 'w-home', 'r-home'];   /* footer only on the Home page of each mode */
+const FOOT_ON = [];   /* no footer inside the app; it lives on the landing page only */
 const FOOT = [['Privacy Policy','go:pub-privacy'],['Terms of Service','go:pub-terms'],['Refund Policy','go:pub-refunds'],['Pricing','go:pub-pricing'],['Platform rules','x:rules:']];
-const _chromeBase = chrome;
-chrome = function(root, mode, active, crumbs){
-  const pg = _chromeBase(root, mode, active, crumbs);
-  if (!FOOT_ON.includes(active)) return pg;
-  pg.insertAdjacentHTML('afterend', '<footer class="ftx"><div class="ftx-g">' +
+function footerHTML(){ return '<footer class="ftx"><div class="ftx-g">' +
     '<div class="ftx-b"><div class="logo"><i>P</i>Pico</div><p>Short tasks. Money locked up front.</p></div>' +
     '<div class="ftx-c"><b>Legal</b>' + FOOT.map(([l, a]) => { const k = a.slice(0, a.indexOf(':')), v = a.slice(a.indexOf(':') + 1); return '<button type="button" ' + (k === 'go' ? 'data-go="' + v + '"' : 'data-x="' + v + '"') + '>' + l + '</button>'; }).join('') + '</div>' +
     '<div class="ftx-c"><b>Contact</b><a href="mailto:' + SUPPORT_EMAIL + '">' + SUPPORT_EMAIL + '</a></div></div>' +
-    '<div class="ftx-s">© 2026 Pico. All rights reserved.</div></footer>');
+    '<div class="ftx-s">© 2026 Pico. All rights reserved.</div></footer>'; }
+const _chromeBase = chrome;
+chrome = function(root, mode, active, crumbs){
+  const pg = _chromeBase(root, mode, active, crumbs);
+  if (!FOOT_ON.includes(active) || crumbs.length > 1) return pg;   /* sub-pages that keep Home active in the menu (Create task) get no footer */
+  pg.insertAdjacentHTML('afterend', footerHTML());
   return pg;
 };
 
@@ -16354,6 +16355,20 @@ function setAppMin(){ try { const w = Math.min(vp.parentElement.clientWidth || d
   document.documentElement.style.setProperty('--appmin', Math.ceil((innerHeight - top) / s) + 'px'); } catch (e) {} }
 const _showFoot = show; show = function(k, r){ setAppMin(); return _showFoot(k, r); };
 let _footT = null; addEventListener('resize', () => { clearTimeout(_footT); _footT = setTimeout(() => { if (cur) { const y = scrollY; setAppMin(); _showFoot(cur, false); scrollTo(0, y); } }, 150); });
+
+/* Footer on the landing page only: replaces the old Figma footer strip at the bottom of the landing */
+function landingFooter(){
+  const fig = stage.querySelector('.fig'), old = fig && [...fig.querySelectorAll('[data-name="Footer"]')].sort((a, b) => (parseFloat(b.style.top) || 0) - (parseFloat(a.style.top) || 0))[0];
+  if (!old || stage.querySelector('.ftx-land')) return;
+  const top = parseFloat(old.style.top) || 0;
+  old.style.display = 'none';
+  [...stage.children].forEach(el => { if (el !== fig && el.tagName !== 'IMG' && parseFloat(el.style.top) >= top - 2) el.remove(); });
+  const tmp = document.createElement('div'); tmp.innerHTML = footerHTML(); const f = tmp.firstElementChild;
+  f.classList.add('ftx-land'); f.style.cssText = 'position:absolute;left:0;top:' + top + 'px;width:1440px;box-sizing:border-box;margin:0;padding:44px 120px 32px';
+  stage.appendChild(f); wire2(f);
+  const h = Math.ceil(top + f.offsetHeight); fig.style.height = h + 'px'; S.landing.h = h; try { fit(); } catch (e) {}
+}
+const _showLand = show; show = function(k, r){ const out = _showLand(k, r); if (k === 'landing' || cur === 'landing') { try { landingFooter(); } catch (e) {} } return out; };
 
 
 /* =====================================================================
