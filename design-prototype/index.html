@@ -1000,6 +1000,32 @@ pre.codebox{min-height:0;white-space:pre-wrap}
 .chc.lock:not(.on){opacity:.55}
 .cand-act{flex:none;width:120px;display:flex;justify-content:flex-end}
 
+/* Landing header links */
+.fig .lnav{cursor:pointer;pointer-events:auto;transition:color .15s,opacity .15s;z-index:3}
+.fig [data-name="Nav"] > .lnav:hover{color:#f4f4f5 !important}
+.fig [data-name="Logo"].lnav:hover{opacity:.85}
+.fig .lnav:focus-visible{outline:2px solid #8b8bff;outline-offset:4px;border-radius:4px}
+
+/* Figma ellipses lost their radius on export: steps, status dots */
+.fig [data-name="Ellipse"], .fig [data-name="Ellipse"] > .fs, .fig [data-name="Dot"], .fig [data-name^="Dot "]{border-radius:50%}
+/* Landing FAQ */
+.lfaq{box-sizing:border-box;padding:56px 120px 24px;font-family:var(--font)}
+.lfaq-e{display:block;font:500 12px/16px var(--font);color:#5b5bf0}
+.lfaq h2{margin:12px 0 32px;font:800 32px/40px var(--font);letter-spacing:-0.02em;color:#f4f4f5}
+.lfaq-g{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.lfaq-i{background:#1c1c22;border:1px solid #28282f;border-radius:20px;padding:24px 28px}
+.lfaq-i h3{margin:0 0 8px;font:700 17px/24px var(--font);color:#f4f4f5}
+.lfaq-i p{margin:0;font:400 15px/24px var(--font);color:#b4b4be}
+
+.pubx-m.pubx-wide{max-width:1100px}
+/* Spacing pass: escrow card on task pages had pill, amount, note and button stacked too tight */
+.esc{gap:8px;padding:20px 22px}
+.esc .amt{margin-top:4px}
+.esc .pbtn{margin-top:8px}
+.stat b{margin-top:6px}.stat small{margin-top:2px}
+.meta small{margin-top:2px}
+.hl{gap:14px}
+
 </style>
 </head>
 <body>
@@ -13330,7 +13356,7 @@ let cur=null;
 function fit(){const w=Math.min(vp.parentElement.clientWidth||document.documentElement.clientWidth,1440);const s=w/1440;stage.style.transform='scale('+s+')';vp.style.height=(S[cur].h*s)+'px';vp.style.width=w+'px'}
 addEventListener('resize',()=>cur&&fit());
 /* refit when the page scrollbar appears/disappears (no resize event for that) */
-if(window.ResizeObserver)new ResizeObserver(()=>cur&&fit()).observe(vp.parentElement);
+if(window.ResizeObserver){let _roW=-1;new ResizeObserver(en=>{const w=Math.round(en[0].contentRect.width);if(w===_roW)return;_roW=w;requestAnimationFrame(()=>cur&&fit())}).observe(vp.parentElement)}
 vp.addEventListener('scroll',()=>{vp.scrollTop=0;vp.scrollLeft=0});
 
 let tT;
@@ -13966,8 +13992,8 @@ function show(k,replace){
   if(k==='wr-conversation'){setDisabled(state.btn.send,true);state.btn.send._whyDisabled=()=>{state.msg.focus()}}
   if(state.dyn){updateMoney();fillDraft()}
   if(s.auto){const [to,ms]=s.auto;setTimeout(()=>{if(cur===k)show(to)},ms)}
-  for(const c of s.c)if(c.to&&!FIG[c.to]&&!(S[c.to]&&S[c.to].html)){const p=new Image();p.src='img/'+c.to+'.jpg'}
-  for(const c of s.c)if(c.act&&c.act.startsWith('go:')){const p=new Image();p.src='img/'+c.act.slice(3)+'.jpg'}
+  for(const c of s.c)if(c.to&&S[c.to]&&!FIG[c.to]&&!S[c.to].html){const p=new Image();p.src='img/'+c.to+'.jpg'}
+  for(const c of s.c)if(c.act&&c.act.startsWith('go:')){const t=c.act.slice(3);if(!FIG[t]&&S[t]&&!S[t].html){const p=new Image();p.src='img/'+t+'.jpg'}}
   fit();
   if(replace!==false){try{history.replaceState(null,'','#'+k)}catch(e){}}
   scrollTo({top:0});saveGS();
@@ -16255,7 +16281,7 @@ const RULES = [
 reg('rules', 'Rules', 'v2rules', {h:1800});
 RENDER.v2rules = root => {
   const mode = V.user.lastMode || 'hire';
-  const pg = chrome(root, mode, 'rules', [['Rules']]);
+  const pg = V.user.signedIn ? chrome(root, mode, 'rules', [['Rules']]) : pubShell(root, 'rules');
   let h = P.pgh('Rules', 'How money, scope, reviews and disputes work on Pico. The same rules apply to clients, workers and reviewers.');
   h += '<div class="rlx"><nav class="rlx-n" aria-label="Rules sections">' + RULES.map(r => '<button type="button" data-x="rules:' + r[0] + '"' + (V.ui.ruleAt === r[0] ? ' class="on"' : '') + '>' + r[1] + '</button>').join('') + '</nav><div class="rlx-b">' +
     RULES.map(r => P.card(P.ch(r[2], r[1]) + '<ol class="rlx-l">' + r[3].map(x => '<li>' + E(x) + '</li>').join('') + '</ol>', '', 'rule-' + r[0])).join('') + '</div></div>';
@@ -16354,7 +16380,7 @@ RENDER.v2pub = (root, s) => {
 function setAppMin(){ try { const w = Math.min(vp.parentElement.clientWidth || document.documentElement.clientWidth, 1440), s = w / 1440 || 1, top = Math.max(0, vp.getBoundingClientRect().top + scrollY);
   document.documentElement.style.setProperty('--appmin', Math.ceil((innerHeight - top) / s) + 'px'); } catch (e) {} }
 const _showFoot = show; show = function(k, r){ setAppMin(); return _showFoot(k, r); };
-let _footT = null; addEventListener('resize', () => { clearTimeout(_footT); _footT = setTimeout(() => { if (cur) { const y = scrollY; setAppMin(); _showFoot(cur, false); scrollTo(0, y); } }, 150); });
+let _footT = null; addEventListener('resize', () => { clearTimeout(_footT); _footT = setTimeout(() => { if (cur) { const y = scrollY; setAppMin(); show(cur, false); scrollTo(0, y); } }, 150); });
 
 /* Footer on the landing page only: replaces the old Figma footer strip at the bottom of the landing */
 function landingFooter(){
@@ -16368,7 +16394,142 @@ function landingFooter(){
   stage.appendChild(f); wire2(f);
   const h = Math.ceil(top + f.offsetHeight); fig.style.height = h + 'px'; S.landing.h = h; try { fit(); } catch (e) {}
 }
-const _showLand = show; show = function(k, r){ const out = _showLand(k, r); if (k === 'landing' || cur === 'landing') { try { landingFooter(); } catch (e) {} } return out; };
+/* Landing header: logo scrolls to top, nav links scroll to their sections */
+const LAND_NAV = {'How it works':'How it works', 'For clients':'Protection', 'For workers':'Tasks', 'Verification':'Matching'};
+function landScroll(top){ const r = stage.getBoundingClientRect(), s = r.width / 1440 || 1;
+  const bar = document.querySelector('header.bar'), off = (bar && getComputedStyle(bar).position !== 'static' ? bar.offsetHeight : 0) + 16;
+  scrollTo({top: Math.max(0, scrollY + r.top + top * s - off), behavior:'smooth'}); }
+/* scroll so the section heading sits just under the sticky prototype bar */
+function landScrollTo(sec){ const h = sec.querySelector('.ft') || sec, bar = document.querySelector('header.bar');
+  const off = (bar && getComputedStyle(bar).position !== 'static' ? bar.getBoundingClientRect().bottom : 0) + 32;
+  scrollTo({top: Math.max(0, scrollY + h.getBoundingClientRect().top - off), behavior:'smooth'}); }
+function landingNav(){
+  const fig = stage.querySelector('.fig'); if (!fig) return;
+  const head = fig.querySelector('[data-name="Header"]'); if (!head || head.dataset.wired) return; head.dataset.wired = '1';
+  const mk = (el, label, fn) => { el.classList.add('lnav'); el.setAttribute('role', 'link'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', label);
+    el.addEventListener('click', fn); el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } }); };
+  const logo = head.querySelector('[data-name="Logo"]'); if (logo) mk(logo, 'Pico, back to top', () => scrollTo({top:0, behavior:'smooth'}));
+  head.querySelectorAll('[data-name="Nav"] > .ft').forEach(el => { const name = LAND_NAV[el.textContent.trim()];
+    const sec = name && [...fig.children].find(c => c.dataset && c.dataset.name === name); if (sec) mk(el, el.textContent.trim(), () => landScrollTo(sec)); });
+}
+/* Landing FAQ: common questions from the app, answered up front (static, both sides) */
+const LAND_FAQ = [
+  ['Can I cancel a task?', 'No, not on your own. If no worker qualifies within 7 days, the task closes and the money returns to Available automatically. After a worker is assigned you can stop together with them, or open a dispute.'],
+  ['Do I need a portfolio to get work?', 'No. You pass a short qualification for the task. If you reach the required level, you can get the task.'],
+  ['What if the client doesn’t review my work?', 'If the client takes no action for 14 days after you submit, you are paid automatically from escrow.'],
+  ['Who sees my name or company?', 'No one on the other side. Clients appear as Client #ID and workers as Worker #ID. Your company name and email are used only for receipts and support.'],
+  ['Can requirements change after a worker is assigned?', 'Only through a change request. The worker has to accept it; until then the current terms apply.'],
+  ['Does chat count as a requirement?', 'No. Chat is context only. Requirements live in the locked criteria and accepted change requests.']
+];
+function landingFAQ(){
+  const fig = stage.querySelector('.fig'); if (!fig || stage.querySelector('.lfaq')) return;
+  const cta = [...fig.children].find(c => c.dataset && c.dataset.name === 'Final CTA'); if (!cta) return;
+  const T = parseFloat(cta.style.top) || 0;
+  const el = document.createElement('section'); el.className = 'lfaq'; el.setAttribute('aria-labelledby', 'lfaqH');
+  el.style.cssText = 'position:absolute;left:0;top:' + T + 'px;width:1440px';
+  el.innerHTML = '<div class="lfaq-in"><span class="lfaq-e">FAQ</span><h2 id="lfaqH">Common questions</h2>' +
+    '<div class="lfaq-g">' + LAND_FAQ.map(([q, a]) => '<div class="lfaq-i"><h3>' + E(q) + '</h3><p>' + E(a) + '</p></div>').join('') + '</div></div>';
+  stage.appendChild(el);
+  const H = Math.ceil(el.offsetHeight);
+  [...fig.children].forEach(c => { const t = parseFloat(c.style.top); if (c !== el && t >= T) c.style.top = (t + H) + 'px'; });
+  [...stage.children].forEach(c => { if (c === fig || c === el || c.tagName === 'IMG') return; const t = parseFloat(c.style.top); if (t >= T) c.style.top = (t + H) + 'px'; });
+  const h = (parseFloat(fig.style.height) || S.landing.h) + H; fig.style.height = h + 'px'; S.landing.h = h;
+}
+const _showLand = show; show = function(k, r){ const out = _showLand(k, r); if (k === 'landing' || cur === 'landing') { try { landingFAQ(); } catch (e) {} try { landingFooter(); } catch (e) {} try { landingNav(); } catch (e) {} } return out; };
+/* About Pico lives on the landing page now (the old in-app About duplicated it) */
+const _showAbout = show; show = function(k, r){ return _showAbout(k === 'about' ? 'landing' : k, r); };
+
+/* Sign-in guard: product screens open only after sign up / log in.
+   Covers every route: landing CTAs and "View task" cards, URL hash, in-app links.
+   Applies to the prototype screen picker too: log in once to browse app screens. */
+const PUBLIC_KEYS = ['landing', 'auth', 'about', 'how', 'rules'];
+const isPublic = k => PUBLIC_KEYS.includes(k) || /^pub-/.test(k);
+const _showGuard = show;
+show = function(k, r){
+  if (!V.user.signedIn && !window.__noGuard && !isPublic(k)) {
+    const start = /^(w-|onb-work)/.test(k) || /^(r-|onb-rev)/.test(k) ? 'work' : 'hire';
+    V.ui.auth = {tab:'signup', start}; V.ui.afterAuth = k;
+    return _showGuard('auth', r);
+  }
+  return _showGuard(k, r);
+};
+/* After log in, continue to the screen the person was trying to open */
+const _finishAuthG = finishAuth;
+finishAuth = function(signup, who){
+  const to = V.ui.afterAuth; V.ui.afterAuth = null;
+  _finishAuthG(signup, who);
+  if (!signup && to && S[to] && !/^onb-/.test(to)) { const m = /^w-/.test(to) ? 'work' : /^r-/.test(to) ? 'rev' : 'hire'; if (V.user.onb[m]) show(to); }
+};
+/* Landing header when already signed in: "Sign in" becomes "Open app" */
+const _actG = act;
+act = function(a, btn){
+  if (a === 'signin' && V.user.signedIn && cur === 'landing') { show(MODE_HOME[V.user.lastMode || 'hire']); return; }
+  /* landing "View task" cards pointed at old screen keys; open the real task page (guarded) */
+  const m = /^go:w-([a-z0-9]+)$/.exec(a || ''); if (m && !(S['w-' + m[1]] && S['w-' + m[1]].v2) && S['w-t-' + m[1]]) { show('w-t-' + m[1]); return; }
+  return _actG(a, btn); };
+const _showOpen = show;
+show = function(k, r){ const out = _showOpen(k, r);
+  if (cur === 'landing') { const t = [...stage.querySelectorAll('.fig [data-name="Button / Sign in"] .ft')][0]; if (t) t.textContent = V.user.signedIn ? 'Open app' : 'Sign in'; }
+  return out; };
+
+
+/* Public shell (signed-out view of shared pages such as Rules): no app sidebar, no wallet, no app actions */
+function pubShell(root, active){
+  root.innerHTML = '<div class="pubx"><header class="pubx-h"><button type="button" class="logo" data-go="landing"><i>P</i>Pico</button><nav>' + [['About','about'],['How it works','how'],['Pricing','pub-pricing'],['Rules','rules']].map(([l, k]) => '<button type="button" data-go="' + k + '"' + (k === active ? ' class="on"' : '') + '>' + l + '</button>').join('') + '</nav>' + P.btn('Sign in', {v:'s', sm:true, go:'auth'}) + '</header>' +
+    '<main class="pubx-m pubx-wide"></main><footer class="pubx-f"><span>© 2026 Pico · Blockchain Hack Kraków</span><nav>' + [['Pricing','pub-pricing'],['Terms','pub-terms'],['Privacy','pub-privacy'],['Refund policy','pub-refunds'],['Rules','rules']].map(([l, k]) => '<button type="button" data-go="' + k + '">' + l + '</button>').join('') + '</nav></footer></div>';
+  return root.querySelector('.pubx-m');
+}
+
+/* How it works also lives on the landing page (old in-app screen had outdated copy and app chrome) */
+const _showHow = show; show = function(k, r){
+  if (k !== 'how') return _showHow(k, r);
+  const out = _showHow('landing', r);
+  setTimeout(() => { const sec = [...(stage.querySelector('.fig') || stage).children].find(c => c.dataset && c.dataset.name === 'How it works'); if (sec) landScrollTo(sec); }, 60);
+  return out;
+};
+
+/* Signed out: every app action is blocked, not only screens. Allowed: auth form, public navigation, rules anchors */
+const OPEN_X = ['auth', 'go', 'rules', 'toast', 'faq'];
+function needLogin(){ if (cur !== 'auth') { V.ui.auth = {tab:'login'}; show('auth'); } toast('Log in or create an account to do this.', 'info'); }
+Object.keys(X).forEach(n => wrapX(n));
+function wrapX(n){ const f = X[n]; if (typeof f !== 'function' || f._g) return; const g = function(...a){ if (!V.user.signedIn && !window.__noGuard && !OPEN_X.includes(n)) { needLogin(); return; } return f.apply(this, a); }; g._g = true; X[n] = g; }
+/* actions registered later (task pages etc.) get the same guard */
+setTimeout(() => Object.keys(X).forEach(n => wrapX(n)), 0);
+const _actOpen = act;
+act = function(a, btn){
+  if (!V.user.signedIn && !window.__noGuard && a && !/^go:/.test(a) && a !== 'signin') { needLogin(); return; }
+  return _actOpen(a, btn);
+};
+/* Prototype bar: Session log and Simulate need a signed-in person */
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('#sessBtn, #simulate');
+  if (b && !V.user.signedIn && !window.__noGuard) { e.stopImmediatePropagation(); e.preventDefault(); needLogin(); }
+}, true);
+
+/* Figma export lost auto-layout gaps between an icon and its label (icon at 0–16px, text starting at 16px).
+   Restore a 6px gap on every exported screen. */
+const ICON_GAP = 6;
+function figIconGaps(){
+  const fig = stage.querySelector('.fig'); if (!fig || fig.dataset.gaps) return; fig.dataset.gaps = '1';
+  const px = (el, p) => parseFloat(el.style[p]) || 0;
+  fig.querySelectorAll('.fb').forEach(box => {
+    const kids = [...box.children];
+    const icons = kids.filter(k => (k.classList.contains('fi') || (k.classList.contains('fb') && k.children.length && [...k.querySelectorAll(':scope *')].every(d => d.classList.contains('fi') || d.closest('svg')))) && px(k, 'width') <= 24);
+    icons.forEach(ic => {
+      const r = px(ic, 'left') + px(ic, 'width'), t1 = px(ic, 'top'), t2 = t1 + px(ic, 'height');
+      kids.forEach(tx => {
+        if (!tx.classList.contains('ft')) return;
+        const l = px(tx, 'left'), y1 = px(tx, 'top'), y2 = y1 + px(tx, 'height');
+        const gap = l - r;
+        if (gap >= -1 && gap < ICON_GAP - 1 && Math.min(t2, y2) - Math.max(t1, y1) > 4) {
+          const add = ICON_GAP - gap; tx.style.left = (l + add) + 'px';
+          if (px(box, 'width')) box.style.width = (px(box, 'width') + add) + 'px';
+        }
+      });
+    });
+  });
+}
+const _showGaps = show; show = function(k, r){ const out = _showGaps(k, r); try { figIconGaps(); } catch (e) {} return out; };
 
 
 /* =====================================================================
