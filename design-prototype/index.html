@@ -998,6 +998,7 @@ pre.codebox{min-height:0;white-space:pre-wrap}
 .rqp ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font:500 13px/19px var(--font);color:var(--text-secondary)}.rqp li::marker{color:var(--text-accent);font-weight:700}
 .rqp-e{font:400 13px/19px var(--font);color:var(--text-muted)}
 .chc.lock:not(.on){opacity:.55}
+.cand-act{flex:none;width:120px;display:flex;justify-content:flex-end}
 
 </style>
 </head>
@@ -14779,7 +14780,7 @@ function railFor(t){
   const iv = t.iv, rv = iv ? 'In Verification' : 'Awaiting Review';
   if (t.status === 'cancelled') return [['Funded', t.funded || '', 'done'], t.worker ? ['Assigned', t.assigned || '', 'done'] : ['Finding Worker', 'Before assignment', 'done'], ['Cancelled', (t.cancelled || '') + (t.how === 'agreement' ? ' · by agreement' : t.how === 'refund' ? ' · refunded' : ''), 'cur']];
   const idx = {finding:1, assigned:2, progress:3, submitted:4, review:4, verification:4, revision:4, dispute:4, completed:6}[t.status];
-  const steps = [['Funded', t.funded || ''],['Finding Worker', t.status === 'finding' ? (t.relist && t.relist.pending ? 'Choose terms for a new worker' : t.qual.on ? 'Qualification running' : 'Waiting for a verified skill') : 'Done'],['Assigned', t.assigned || (t.qual.on ? 'Highest ' + skillLabel(t.cat) + ' score among those who pass' : 'Closest verified ' + skillLabel(t.cat) + ' score')],['In Progress', t.started ? 'Since ' + t.started : idx > 3 ? 'Done' : 'When the worker starts'],[rv, t.submitted ? 'Submitted ' + t.submitted : 'After submission'],['Completed', t.paid || (iv ? 'When the reviewer passes it' : 'On accept or 14 days later')]];
+  const steps = [['Funded', t.funded || ''],['Finding Worker', t.status === 'finding' ? (t.relist && t.relist.pending ? 'Choose terms for a new worker' : t.qual.on ? 'Qualification running' : 'Waiting for a verified skill') : 'Done'],['Assigned', t.assigned || (t.qual.on ? 'Highest passing score' : 'Closest verified score')],['In Progress', t.started ? 'Since ' + t.started : idx > 3 ? 'Done' : 'When the worker starts'],[rv, t.submitted ? 'Submitted ' + t.submitted : 'After submission'],['Completed', t.paid || (iv ? 'When the reviewer passes it' : 'On accept or 14 days later')]];
   const out = steps.map((s, i) => [s[0], s[1], i < idx ? 'done' : i === idx ? 'cur' : 'todo']);
   if (t.status === 'review') out[4][2] = 'cur warn';
   if (t.status === 'revision') { out[4][2] = 'done'; out.splice(5, 0, ['Needs Revision', 'Resubmit by ' + (t.due || dayLabel(3)), 'cur rev']); }
@@ -14894,7 +14895,7 @@ function qualSection(t){
       P.callout('Among people who pass this task test, Pico assigns the highest verified ' + skillLabel(t.cat) + ' score. You don’t pick. Your ' + usd(lockedOf(t)) + ' stays locked until then.') + assign) +
     P.card(P.ch('user', 'Test progress', pill('0 reached ' + Q.pass + ' / 100', '')) + '<p class="sub2 muted">Live and informational. Open answers to see how Pico scored them. There is no chat before a worker is assigned.</p>' +
       (t.cands.length ? '<div class="lst">' + t.cands.map((c, i) => '<div class="li"><span class="av">' + c.id.slice(0, 2) + '</span><div class="tx"><b>Worker #' + c.id + '</b><small>' + c.lvl + ' · ' + t.cat + ' · ' + (c.st === 'taking' ? 'started ' : 'finished ') + c.t + '</small></div>' +
-        (c.st === 'taking' ? pill('Taking the test', '', true) : pill(c.score + ' / 100 · below pass mark', 'warning', true)) + (c.st === 'below' ? P.btn('View answers', {v:'g', sm:true, x:'cand:' + t.id + ':' + i}) : '<span style="width:104px"></span>') + '</div>').join('') + '</div>'
+        (c.st === 'taking' ? pill('Taking the test', '', true) : pill(c.score + ' / 100 · below pass mark', 'warning', true)) + '<span class="cand-act">' + (c.st === 'below' ? P.btn('View answers', {v:'g', sm:true, x:'cand:' + t.id + ':' + i}) : '') + '</span>' + '</div>').join('') + '</div>'
        : P.empty('No one has started yet. Workers who accept the task appear here with their progress.')) +
       '<p class="sub2 muted" style="font-size:12px">Workers below ' + Q.pass + ' / 100 can’t get this task. Pico keeps waiting for the next qualified worker.</p>');
 }
@@ -16282,10 +16283,12 @@ X.cneed = c => { const n = V.user.needs = (V.user.needs || ['Design']).slice(); 
 
 /* ---------- Footer on every app page ---------- */
 const SUPPORT_EMAIL = 'support@pico.com';
+const FOOT_ON = ['home', 'w-home', 'r-home'];   /* footer only on the Home page of each mode */
 const FOOT = [['Privacy Policy','go:pub-privacy'],['Terms of Service','go:pub-terms'],['Refund Policy','go:pub-refunds'],['Pricing','go:pub-pricing'],['Platform rules','x:rules:']];
 const _chromeBase = chrome;
 chrome = function(root, mode, active, crumbs){
   const pg = _chromeBase(root, mode, active, crumbs);
+  if (!FOOT_ON.includes(active)) return pg;
   pg.insertAdjacentHTML('afterend', '<footer class="ftx"><div class="ftx-g">' +
     '<div class="ftx-b"><div class="logo"><i>P</i>Pico</div><p>Short tasks. Money locked up front.</p></div>' +
     '<div class="ftx-c"><b>Legal</b>' + FOOT.map(([l, a]) => { const k = a.slice(0, a.indexOf(':')), v = a.slice(a.indexOf(':') + 1); return '<button type="button" ' + (k === 'go' ? 'data-go="' + v + '"' : 'data-x="' + v + '"') + '>' + l + '</button>'; }).join('') + '</div>' +
