@@ -5,6 +5,14 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/", destination: "/design/index.html" },
+        { source: "/design", destination: "/design/index.html" },
+      ],
+    };
+  },
   // Native .node bindings break when webpack bundles bigint-buffer; keep it on Node require.
   serverExternalPackages: ["bigint-buffer", "bindings"],
   webpack: (config, { isServer }) => {
