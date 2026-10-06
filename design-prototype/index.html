@@ -13771,7 +13771,7 @@ const pop=document.createElement('div');pop.className='pop';pop.hidden=true;docu
 function openPop(kind,anchor,target){const r=anchor.getBoundingClientRect();let h='';
   if(kind==='menu'){h='<div class="plist"><button type="button" data-p="open">Open task</button><button type="button" data-p="chat">Open chat</button><button type="button" data-p="link">Copy task link</button></div>'}else
   if(kind==='wallet'){const on=GS.connected!==false;
-    h='<div class="ph"><span class="av">'+ICON.wallet+'</span><div><b>Phantom · Devnet</b><small>'+(on?'7xKX…9fQ2 · connected':'Not connected')+'</small></div></div>'+
+    h='<div class="ph"><span class="av">'+ICON.wallet+'</span><div><b>Phantom · Devnet</b><small>'+(on?wWallet()+' · connected':'Not connected')+'</small></div></div>'+
       (on?'<div class="mbox"><div class="mrow"><span class="k">In your wallet</span><span class="v">'+fmt(GS.wallet)+' USDC</span></div><div class="mrow"><span class="k">Available on Pico</span><span class="v">'+fmt(GS.avail)+' USDC</span></div></div>'+
       '<div class="plist"><button type="button" data-p="copy">Copy address</button><button type="button" data-p="funds">Add funds from Phantom</button><button type="button" data-p="balance">Open Balance</button><button type="button" data-p="disc" class="danger">Disconnect</button></div>'
       :'<div class="plist"><button type="button" data-p="connect">Connect Phantom</button></div>')}
@@ -13782,7 +13782,7 @@ function openPop(kind,anchor,target){const r=anchor.getBoundingClientRect();let 
   pop.innerHTML=h;pop.hidden=false;const w=kind==='menu'?200:320;pop.style.width=w+'px';pop.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right-w))+'px';pop.style.top=(r.bottom+8)+'px';
   pop.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const p=b.dataset.p;pop.hidden=true;
     if(p==='copy')toast('Address copied.','success');if(p==='funds')openFunds();if(p==='balance')show('balance');if(p==='disc')openDlg('disconnect');
-    if(p==='connect'){GS.connected=true;toast('Phantom connected (prototype).','success')}
+    if(p==='connect'){connectPhantom('hire')}
     if(p==='open')show(target);if(p==='chat')show(target==='wr-review'?'wr-conversation':target);if(p==='link')toast('Task link copied.','success');
     if(p==='n1')show('wr-review');if(p==='n2')show('t-dispute');if(p==='n3')show('task-published')}))}
 document.addEventListener('click',e=>{if(!pop.hidden&&!pop.contains(e.target))pop.hidden=true});
@@ -14260,7 +14260,7 @@ chrome = function(root, mode, active, crumbs){
   const tb = '<div class="tb"><div class="crumb">' + crumbs.map((c, i) => i < crumbs.length - 1 ? '<button data-go="' + c[1] + '">' + E(c[0]) + '</button><span>/</span>' : '<b>' + E(c[0]) + '</b>').join('') + '</div>' +
     '<div class="tbr"><div class="mode" role="group" aria-label="Mode">' + seg + '</div>' +
     '<button class="bell' + (unread ? '' : ' none') + '" data-x="bell" aria-label="Notifications">' + IC.bell + '</button>' +
-    '<button class="wchip" data-act="pop:wallet" aria-label="Wallet"><span class="wi">' + IC.wallet + '</span><span><b>Phantom<span>Devnet</span></b><small>' + (GS.connected === false ? 'Not connected' : '7xKX…9fQ2') + '</small></span><span class="dotg"' + (GS.connected === false ? ' style="background:var(--text-disabled)"' : '') + '></span>' + IC.down + '</button></div></div>';
+    '<button class="wchip" data-act="pop:wallet" aria-label="Wallet"><span class="wi">' + IC.wallet + '</span><span><b>Phantom<span>Devnet</span></b><small>' + (GS.connected === false ? 'Not connected' : wWallet()) + '</small></span><span class="dotg"' + (GS.connected === false ? ' style="background:var(--text-disabled)"' : '') + '></span>' + IC.down + '</button></div></div>';
   root.innerHTML = sb + '<main class="mn">' + tb + '<div class="pg" style="display:flex;flex-direction:column;gap:28px"></div></main>';
   return root.querySelector('.pg');
 };
@@ -14479,13 +14479,50 @@ RENDER.v2onbHire = (root) => {
       '<div class="mk"><span class="tag">Example balance</span><div class="mk-h"><div><div class="mk-s">Your Pico balance</div><div class="mk-amt">500.00<small>USDC</small></div></div>' + pill('Phantom', 'success', true) + '</div>' +
       '<div class="mk-bar"><i style="width:76%;background:#d4d4d8"></i><i style="width:24%;background:var(--indigo-400)"></i></div><div class="mk-leg"><div style="--c:#d4d4d8"><b>380.00</b><small>Available</small></div><div style="--c:var(--indigo-400)"><b>120.00</b><small>Locked</small></div><div style="--c:var(--status-success)"><b>240.00</b><small>Paid out</small></div></div></div>',
     body: '<div class="obs-bal"><div><small>Available</small><b>' + fmt(GS.avail) + '</b></div><div><small>Locked</small><b style="color:var(--text-accent)">' + fmt(BAL.locked) + '</b></div><div><small>Paid out</small><b style="color:var(--status-success)">' + fmt(BAL.paid) + '</b></div></div>' +
-      (GS.connected === false ? '<div>' + P.btn('Connect Phantom', {v:'s', icon:'wallet', x:'onbh:connect'}) + '</div>' : P.line('Phantom connected · 7xKX…9fQ2. You confirm every transfer there.', 'ok')),
+      (GS.phMissing ? '<div class="phantom"><span class="pi">' + ICON.wallet + '</span><div style="flex:1"><b>Phantom · Devnet</b><small>Not installed in this browser</small></div><div class="row2">' + P.btn('Install ↗', {v:'s', x:'toast:Opens phantom.app to install the browser extension. Not linked in the prototype.'}) + P.btn('I’ve installed it', {x:'onbh:installed'}) + '</div></div>' + P.line('Install the extension, then press “I’ve installed it”.') : GS.connected === false ? '<div>' + P.btn('Connect Phantom', {v:'s', icon:'wallet', x:'onbh:connect'}) + '</div>' : P.line('Phantom connected · ' + wWallet() + '. You confirm every transfer there.', 'ok')),
     cta: P.btn('Add funds', {lg:true, x:'onbh:funds'}) + P.btn('Go to Home', {v:'s', lg:true, x:'onbh:finish'}), back:'onbh:back'};
   root.innerHTML = P.obs(Object.assign({role:'hire', n:2, step:O.step}, o));
   wire2(root);
   const ci = root.querySelector('input[data-bind="ui.onbH.company"]'), cnEl = root.querySelector('[data-cn]'), avEl = root.querySelector('[data-ci]');
   if (ci && cnEl) ci.addEventListener('input', () => { const v = ci.value.trim() || 'Your company'; cnEl.textContent = v; if (avEl) avEl.textContent = ini(v); });
 };
+function shortWallet(pk){
+  const s = String(pk || '');
+  return s.length > 8 ? s.slice(0, 4) + '…' + s.slice(-4) : s;
+}
+function connectPhantom(which){
+  const w = W();
+  const provider = window.solana && window.solana.isPhantom ? window.solana : null;
+  if (!provider) {
+    if (which === 'work') { w.phMissing = true; w.phErr = false; w.phBusy = false; }
+    else GS.phMissing = true;
+    rerender();
+    return;
+  }
+  if (which === 'work') { w.phBusy = true; w.phErr = false; w.phMissing = false; }
+  GS.phMissing = false;
+  const pending = provider.connect();
+  if (which === 'work') rerender();
+  pending.then(res => {
+    const pk = (res && res.publicKey && res.publicKey.toString()) || (provider.publicKey && provider.publicKey.toString()) || '';
+    const addr = shortWallet(pk);
+    w.wallet = addr;
+    w.phantom = true;
+    w.phBusy = false;
+    w.phErr = false;
+    w.phMissing = false;
+    GS.connected = true;
+    GS.phMissing = false;
+    rerender();
+    toast('Phantom connected · ' + addr + '.', 'success');
+  }).catch(() => {
+    w.phBusy = false;
+    w.phantom = false;
+    if (which === 'work') w.phErr = true;
+    GS.connected = false;
+    rerender();
+  });
+}
 X.onbh = (a) => {
   const O = V.ui.onbH;
   if (a.startsWith('need-')){ const c = a.slice(5); O.needs = O.needs.includes(c) ? O.needs.filter(x => x !== c) : O.needs.concat(c); O.err.needs = null; rerender(); return; }
@@ -14495,7 +14532,8 @@ X.onbh = (a) => {
     O.step++; rerender(); return;
   }
   if (a === 'back'){ O.step = Math.max(0, O.step - 1); rerender(); return; }
-  if (a === 'connect'){ GS.connected = true; rerender(); toast('Phantom connected · 7xKX…9fQ2.', 'success'); return; }
+  if (a === 'connect'){ connectPhantom('hire'); return; }
+  if (a === 'installed'){ GS.phMissing = false; rerender(); return; }
   if (a === 'skip' || a === 'finish'){ if (!V.user.company) V.user.company = O.company.trim() || 'Your company'; V.user.onb.hire = true; show('home'); toast('You’re all set. Describe your first task.', 'success'); return; }
   if (a === 'funds'){ if (!V.user.company) V.user.company = O.company.trim() || 'Your company'; V.user.onb.hire = true; show('home'); setTimeout(() => openFunds(), 150); }
 };
@@ -15265,17 +15303,18 @@ RENDER.v2onbWork = (root) => {
   root.className = 'app solo';
   const w = W(); if ((w.obStep || 0) > 1) w.obStep = 1; const step = w.obStep || 0, miss = w.phMissing && !w.phantom;
   const DOMS = [['Design','sparkle'],['Development','tool'],['QA & Testing','check'],['Linux','tool']];
-  const ph = w.phantom ? ['Connected','success','7xKX…9fQ2'] : miss ? ['Not installed','warning','Install the extension'] : w.phErr ? ['Rejected','error','Try again'] : w.phBusy ? ['Waiting…','accent','Approve in Phantom'] : ['Not connected','','Payout wallet'];
+  const addr = wWallet();
+  const ph = w.phantom ? ['Connected','success', addr] : miss ? ['Not installed','warning','Install the extension'] : w.phErr ? ['Rejected','error','Try again'] : w.phBusy ? ['Waiting…','accent','Approve in Phantom'] : ['Not connected','','Payout wallet'];
   let o;
   if (step === 0) o = {eyebrow:'Working', title:'Get paid straight to your wallet', sub:'Connect Phantom to receive USDC for accepted work. Pico only reads your address.',
     visual: MK.flow([['check','Verify','Your skill, once'],['tasks','Take a task','That matches it'],['wallet','Get paid','In USDC','ok']], true) + '<div class="vx-gap"></div>' +
       '<div class="mk"><div class="mk-h"><div class="mk-row"><span class="obx-ph">' + ICON.wallet + '</span><div><b class="vk-co">Phantom · Devnet</b><span class="mk-s">' + ph[2] + '</span></div></div>' + pill(ph[0], ph[1], true) + '</div>' +
       '<div class="vk-amt" style="color:var(--status-success)">+110.00<small>USDC</small></div><div class="mk-s">Mobile checkout redesign · accepted by the client</div></div>',
-    body: '<div class="phantom"><span class="pi">' + ICON.wallet + '</span><div style="flex:1"><b>Phantom · Devnet</b><small>' + (w.phantom ? '7xKX…9fQ2 · connected' : miss ? 'Not installed in this browser' : w.phErr ? 'Request rejected' : 'Not connected') + '</small></div>' +
+    body: '<div class="phantom"><span class="pi">' + ICON.wallet + '</span><div style="flex:1"><b>Phantom · Devnet</b><small>' + (w.phantom ? addr + ' · connected' : miss ? 'Not installed in this browser' : w.phErr ? 'Request rejected' : 'Not connected') + '</small></div>' +
         (w.phantom ? pill('Connected', 'success', true)
           : miss ? '<div class="row2">' + P.btn('Install ↗', {v:'s', x:'toast:Opens phantom.app to install the browser extension. Not linked in the prototype.'}) + P.btn('I’ve installed it', {x:'wob:installed'}) + '</div>'
           : '<button type="button" class="pbtn p' + (w.phBusy ? ' loading' : '') + '" data-x="wob:connect"' + (w.phBusy ? ' disabled' : '') + '>' + (w.phBusy ? '<span class="spin"></span>Waiting for Phantom…' : (w.phErr ? 'Try again' : 'Connect Phantom')) + '</button>') + '</div>' +
-      (miss ? P.line('Install the extension, then press “I’ve installed it”.') : w.phErr ? P.line('You rejected the request. Nothing was shared.', 'err') : w.phantom ? P.line('Payouts for accepted work go to 7xKX…9fQ2.', 'ok') : P.line('Phantom asks you to approve. Pico never holds your keys.')),
+      (miss ? P.line('Install the extension, then press “I’ve installed it”.') : w.phErr ? P.line('You rejected the request. Nothing was shared.', 'err') : w.phantom ? P.line('Payouts for accepted work go to ' + addr + '.', 'ok') : P.line('Phantom asks you to approve. Pico never holds your keys.')),
     cta: P.btn('Continue', {lg:true, x:'wob:next', dis:!w.phantom})};
   else { const linux = w.domain === 'Linux';
     o = {eyebrow:'Working', title:'Pick your domain, verify once', sub: linux ? 'One C function. Pico compiles it and scores the checks in the prompt.' : 'A short test with fixed answers. Pass it and matching tasks open up.',
@@ -15292,7 +15331,7 @@ RENDER.v2onbWork = (root) => {
   wire2(root);
 };
 X.wob = (a) => { const w = W();
-  if (a === 'connect'){ w.phBusy = true; w.phErr = false; rerender(); setTimeout(() => { if (!w.phBusy) return; w.phBusy = false; w.phantom = true; GS.connected = true; if (cur === 'onb-work') rerender(); toast('Phantom connected · 7xKX…9fQ2.', 'success'); }, 1300); return; }
+  if (a === 'connect'){ connectPhantom('work'); return; }
   if (a === 'installed'){ w.phMissing = false; rerender(); return; }
   if (a.startsWith('domain-')){ w.domain = a.slice(7); w.err = null; rerender(); return; }
   if (a === 'next'){ if (!w.phantom) return; w.obStep = 1; rerender(); return; }
