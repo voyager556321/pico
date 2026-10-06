@@ -1025,6 +1025,8 @@ pre.codebox{min-height:0;white-space:pre-wrap}
 .stat b{margin-top:6px}.stat small{margin-top:2px}
 .meta small{margin-top:2px}
 .hl{gap:14px}
+/* Prototype bar hidden unless the team turns it on (` key or ?proto) */
+body:not(.proto) > header.bar{display:none}
 
 </style>
 </head>
@@ -16569,6 +16571,21 @@ function figIconGaps(){
   });
 }
 const _showGaps = show; show = function(k, r){ const out = _showGaps(k, r); try { figIconGaps(); } catch (e) {} return out; };
+
+/* Prototype bar (screen picker, Session, Simulate, Reset, Comment mode) is hidden: visitors see only the product.
+   Team: press ` (backtick) to show/hide it, or open the link with ?proto. The choice is remembered in this browser. */
+(function(){
+  const KEY = 'pico-proto-bar';
+  let on = false; try { on = /[?&]proto\b/.test(location.search) || localStorage.getItem(KEY) === '1'; } catch (e) {}
+  const apply = () => { document.body.classList.toggle('proto', on); try { setAppMin(); fit(); } catch (e) {} };
+  apply();
+  document.addEventListener('keydown', e => {
+    if (e.key !== '`' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    on = !on; try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (err) {}
+    apply(); toast(on ? 'Prototype bar shown. Press ` to hide.' : 'Prototype bar hidden. Press ` to show.', 'info');
+  });
+})();
 
 
 /* =====================================================================
