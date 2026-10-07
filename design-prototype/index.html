@@ -15095,7 +15095,7 @@ function heroFor(t){
   return '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + stPill(t.status) + pill(t.cat, '') + (t.iv ? pill('Independent verification', 'tech') : '') + '</div><h1 class="h1">' + E(t.title) + '</h1>' +
     '<div class="meta"><div style="display:flex;gap:10px;align-items:center">' + who[0] + '<span><b>' + who[1] + '</b><small>' + who[2] + '</small></span></div><div><b>' + dl[0] + '</b><small>' + dl[1] + '</small></div><div><b>' + (t.iv ? 'Independent · 1 reviewer' : 'Standard · by you') + '</b><small>Review</small></div></div></div>' +
     '<div class="esc">' + esc + '<div class="amt">' + fmt(amt) + '<small>USDC</small></div><div class="note">' + note + (t.iv && ACTIVE.includes(t.status) ? '<br>' + fmt(t.reward) + ' reward + ' + fmt(feeOf(t)) + ' fee' : '') + '</div>' +
-    (t.worker && ACTIVE.includes(t.status) && t.status !== 'dispute' ? P.btn('Message worker' + (t.unread ? ' · ' + t.unread + ' new' : ''), {sm:true, icon:'chat', x:'ctab:' + t.id + ':chat'}) : '') + '</div></div>' + rail(railFor(t)) + '</section>';
+    (t.worker && ACTIVE.includes(t.status) && t.status !== 'dispute' ? P.btn('Message worker' + (t.unread ? ' · ' + t.unread + ' new' : ''), {sm:true, icon:'chat', x:'openchat:' + t.id}) : '') + '</div></div>' + rail(railFor(t)) + '</section>';
 }
 function statusCard(t){
   const A = fmt(t.reward), crit = i => 'criterion ' + (i + 1);
@@ -15104,7 +15104,7 @@ function statusCard(t){
     case 'progress': return P.card(P.ch('tool', 'Worker #' + t.worker + ' is on it · due ' + (t.due || dayLabel(t.days))) + '<p class="sub2">Nothing needed from you right now. You’ll review the work when it’s submitted. Chat is for questions; new scope goes through a change request.</p>' +
         (t.cr && t.cr.status === 'pending' ? P.callout('Your change request is waiting for the worker. Until they answer, work continues on the current terms. If they decline, the current terms stay' + (t.cr && t.cr.extra ? ' and the extra ' + usd(t.cr.extra) + ' returns to Available' : '') + '.') : '') +
         (t.cx && t.cx.status === 'pending' ? P.callout('You asked to cancel together. Waiting for Worker #' + t.worker + '. Until they answer, work continues on the current terms.') : '') +
-        '<div class="acts">' + P.btn('Open conversation' + (t.unread ? ' · ' + t.unread + ' new' : ''), {v:'s', sm:true, icon:'chat', x:'ctab:' + t.id + ':chat'}) + '</div>', 'accent');
+        '<div class="acts">' + P.btn('Open conversation' + (t.unread ? ' · ' + t.unread + ' new' : ''), {v:'s', sm:true, icon:'chat', x:'openchat:' + t.id}) + '</div>', 'accent');
     case 'review': { const left = t.daysLeft != null ? t.daysLeft : 14;
       return P.card(P.ch('check', 'Work submitted ' + (t.submitted || '') + ' — your review is next') + '<p class="sub2">Accept to release ' + A + ' USDC to the worker. Request changes only against a locked criterion. No response by ' + (t.autoPay || dayLabel(14)) + ' pays the worker automatically.</p>' +
         '<div class="timer"><div class="th2"><span>Auto-payout timer</span><b>' + left + ' of 14 days left · ' + (t.autoPay || dayLabel(14)) + '</b></div><div class="days">' + Array.from({length:14}, (_, i) => '<i class="' + (i < 14 - left ? 'on' : '') + '"></i>').join('') + '</div></div>' +
@@ -15969,8 +15969,8 @@ function wStatus(t){
   const due = t.due || dayLabel(t.days);
   switch (t.my) {
     case 'assigned': return P.card(P.ch('check', 'The task is yours · start when you’re ready', '', 'ok') + '<p class="sub2">Criteria are locked. The client sees In Progress when you press Start work. Ask questions in the conversation; chat can’t change the scope.</p>' +
-      P.kv([['Deadline', due],['Reward', usd(t.pay) + ' · locked in escrow'],['Review', t.iv ? 'Independent reviewer' : 'By the client · 14-day auto-payout']]) + '<div class="acts">' + P.btn('Start work', {x:'wstart:' + t.id}) + P.btn('Message ' + t.company, {v:'s', x:'wtab:' + t.id + ':chat'}) + '</div>', 'ok');
-    case 'progress': return P.card(P.ch('tool', 'In Progress · due ' + due) + '<p class="sub2">Submit when every criterion is met. You’ll add files or a link and confirm each criterion.</p><div class="acts">' + P.btn('Submit work', {x:'wsubmitwork:' + t.id}) + P.btn('Open conversation', {v:'s', x:'wtab:' + t.id + ':chat'}) + '</div>', 'accent');
+      P.kv([['Deadline', due],['Reward', usd(t.pay) + ' · locked in escrow'],['Review', t.iv ? 'Independent reviewer' : 'By the client · 14-day auto-payout']]) + '<div class="acts">' + P.btn('Start work', {x:'wstart:' + t.id}) + P.btn('Message ' + t.company, {v:'s', x:'wopenchat:' + t.id}) + '</div>', 'ok');
+    case 'progress': return P.card(P.ch('tool', 'In Progress · due ' + due) + '<p class="sub2">Submit when every criterion is met. You’ll add files or a link and confirm each criterion.</p><div class="acts">' + P.btn('Submit work', {x:'wsubmitwork:' + t.id}) + P.btn('Open conversation', {v:'s', x:'wopenchat:' + t.id}) + '</div>', 'accent');
     case 'review': return P.card(P.ch('check', 'Submitted · the client reviews next', '', 'warn') + '<p class="sub2">The client can accept, or request changes on one locked criterion. If they don’t respond, you’re paid automatically.</p>' +
       '<div class="timer"><div class="th2"><span>Auto-payout timer</span><b>14 of 14 days left · ' + (t.autoPay || dayLabel(14)) + '</b></div><div class="days">' + Array.from({length:14}, () => '<i></i>').join('') + '</div></div>', 'warn');
     case 'verification': return P.card(P.ch('tool', 'An independent reviewer is checking your work', '', 'tech') + '<p class="sub2">PASS pays you right away, with no extra client approval. NEEDS REVISION comes with feedback per criterion; the same reviewer checks your resubmission.</p>', 'tech');
@@ -16629,6 +16629,9 @@ reg('chats', 'Chats', 'v2chats', {h:1000});
 reg('w-chats', 'Working · Chats', 'v2wchats', {h:1000});
 RENDER.v2chats = root => chatsPage(root, 'hire');
 RENDER.v2wchats = root => chatsPage(root, 'work');
+/* Message worker / Open conversation on a task page opens Chats with that task's conversation selected */
+X.openchat = id => { V.ui.chatSel = V.ui.chatSel || {}; V.ui.chatSel.hire = id; if (V.tasks[id]) V.tasks[id].unread = 0; show('chats'); };
+X.wopenchat = id => { V.ui.chatSel = V.ui.chatSel || {}; V.ui.chatSel.work = id; show('w-chats'); };
 X.chatsel = a => { const [mode, id] = a.split(':'); V.ui.chatSel = V.ui.chatSel || {}; V.ui.chatSel[mode] = id; rerender(); };
 X.chatsend = a => { const [mode, id] = a.split(':'), i = stage.querySelector('#chxIn'), v = i && i.value.trim(); if (!v) { i && i.focus(); return; }
   const th = chatThreads(mode).find(x => x.id === id); if (!th) return; th.list.push(['y', dayLabel(0) + ' · ' + clockNow(), v]); rerender(); toast('Message sent to ' + th.who + '.', 'success'); };
