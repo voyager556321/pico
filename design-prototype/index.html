@@ -1032,6 +1032,9 @@ pre.codebox{min-height:0;white-space:pre-wrap}
 .hl{gap:14px}
 /* Prototype bar hidden unless the team turns it on (` key or ?proto) */
 body:not(.proto) > header.bar{display:none}
+/* One role per session: only the current role is shown, as a label */
+.tbr .mode button:not(.on){display:none}
+.tbr .mode button.on{pointer-events:none;cursor:default}
 
 </style>
 </head>
@@ -14308,7 +14311,7 @@ chrome = function(root, mode, active, crumbs){
     rev:[['REVIEWING',[['r-home','Home','home'],['r-requests','Review requests','tasks'],['r-history','Completed reviews','activity']]],['PROFILE',[['r-profile','Reviewer profile','user']]],['ACCOUNT',[['r-settings','Settings','settings'],['help','Help & disputes','help']]]]
   }[mode];
   const cn = typeof companyName === 'function' ? companyName() : 'Northwind Studio';
-  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, 'Company account','client-profile'], work:['73','Worker #7310','Same account as Hiring','w-profile'], rev:['73','Reviewer #7310','Verified reviewer','r-profile']}[mode];
+  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, 'Company account','client-profile'], work:['73','Worker #7310','Working role','w-profile'], rev:['73','Reviewer #7310','Verified reviewer','r-profile']}[mode];
   let sb = '<aside class="sb"><div class="brandrow"><button class="logo" data-go="' + MODE_HOME[mode] + '" aria-label="Pico home"><i>P</i>Pico</button><span class="icb">' + IC.side + '</span></div>' +
     '<button class="srch" data-act="search">' + IC.search + '<span>Search…</span><kbd>⌘</kbd><kbd>K</kbd></button>';
   NAV.forEach(([lbl, items], gi) => { if (gi) sb += '<hr>'; sb += '<div class="lbl">' + lbl + '</div><div class="nv">' + items.map(([k, l, ic]) => '<button class="ni' + (k === active ? ' on' : '') + '" data-go="' + k + '"' + (k === active ? ' aria-current="page"' : '') + '>' + IC[ic] + l + '</button>').join('') + '</div>'; });
@@ -14471,7 +14474,7 @@ RENDER.v2auth = (root) => {
   const A = V.ui.auth = dflt(V.ui.auth || {}, {tab:'signup', start:'hire', email:'', pw:'', err:{}});
   if (A.tab === 'login' && A.email === '' && !A.touched) { A.email = 'anna@northwind.studio'; }
   const brand = '<div class="brandp">' + FACETS.replace('class="fac"', 'class="fac"') + '<button class="logo2" data-go="landing" aria-label="Pico"><i>P</i>Pico</button><div style="flex:1"></div>' +
-    '<div class="eyebrow">One account · three modes</div><h1>Get a task done, do the work, or check it.</h1><p class="lead">Budgets are locked before work starts and released only when the work meets the criteria.</p>' +
+    '<div class="eyebrow">One account · one role per session</div><h1>Get a task done, do the work, or check it.</h1><p class="lead">Budgets are locked before work starts and released only when the work meets the criteria.</p>' +
     '<div class="modes3">' + [['brief','Hiring','Post a task. Pico finds a qualified worker.'],['tool','Working','Take paid tasks that match your verified skills.'],['check','Reviewer','Check work against criteria. Opens after you verify a skill.']].map(m => '<div class="m"><span class="ic">' + IC[m[0]] + '</span><span><b>' + m[1] + '</b><small>' + m[2] + '</small></span></div>').join('') + '</div>' +
     '<div style="flex:1"></div><div class="fine">Runs on Solana · payments in USDC</div></div>';
   let card;
@@ -14481,9 +14484,9 @@ RENDER.v2auth = (root) => {
   } else {
     const su = A.tab === 'signup';
     card = '<div class="acard">' + P.tabs([['signup','Sign up'],['login','Log in']], A.tab, 'auth:tab') +
-      '<div><h2>' + (su ? 'Create your account' : 'Welcome back') + '</h2><p class="sub">' + (su ? 'One account for hiring, working and reviewing.' : 'You’ll land in the mode you used last.') + '</p></div>' +
-      (su ? '<div class="fg"><span class="mlabel">Start in</span><div class="ochoice">' + [['hire','Hiring','Post tasks'],['work','Working','Take tasks']].map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
-        '</div><div class="mhelp">Switch modes any time. Reviewer opens after you verify a skill in Working.</div></div>' : '') +
+      '<div><h2>' + (su ? 'Create your account' : 'Welcome back') + '</h2><p class="sub">' + (su ? 'Pick how you’ll use Pico. One role per session.' : 'Pick the role for this session.') + '</p></div>' +
+      ('<div class="fg"><span class="mlabel">' + (su ? 'Start as' : 'Log in as') + '</span><div class="ochoice">' + (su ? [['hire','Hiring','Post tasks'],['work','Working','Take tasks']] : [['hire','Hiring','Post tasks'],['work','Working','Take tasks'],['rev','Reviewer','Check work']]).map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
+        '</div><div class="mhelp">' + (su ? 'To change role later, sign out and log in as another role. Reviewer opens after you verify a skill in Working.' : 'To change role, sign out and log in again.') + '</div></div>') +
       P.field({id:'aEmail', label: su ? 'Work email' : 'Email', value:A.email, ph:'name@company.com', err:A.err.email, bind:'ui.auth.email', dis:A.busy}) +
       P.field({id:'aPw', label:'Password', value:A.pw, ph: su ? 'At least 8 characters' : 'Your password', err:A.err.pw, bind:'ui.auth.pw', dis:A.busy}) +
       (!su ? '<div style="display:flex;justify-content:flex-end;margin-top:-8px"><button class="linkb" data-x="auth:forgot">Forgot password?</button></div>' : '') +
@@ -14498,7 +14501,7 @@ RENDER.v2auth = (root) => {
 };
 X.auth = (a) => {
   const A = V.ui.auth; if (a.startsWith('tab:')) a = 'tab-' + a.slice(4);
-  if (a.startsWith('tab-')){ const t = a.slice(4); V.ui.auth = {tab:t, start:A.start, email:t === 'login' ? '' : A.email, pw:'', err:{}}; rerender(); return; }
+  if (a.startsWith('tab-')){ const t = a.slice(4); V.ui.auth = {tab:t, start:t === 'login' ? (V.user.lastMode || 'hire') : (A.start === 'rev' ? 'hire' : A.start), email:t === 'login' ? '' : A.email, pw:'', err:{}}; rerender(); return; }
   if (a === 'tab') return;
   if (a.startsWith('start-')){ A.start = a.slice(6); rerender(); return; }
   if (a === 'forgot'){ if (!EMAILRE.test(A.email)) { A.err = {email:'Enter your email first, then ask for a reset link.'}; rerender(); return; } A.tab = 'reset'; rerender(); return; }
@@ -14517,6 +14520,7 @@ X.auth = (a) => {
 };
 X.tab = () => {};
 function finishAuth(signup, who){
+  if (!signup && V.ui.auth && V.ui.auth.start) V.user.lastMode = V.ui.auth.start;
   V.user.signedIn = true; V.user.email = who;
   if (signup) {
     setAcct('new'); V.user.onb.hire = false; V.user.company = ''; V.ui.onbH = null;
@@ -16908,6 +16912,28 @@ const _showGaps = show; show = function(k, r){ const out = _showGaps(k, r); try 
     apply(); toast(on ? 'Prototype bar shown. Press ` to hide.' : 'Prototype bar hidden. Press ` to show.', 'info');
   });
 })();
+
+/* One role per session: the Hiring / Working / Reviewer switch is gone once signed in.
+   The top bar shows the current role only; to change it, sign out and log in as another role. */
+const _modeLocked = X.mode;
+X.mode = m => {
+  if (V.user.signedIn && m !== (V.user.lastMode || 'hire')) {
+    const N = {hire:'Hiring', work:'Working', rev:'Reviewer'};
+    toast('You’re signed in as ' + N[V.user.lastMode || 'hire'] + '. Sign out to use Pico as ' + N[m] + '.', 'info');
+    const h = MODE_HOME[V.user.lastMode || 'hire']; if (cur !== h && !S[cur]) show(h);
+    return;
+  }
+  return _modeLocked(m);
+};
+const _showRole = show; show = function(k, r){ const out = _showRole(k, r);
+  stage.querySelectorAll('.tbr .mode button').forEach(b => { if (b.classList.contains('on')) { b.setAttribute('aria-disabled', 'true'); b.tabIndex = -1; b.title = 'Sign out to change role'; } });
+  return out; };
+/* Landing CTAs while signed in: going to another role's home explains the role lock instead of switching */
+const _actRole = act;
+act = function(a, btn){
+  if (V.user.signedIn && (a === 'go:home' || a === 'go:w-home')) { const m = a === 'go:home' ? 'hire' : 'work'; if (m !== (V.user.lastMode || 'hire')) { X.mode(m); return; } }
+  return _actRole(a, btn);
+};
 
 
 /* =====================================================================
