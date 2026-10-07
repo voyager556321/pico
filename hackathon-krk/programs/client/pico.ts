@@ -1,16 +1,12 @@
 /**
- * Pico slot-network client helpers.
+ * Pico escrow client. One worker, optional reviewer.
  * Deploy programs/pico/src/lib.rs, then sync PROGRAM_ID + IDL.
  *
- * Flow: Qualifying → assign_team → Working → InReview chain → Submitted → finalize_and_pay
- * See hackathon-krk/FLOW.md
+ * The Next app under web/ still speaks the old slot layout.
+ * Do not point it at this program until that client is rewritten.
  */
 import { Program, BN } from "@coral-xyz/anchor";
-import {
-  PublicKey,
-  Keypair,
-  SystemProgram,
-} from "@solana/web3.js";
+import { PublicKey, SystemProgram } from "@solana/web3.js";
 import {
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -25,24 +21,11 @@ export const DEVNET_USDC = new PublicKey(
   "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
 );
 
-export const MAX_SLOTS = 4;
+/** Reviewer fee used by the current UI: 10% of the worker reward, on top. */
+export const REVIEWER_FEE_BPS = 1000;
 
 export function usdc(amount: number): BN {
   return new BN(Math.round(amount * 1_000_000));
-}
-
-/** e.g. N=2 reviews → [7000, 2000, 1000, 0] */
-export function slotBps(parts: number[]): number[] {
-  const out = [0, 0, 0, 0];
-  let sum = 0;
-  for (let i = 0; i < parts.length && i < MAX_SLOTS; i++) {
-    out[i] = parts[i];
-    sum += parts[i];
-  }
-  if (sum !== 10_000) {
-    throw new Error(`slot bps must sum to 10000, got ${sum}`);
-  }
-  return out;
 }
 
 export function configPda(programId = PROGRAM_ID): PublicKey {
@@ -100,6 +83,16 @@ export function vaultAta(
 
 type PicoProgram = Program;
 
+function nonceOf(taskNonce: BN | number): BN {
+  return typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
+}
+
+function taskAccounts(client: PublicKey, taskNonce: BN | number, mint = DEVNET_USDC) {
+  const task = taskPda(client, taskNonce);
+  const [vaultAuthority] = vaultAuthorityPda(task);
+  return { task, vaultAuthority, vault: vaultAta(vaultAuthority, mint) };
+}
+
 export async function initializeConfig(
   program: PicoProgram,
   authority: PublicKey,
@@ -124,29 +117,18 @@ export async function createTask(
   program: PicoProgram,
   client: PublicKey,
   skillId: number,
+  minLevel: number,
   reward: BN,
-  deadlineTs: BN,
   taskNonce: BN | number,
-  reviewCount: number,
-  slotBpsArr: number[],
+  withReviewer: boolean,
+  findingDeadline: BN,
   clientUsdcAta: PublicKey,
   mint: PublicKey = DEVNET_USDC
 ) {
-  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
-  const task = taskPda(client, nonce);
-  const [vaultAuthority] = vaultAuthorityPda(task);
-  const vault = vaultAta(vaultAuthority, mint);
-  const bps = slotBps(slotBpsArr);
-
+  const nonce = nonceOf(taskNonce);
+  const { task, vaultAuthority, vault } = taskAccounts(client, nonce, mint);
   return program.methods
-    .createTask(
-      skillId,
-      reward,
-      deadlineTs,
-      nonce,
-      reviewCount,
-      bps as [number, number, number, number]
-    )
+    .createTask(skillId, minLevel, reward, nonce, withReviewer, findingDeadline)
     .accounts({
       client,
       config: configPda(),
@@ -162,103 +144,111 @@ export async function createTask(
     .rpc();
 }
 
-/** After off-chain Test 1→2→3: holders[0]=Execution (fastest), then verifiers. */
-export async function assignTeam(
+export async function claimTask(
   program: PicoProgram,
-  operator: Keypair,
+  worker: PublicKey,
   client: PublicKey,
   taskNonce: BN | number,
-  holders: PublicKey[],
-  timesMs: number[]
+  skillId: number,
+  workDeadline: BN
 ) {
-  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
-  const h: PublicKey[] = [];
-  const t: number[] = [];
-  for (let i = 0; i < MAX_SLOTS; i++) {
-    h.push(holders[i] ?? PublicKey.default);
-    t.push(timesMs[i] ?? 0);
-  }
   return program.methods
-    .assignTeam(h as [PublicKey, PublicKey, PublicKey, PublicKey], t)
+    .claimTask(workDeadline)
     .accounts({
-      operator: operator.publicKey,
-      config: configPda(),
-      task: taskPda(client, nonce),
+      worker,
+      task: taskPda(client, taskNonce),
+      credential: credentialPda(worker, skillId),
     })
-    .signers([operator])
     .rpc();
 }
 
-export async function submitExecution(
+export async function submitWork(
   program: PicoProgram,
-  executor: Keypair,
+  worker: PublicKey,
   client: PublicKey,
   taskNonce: BN | number,
-  resultHash: number[],
-  explanationHash: number[]
+  workHash: number[]
 ) {
-  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
   return program.methods
-    .submitExecution(resultHash, explanationHash)
+    .submitWork(workHash)
     .accounts({
-      executor: executor.publicKey,
-      task: taskPda(client, nonce),
+      worker,
+      task: taskPda(client, taskNonce),
     })
-    .signers([executor])
     .rpc();
 }
 
-export async function submitVerification(
+export async function acceptWork(
   program: PicoProgram,
-  verifier: Keypair,
   client: PublicKey,
+  worker: PublicKey,
   taskNonce: BN | number,
-  reviewHash: number[]
-) {
-  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
-  return program.methods
-    .submitVerification(reviewHash)
-    .accounts({
-      verifier: verifier.publicKey,
-      task: taskPda(client, nonce),
-    })
-    .signers([verifier])
-    .rpc();
-}
-
-/** remainingAccounts: ATA for each filled slot, in order 0..slot_count-1 */
-export async function finalizeAndPay(
-  program: PicoProgram,
-  signer: Keypair,
-  client: PublicKey,
-  taskNonce: BN | number,
-  treasuryAta: PublicKey,
-  slotAtas: PublicKey[],
+  clientUsdcAta: PublicKey,
+  workerUsdcAta: PublicKey,
   mint: PublicKey = DEVNET_USDC
 ) {
-  const nonce = typeof taskNonce === "number" ? new BN(taskNonce) : taskNonce;
-  const task = taskPda(client, nonce);
-  const [vaultAuthority] = vaultAuthorityPda(task);
-  const vault = vaultAta(vaultAuthority, mint);
-
+  const { task, vaultAuthority, vault } = taskAccounts(client, taskNonce, mint);
   return program.methods
-    .finalizeAndPay()
+    .acceptWork()
     .accounts({
-      payerSig: signer.publicKey,
-      config: configPda(),
+      client,
       task,
       vaultAuthority,
       vault,
-      treasuryTokenAccount: treasuryAta,
+      workerTokenAccount: workerUsdcAta,
+      clientTokenAccount: clientUsdcAta,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
-    .remainingAccounts(
-      slotAtas.map((pubkey) => ({
-        pubkey,
-        isWritable: true,
-        isSigner: false,
-      }))
-    )
-    .signers([signer])
+    .rpc();
+}
+
+export async function passReview(
+  program: PicoProgram,
+  reviewer: PublicKey,
+  client: PublicKey,
+  worker: PublicKey,
+  taskNonce: BN | number,
+  clientUsdcAta: PublicKey,
+  workerUsdcAta: PublicKey,
+  reviewerUsdcAta: PublicKey,
+  mint: PublicKey = DEVNET_USDC
+) {
+  const { task, vaultAuthority, vault } = taskAccounts(client, taskNonce, mint);
+  return program.methods
+    .passReview()
+    .accounts({
+      reviewer,
+      task,
+      vaultAuthority,
+      vault,
+      workerTokenAccount: workerUsdcAta,
+      reviewerTokenAccount: reviewerUsdcAta,
+      clientTokenAccount: clientUsdcAta,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .rpc();
+}
+
+export async function declineChange(
+  program: PicoProgram,
+  worker: PublicKey,
+  client: PublicKey,
+  taskNonce: BN | number,
+  clientUsdcAta: PublicKey,
+  workerUsdcAta: PublicKey,
+  mint: PublicKey = DEVNET_USDC
+) {
+  const { task, vaultAuthority, vault } = taskAccounts(client, taskNonce, mint);
+  return program.methods
+    .declineChange()
+    .accounts({
+      worker,
+      task,
+      vaultAuthority,
+      vault,
+      workerTokenAccount: workerUsdcAta,
+      clientTokenAccount: clientUsdcAta,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
     .rpc();
 }
