@@ -1032,6 +1032,9 @@ pre.codebox{min-height:0;white-space:pre-wrap}
 .hl{gap:14px}
 /* Prototype bar hidden unless the team turns it on (` key or ?proto) */
 body:not(.proto) > header.bar{display:none}
+/* One role per session: only the current role is shown, as a label */
+.tbr .mode button:not(.on){display:none}
+.tbr .mode button.on{pointer-events:none;cursor:default}
 
 </style>
 </head>
@@ -13573,7 +13576,7 @@ const GS={avail:650,locked:710,wallet:1240,budget:'90.00',iv:false,rev:1,vals:{}
 /* ---------- task draft: what the client types carries through every step and survives reload ---------- */
 const LSK='pico-proto-v1';
 try{const sv=JSON.parse(localStorage.getItem(LSK)||'null');if(sv&&typeof sv==='object')Object.assign(GS,sv)}catch(e){}
-function saveGS(){if(window.__noSave)return;try{localStorage.setItem(LSK,JSON.stringify(GS))}catch(e){}}
+function saveGS(){if(window.__noSave)return;try{localStorage.setItem(LSK,JSON.stringify(GS))}catch(e){} if(window.persistAccount)window.persistAccount();}
 document.addEventListener('input',()=>setTimeout(saveGS,0),true);
 document.addEventListener('click',()=>setTimeout(saveGS,60),true);
 addEventListener('pagehide',saveGS);
@@ -14308,7 +14311,9 @@ chrome = function(root, mode, active, crumbs){
     rev:[['REVIEWING',[['r-home','Home','home'],['r-requests','Review requests','tasks'],['r-history','Completed reviews','activity']]],['PROFILE',[['r-profile','Reviewer profile','user']]],['ACCOUNT',[['r-settings','Settings','settings'],['help','Help & disputes','help']]]]
   }[mode];
   const cn = typeof companyName === 'function' ? companyName() : 'Northwind Studio';
-  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, 'Company account','client-profile'], work:['73','Worker #7310','Same account as Hiring','w-profile'], rev:['73','Reviewer #7310','Verified reviewer','r-profile']}[mode];
+  const wkAddr = (typeof GS !== 'undefined' && GS.workerPay && String(GS.workerPay).length > 30 && typeof shortWallet === 'function') ? shortWallet(GS.workerPay) : '';
+  const hireAddr = (typeof GS !== 'undefined' && GS.clientFull && String(GS.clientFull).length > 30 && typeof shortWallet === 'function') ? shortWallet(GS.clientFull) : '';
+  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, hireAddr ? 'Phantom · ' + hireAddr : 'Company account','client-profile'], work:[wkAddr ? wkAddr.slice(0, 2).toUpperCase() : '73', wkAddr || 'Worker', 'Working role','w-profile'], rev:['73','Reviewer #7310','Verified reviewer','r-profile']}[mode];
   let sb = '<aside class="sb"><div class="brandrow"><button class="logo" data-go="' + MODE_HOME[mode] + '" aria-label="Pico home"><i>P</i>Pico</button><span class="icb">' + IC.side + '</span></div>' +
     '<button class="srch" data-act="search">' + IC.search + '<span>Search…</span><kbd>⌘</kbd><kbd>K</kbd></button>';
   NAV.forEach(([lbl, items], gi) => { if (gi) sb += '<hr>'; sb += '<div class="lbl">' + lbl + '</div><div class="nv">' + items.map(([k, l, ic]) => '<button class="ni' + (k === active ? ' on' : '') + '" data-go="' + k + '"' + (k === active ? ' aria-current="page"' : '') + '>' + IC[ic] + l + '</button>').join('') + '</div>'; });
@@ -14469,9 +14474,9 @@ reg('auth', 'Sign up / Log in', 'v2auth', {h:960});
 RENDER.v2auth = (root) => {
   root.className = 'app solo';
   const A = V.ui.auth = dflt(V.ui.auth || {}, {tab:'signup', start:'hire', email:'', pw:'', err:{}});
-  if (A.tab === 'login' && A.email === '' && !A.touched) { A.email = 'anna@northwind.studio'; }
+  if (A.tab === 'login' && A.email === 'anna@northwind.studio' && !A.touched) A.email = '';
   const brand = '<div class="brandp">' + FACETS.replace('class="fac"', 'class="fac"') + '<button class="logo2" data-go="landing" aria-label="Pico"><i>P</i>Pico</button><div style="flex:1"></div>' +
-    '<div class="eyebrow">One account · three modes</div><h1>Get a task done, do the work, or check it.</h1><p class="lead">Budgets are locked before work starts and released only when the work meets the criteria.</p>' +
+    '<div class="eyebrow">One account · one role per session</div><h1>Get a task done, do the work, or check it.</h1><p class="lead">Budgets are locked before work starts and released only when the work meets the criteria.</p>' +
     '<div class="modes3">' + [['brief','Hiring','Post a task. Pico finds a qualified worker.'],['tool','Working','Take paid tasks that match your verified skills.'],['check','Reviewer','Check work against criteria. Opens after you verify a skill.']].map(m => '<div class="m"><span class="ic">' + IC[m[0]] + '</span><span><b>' + m[1] + '</b><small>' + m[2] + '</small></span></div>').join('') + '</div>' +
     '<div style="flex:1"></div><div class="fine">Runs on Solana · payments in USDC</div></div>';
   let card;
@@ -14481,15 +14486,15 @@ RENDER.v2auth = (root) => {
   } else {
     const su = A.tab === 'signup';
     card = '<div class="acard">' + P.tabs([['signup','Sign up'],['login','Log in']], A.tab, 'auth:tab') +
-      '<div><h2>' + (su ? 'Create your account' : 'Welcome back') + '</h2><p class="sub">' + (su ? 'One account for hiring, working and reviewing.' : 'You’ll land in the mode you used last.') + '</p></div>' +
-      (su ? '<div class="fg"><span class="mlabel">Start in</span><div class="ochoice">' + [['hire','Hiring','Post tasks'],['work','Working','Take tasks']].map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
-        '</div><div class="mhelp">Switch modes any time. Reviewer opens after you verify a skill in Working.</div></div>' : '') +
+      '<div><h2>' + (su ? 'Create your account' : 'Welcome back') + '</h2><p class="sub">' + (su ? 'Pick how you’ll use Pico. One role per session.' : 'Pick the role for this session.') + '</p></div>' +
+      ('<div class="fg"><span class="mlabel">' + (su ? 'Start as' : 'Log in as') + '</span><div class="ochoice">' + (su ? [['hire','Hiring','Post tasks'],['work','Working','Take tasks']] : [['hire','Hiring','Post tasks'],['work','Working','Take tasks'],['rev','Reviewer','Check work']]).map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
+        '</div><div class="mhelp">' + (su ? 'To change role later, sign out and log in as another role. Reviewer opens after you verify a skill in Working.' : 'To change role, sign out and log in again.') + '</div></div>') +
       P.field({id:'aEmail', label: su ? 'Work email' : 'Email', value:A.email, ph:'name@company.com', err:A.err.email, bind:'ui.auth.email', dis:A.busy}) +
       P.field({id:'aPw', label:'Password', value:A.pw, ph: su ? 'At least 8 characters' : 'Your password', err:A.err.pw, bind:'ui.auth.pw', dis:A.busy}) +
       (!su ? '<div style="display:flex;justify-content:flex-end;margin-top:-8px"><button class="linkb" data-x="auth:forgot">Forgot password?</button></div>' : '') +
       '<button type="button" class="pbtn p full' + (A.busy ? ' loading' : '') + '" data-x="auth:submit"' + (A.busy ? ' disabled aria-busy="true"' : '') + '>' + (A.busy ? '<span class="spin"></span>' + (su ? 'Creating account…' : 'Logging in…') : (su ? 'Create account' : 'Log in')) + '</button>' +
       '<div class="divor">or</div>' + P.btn('Continue with Phantom', {v:'s', full:true, icon:'wallet', x:'auth:phantom', dis:A.busy}) +
-      '<div class="fine">' + (su ? 'By continuing you agree to the Terms and the Privacy Policy.' : 'Prototype: any password with 8+ characters works. Type “wrong” to see the error state.') + '</div></div>';
+      '<div class="fine">Your Pico account is the wallet you connect. The same address and balance come back on the next visit.</div></div>';
   }
   root.innerHTML = '<div class="auth">' + brand + '<div class="rightp">' + card + '</div></div>';
   wire2(root);
@@ -14498,12 +14503,27 @@ RENDER.v2auth = (root) => {
 };
 X.auth = (a) => {
   const A = V.ui.auth; if (a.startsWith('tab:')) a = 'tab-' + a.slice(4);
-  if (a.startsWith('tab-')){ const t = a.slice(4); V.ui.auth = {tab:t, start:A.start, email:t === 'login' ? '' : A.email, pw:'', err:{}}; rerender(); return; }
+  if (a.startsWith('tab-')){ const t = a.slice(4); V.ui.auth = {tab:t, start:t === 'login' ? (V.user.lastMode || 'hire') : (A.start === 'rev' ? 'hire' : A.start), email:t === 'login' ? '' : A.email, pw:'', err:{}}; rerender(); return; }
   if (a === 'tab') return;
   if (a.startsWith('start-')){ A.start = a.slice(6); rerender(); return; }
   if (a === 'forgot'){ if (!EMAILRE.test(A.email)) { A.err = {email:'Enter your email first, then ask for a reset link.'}; rerender(); return; } A.tab = 'reset'; rerender(); return; }
   if (a === 'resend'){ toast('Reset link sent again to ' + A.email + '.', 'success'); return; }
-  if (a === 'phantom'){ A.busy = true; rerender(); setTimeout(() => { A.busy = false; finishAuth(A.tab === 'signup', 'Phantom · 7xKX…9fQ2'); }, 1100); return; }
+  if (a === 'phantom'){
+    A.busy = true; rerender();
+    const which = A.start === 'work' ? 'work' : 'hire';
+    const prevKey = which === 'work' ? (GS.workerPay || '') : (GS.clientFull || '');
+    const prevAvail = num(GS.avail);
+    const prevAcct = V.user.acct;
+    GS.signedOut = false;
+    GS.afterConnect = () => {
+      A.busy = false;
+      const pk = which === 'work' ? GS.workerPay : GS.clientFull;
+      if (!pk) { rerender(); return; }
+      openWalletAccount(pk, which, prevKey === pk && prevAcct === 'new' ? prevAvail : 0);
+    };
+    connectPhantom(which);
+    return;
+  }
   if (a === 'submit'){
     const su = A.tab === 'signup'; A.err = {};
     if (!EMAILRE.test(A.email || '')) A.err.email = 'Enter a full email, like name@company.com';
@@ -14517,6 +14537,7 @@ X.auth = (a) => {
 };
 X.tab = () => {};
 function finishAuth(signup, who){
+  if (!signup && V.ui.auth && V.ui.auth.start) V.user.lastMode = V.ui.auth.start;
   V.user.signedIn = true; V.user.email = who;
   if (signup) {
     setAcct('new'); V.user.onb.hire = false; V.user.company = ''; V.ui.onbH = null;
@@ -14528,7 +14549,7 @@ function finishAuth(signup, who){
     show(V.user.onb[m] ? MODE_HOME[m] : MODE_ONB[m]); toast('Logged in as Northwind Studio.', 'success');
   }
 }
-X.logout = () => { V.user.signedIn = false; V.ui.auth = {tab:'login'}; show('auth'); toast('Logged out.', 'info'); };
+X.logout = () => { V.user.signedIn = false; GS.connected = false; GS.signedOut = true; V.ui.auth = {tab:'login'}; saveGS(); show('auth'); toast('Logged out. Connect Phantom to open your account again.', 'info'); };
 
 /* =================== C1 · Client onboarding =================== */
 reg('onb-hire', 'Client onboarding', 'v2onbHire', {h:960});
@@ -14663,6 +14684,87 @@ async function sendRelease(provider, clientPk, workerPk, amountUi, taskId){
   if (conf.value && conf.value.err) throw new Error('The release failed on devnet.');
   return sig;
 }
+async function sendLock(provider, clientPk, amountUi, taskId){
+  const { web3 } = await picoLibs();
+  const connection = new web3.Connection('https://api.devnet.solana.com', 'confirmed');
+  const client = new web3.PublicKey(clientPk);
+  const have = await readDevnetUsdc(picoHoldKeypair(web3).publicKey.toString());
+  if (amountUi > have + 1e-6) throw new Error('Escrow holds ' + have.toFixed(2) + ' USDC. This lock is ' + amountUi.toFixed(2) + '.');
+  const tx = new web3.Transaction();
+  tx.add(new web3.TransactionInstruction({
+    keys: [{ pubkey: client, isSigner: true, isWritable: false }],
+    programId: new web3.PublicKey('MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'),
+    data: new TextEncoder().encode('pico lock ' + taskId + ' ' + amountUi.toFixed(2))
+  }));
+  tx.feePayer = client;
+  const latest = await connection.getLatestBlockhash('confirmed');
+  tx.recentBlockhash = latest.blockhash;
+  if (!provider.signTransaction) throw new Error('Phantom cannot sign this lock from this tab.');
+  const signed = await provider.signTransaction(tx);
+  const sig = await connection.sendRawTransaction(signed.serialize(), { skipPreflight: false, preflightCommitment: 'confirmed' });
+  const conf = await connection.confirmTransaction({ signature: sig, blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight }, 'confirmed');
+  if (conf.value && conf.value.err) throw new Error('The lock failed on devnet.');
+  return sig;
+}
+function shareTask(t, patch){
+  const row = Object.assign({
+    id: t.id,
+    title: t.title || '',
+    cat: t.cat || '',
+    reward: t.reward != null ? t.reward : (t.pay || 0),
+    status: t.status || 'finding',
+    client_wallet: GS.clientFull || '',
+    body: { title: t.title, cat: t.cat, level: t.level, days: t.days, desc: t.desc, crit: t.crit, deliv: t.deliv, qual: t.qual, files: t.files, reward: t.reward, iv: t.iv }
+  }, patch || {});
+  return fetch('/api/pico/tasks', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(row) }).then(r => r.ok ? r.json() : null).catch(() => null);
+}
+function publishWorkerWallet(pk){
+  if (!pk) return;
+  fetch('/api/pico/tasks').then(r => r.json()).then(rows => {
+    if (!Array.isArray(rows)) return;
+    rows.filter(x => x && x.status === 'finding' && x.worker_wallet !== pk).forEach(x => {
+      fetch('/api/pico/tasks', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ id: x.id, worker_wallet: pk }) }).catch(() => {});
+    });
+  }).catch(() => {});
+}
+function adoptShared(row){
+  if (!row || !row.id || row.status !== 'finding') return false;
+  const w = W(); if (!w) return false;
+  const id = String(row.id);
+  if (w.tasks[id] && !w.tasks[id].live) return false;
+  const src = row.body || {}, prev = w.tasks[id];
+  const t = Object.assign(prev || { chat:[], events:[], ans:{}, rounds:0, my:'open' }, {
+    id, live: true, title: row.title || src.title || 'Task', company: 'Client',
+    cat: row.cat || src.cat || 'Design', level: src.level || 'Mid',
+    pay: Number(row.reward) || Number(src.reward) || 0, days: src.days || 3, posted: 'live',
+    desc: src.desc || '', crit: src.crit || [], deliv: src.deliv || [],
+    qual: src.qual || { on:false, pass:75, qs:[] }, files: src.files || [],
+    workerWallet: row.worker_wallet || '', clientWallet: row.client_wallet || ''
+  });
+  const fresh = !w.tasks[id];
+  w.tasks[id] = t;
+  if (!w.order.includes(id)) w.order.unshift(id);
+  if (fresh && typeof reg === 'function') {
+    reg(wKey(id), 'Working · ' + t.title, 'wtask2', { id });
+    reg(wRoom(id), 'Working · Workroom · ' + t.title, 'wroom', { id });
+  }
+  return fresh;
+}
+function pullSharedTasks(done){
+  fetch('/api/pico/tasks').then(r => r.json()).then(rows => {
+    let n = 0;
+    if (Array.isArray(rows)) rows.forEach(row => { if (adoptShared(row)) n++; });
+    done && done(n);
+  }).catch(() => { done && done(0); });
+}
+function syncOpenTasks(){
+  try {
+    clientTasks().filter(t => t && t.status === 'finding' && t.lockSig).forEach(t => {
+      shareTask(t, { client_wallet: GS.clientFull || '' });
+    });
+  } catch (e) {}
+}
+syncOpenTasks();
 function solHint(){
   const d = MS && MS.devnetSol, m = MS && MS.mainnetSol;
   const sw = 'In Phantom: profile → Settings → Developer Settings → Testnet Mode → Solana Devnet. The popup must say Devnet, not Solana.';
@@ -14710,12 +14812,76 @@ function adoptPhantom(provider, res, which){
   GS.connected = true;
   return true;
 }
+let accountSnap = '';
+function persistAccount(){
+  if (typeof V === 'undefined' || !V || !V.user || !V.user.signedIn || V.user.acct === 'demo' || GS.signedOut || GS.connected === false) return;
+  const role = V.user.lastMode === 'work' ? 'work' : 'hire';
+  const wallet = role === 'work' ? (GS.workerPay || '') : (GS.clientFull || '');
+  if (wallet.length < 32) return;
+  const payload = { wallet: wallet, role: role, avail: num(GS.avail), company: V.user.company || '', onboarded: !!(V.user.onb && V.user.onb[role]) };
+  const snap = JSON.stringify(payload);
+  if (snap === accountSnap) return;
+  accountSnap = snap;
+  fetch('/api/pico/account', { method:'POST', headers:{'content-type':'application/json'}, body: snap }).then(r => { if (!r.ok) accountSnap = ''; }).catch(() => { accountSnap = ''; });
+}
+window.persistAccount = persistAccount;
+function importClientTasks(pk){
+  fetch('/api/pico/tasks').then(r => r.json()).then(rows => {
+    if (!Array.isArray(rows)) return;
+    let n = 0;
+    rows.forEach(row => {
+      if (!row || row.client_wallet !== pk) return;
+      const id = String(row.id || '');
+      if (!id || id.charAt(0) === '_') return;
+      const src = row.body || {};
+      if (!V.tasks[id]) {
+        V.tasks[id] = { id: id, title: row.title || src.title || 'Task', cat: row.cat || src.cat || 'Design', level: src.level || 'Mid', days: src.days || 3, desc: src.desc || '', crit: src.crit || [], deliv: src.deliv || [], reward: Number(row.reward) || 0, iv: !!src.iv, qual: src.qual || { on:false, pass:75, qs:[] }, status: row.status || 'finding', funded: 'live', chat: [], files: src.files || [], cands: [], rounds: 0, events: [], lockSig: src.lockSig || 'shared' };
+        n++;
+      }
+      if (V.orderNew && !V.orderNew.includes(id)) V.orderNew.unshift(id);
+      if (!S['c-' + id]) regTask(id);
+    });
+    if (n) { saveGS(); if (V.user.lastMode !== 'work' && cur !== 'auth') rerender(); }
+  }).catch(() => {});
+}
+function openWalletAccount(pk, preferredRole, localAvail, quiet){
+  fetch('/api/pico/account?wallet=' + encodeURIComponent(pk)).then(r => r.ok ? r.json() : null).then(row => {
+    if (row && row.error) row = null;
+    const known = !!(row && row.wallet);
+    const role = known ? (row.role === 'work' ? 'work' : 'hire') : (preferredRole === 'work' ? 'work' : 'hire');
+    setAcct('new');
+    GS.avail = known ? (Number(row.avail) || 0) : (typeof localAvail === 'number' ? localAvail : 0);
+    if (V.bal) V.bal.new = GS.avail;
+    V.user.signedIn = true;
+    V.user.email = shortWallet(pk);
+    V.user.lastMode = role;
+    if (!V.user.onb) V.user.onb = { hire:false, work:false, rev:false };
+    V.user.onb[role] = known ? !!row.onboarded : !!V.user.onb[role];
+    if (known && row.company) V.user.company = row.company;
+    const provider = phantomProvider();
+    if (role === 'work') { GS.workerPay = pk; if (provider) adoptPhantom(provider, null, 'work'); }
+    else { GS.clientFull = pk; GS.clientShort = shortWallet(pk); if (provider) adoptPhantom(provider, null, 'hire'); }
+    GS.connected = true;
+    GS.signedOut = false;
+    accountSnap = JSON.stringify({ wallet: pk, role: role, avail: num(GS.avail), company: V.user.company || '', onboarded: !!V.user.onb[role] });
+    saveGS();
+    if (!known) { accountSnap = ''; persistAccount(); }
+    if (role === 'hire') importClientTasks(pk);
+    const dest = V.user.onb[role] ? MODE_HOME[role] : MODE_ONB[role];
+    if (!V.user.onb[role] || cur === 'auth' || cur === 'landing') show(dest);
+    else rerender();
+    if (!quiet) toast('Phantom connected · ' + shortWallet(pk) + '.', 'success');
+  }).catch(() => {});
+}
 function finishConnect(which){
   const label = which === 'work' ? (GS.workerPay ? shortWallet(GS.workerPay) : '') : (GS.clientShort || '');
+  GS.signedOut = false;
   rerender();
-  toast('Phantom connected · ' + label + '.', 'success');
+  if (!GS.afterConnect) toast('Phantom connected · ' + label + '.', 'success');
+  if (which === 'work' && GS.workerPay) publishWorkerWallet(GS.workerPay);
   if (fundsAfterConnect) { fundsAfterConnect = false; openFunds(); }
   if (GS.afterConnect) { const fn = GS.afterConnect; GS.afterConnect = null; setTimeout(fn, 40); }
+  else saveGS();
 }
 function connectPhantom(which){
   const w = W();
@@ -14744,6 +14910,7 @@ function connectPhantom(which){
     }).catch(() => {
       fundsAfterConnect = false;
       GS.afterConnect = null;
+      if (V.ui && V.ui.auth) V.ui.auth.busy = false;
       if (which === 'work') { w.phBusy = false; w.phErr = true; w.phantom = false; w.walletFull = ''; GS.workerPay = ''; }
       if (!GS.clientFull && !GS.workerPay) GS.connected = false;
       rerender();
@@ -15039,26 +15206,52 @@ RENDER.v2ct4 = (root) => {
     P.kv([['Available', m.short > 0 ? fmt(GS.avail) + ' · short by ' + usd(m.short) : fmt(GS.avail) + ' → ' + usd(GS.avail - m.total), m.short > 0 ? 'err' : ''],['Locked in tasks', m.short > 0 ? usd(BAL.locked) + ' · no change' : fmt(BAL.locked) + ' → ' + usd(BAL.locked + m.total)]]) +
     P.callout(m.short > 0 ? 'Nothing is locked yet. Add ' + usd(m.short) + ' from Phantom or lower the reward.' : usd(m.total) + ' moves from Available to Locked. It goes to the worker when ' + (d.iv ? 'the reviewer passes the work' : 'you accept, or automatically 14 days after submission') + '. If no worker qualifies within 7 days, it returns to Available automatically.', m.short > 0 ? 'error' : ''),
     m.short > 0 ? pill('Not enough balance', 'error', true) : pill('Locks at publish', 'success', true));
-  ctFrame(root, 3, body, '<small>' + (m.short > 0 ? 'Add funds to continue' : 'You’ll confirm once in Phantom') + '</small>' + P.btn('Lock ' + usd(m.total) + ' and publish', {lg:true, x:'publish', dis:!m.ok}));
+  ctFrame(root, 3, body, '<small>' + (m.short > 0 ? 'Add funds to continue' : (hiringLinked() ? 'You’ll sign in Phantom before anything is locked' : 'Connect Phantom to lock this budget')) + '</small>' + P.btn('Lock ' + usd(m.total) + ' and publish', {lg:true, x:'publish', dis:!m.ok}));
   const r = root.querySelector('#ctReward'); if (r) { r.addEventListener('blur', () => { d.reward = fmt(num(d.reward)).replace(/,/g,''); rerender(); }); r.addEventListener('keydown', e => { if (e.key === 'Enter') r.blur(); }); }
 };
 X.ivtoggle = () => { const d = D(); d.iv = !d.iv; rerender(); };
 X.publish = () => {
   const d = D(), m = draftMoney(); if (!m.ok) return;
-  phantomFlow({title:'Lock ' + usd(m.total) + ' and publish?', sub:E(d.title) + ' · ' + d.cat, cta:'Confirm in Phantom',
-    rows:[['Worker reward', fmt(m.b)],['Verification fee', d.iv ? fmt(m.fee) : 'Off'],['Moves to Locked', usd(m.total)],['Available after', usd(GS.avail - m.total)]],
-    note:'Phantom asks you to sign once. The funds stay locked in escrow until the work is accepted, or return to Available if no worker qualifies within 7 days.',
-    doneTitle:'Published · ' + usd(m.total) + ' locked', doneRows:() => [['Locked for this task', usd(m.total)],['Available now', usd(GS.avail)],['Status', 'Finding Worker']],
-    doneText:() => d.qual.on ? 'Pico sent the qualification test to eligible ' + d.cat + ' workers. The first to reach ' + d.qual.pass + ' / 100 gets the task.' : 'Pico showed the task to eligible ' + d.cat + ' workers. The first to accept gets it.',
-    doneCta:'Open the task', apply:() => {
-      const id = d.id || ('t' + Date.now().toString(36));
-      const t = {id, title:d.title.trim(), cat:d.cat, level:d.level, days:+d.days, desc:d.desc, crit:(reqsOf(d.desc).length ? reqsOf(d.desc) : d.crit.filter(c => c.trim())), deliv:d.deliv.filter(c => c.trim()), reward:m.b, iv:d.iv,
-        qual:{on:d.qual.on, pass:+d.qual.pass, qs:d.qual.on ? d.qual.qs : qsFor(d.cat)}, status:'finding', funded:dayLabel(0), chat:[], files:d.links.slice(), cands:[], rounds:0, events:[], fresh:true};
-      addEvent(t, d.qual.on ? 'Qualification started' : 'Shown to eligible workers', d.qual.on ? 'Test sent to eligible ' + d.cat + ' workers' : 'Verified ' + d.cat + ' · ' + d.level + ' and above');
-      addEvent(t, 'Funds locked', usd(m.total) + ' from Available', 'money');
-      V.tasks[id] = t; const ord = V.user.acct === 'new' ? V.orderNew : V.order; if (!ord.includes(id)) ord.unshift(id);
-      GS.avail -= m.total; regTask(id); V.draft = null; V.ui.lastPublished = id;
-    }, after:() => show(taskKey(V.ui.lastPublished))});
+  const id = d.id || ('t' + Date.now().toString(36));
+  const st = {s:'confirm', err:'', sig:''};
+  const place = (sig) => {
+    const t = {id, title:d.title.trim(), cat:d.cat, level:d.level, days:+d.days, desc:d.desc, crit:(reqsOf(d.desc).length ? reqsOf(d.desc) : d.crit.filter(c => c.trim())), deliv:d.deliv.filter(c => c.trim()), reward:m.b, iv:d.iv,
+      qual:{on:d.qual.on, pass:+d.qual.pass, qs:d.qual.on ? d.qual.qs : qsFor(d.cat)}, status:'finding', funded:dayLabel(0), chat:[], files:d.links.slice(), cands:[], rounds:0, events:[], fresh:true, lockSig:sig};
+    addEvent(t, d.qual.on ? 'Qualification started' : 'Shown to eligible workers', d.qual.on ? 'Test sent to eligible ' + d.cat + ' workers' : 'Verified ' + d.cat + ' · ' + d.level + ' and above');
+    addEvent(t, 'Funds locked', usd(m.total) + ' from Available', 'money');
+    V.tasks[id] = t; const ord = V.user.acct === 'new' ? V.orderNew : V.order; if (!ord.includes(id)) ord.unshift(id);
+    GS.avail = Math.round((GS.avail - m.total) * 100) / 100; regTask(id); V.draft = null; V.ui.lastPublished = id; saveGS();
+    shareTask(t, { client_wallet: GS.clientFull || '' });
+  };
+  openM({render(){
+    const client = phantomNow();
+    if (st.s === 'done') return P.mhead('Published · ' + usd(m.total) + ' locked', 'Settled on Solana · just now') + P.mbox([['Locked for this task', usd(m.total)],['Available now', usd(GS.avail)],['Transaction', (st.sig || '').slice(0, 8) + '…']]) + P.callout(d.qual.on ? 'Pico sent the qualification test to eligible ' + d.cat + ' workers. The first to reach ' + d.qual.pass + ' / 100 gets the task.' : 'Pico showed the task to eligible ' + d.cat + ' workers. The first to accept gets it.', 'success') + P.mact([['View proof ↗','g','proof'],['Open the task','p','done']]);
+    const on = hiringLinked();
+    const note = st.err || (on ? 'Phantom must sign this lock. The task is created only after the devnet transaction confirms.' : 'Connect the client wallet that added the funds. Nothing is locked until that wallet signs.');
+    const acts = st.s === 'loading' ? [['Cancel','s','x',true],['Waiting for Phantom…','p','x',true,true]] : [['Cancel','s','close'],[on ? 'Lock ' + usd(m.total) + ' in Phantom' : 'Connect client wallet','p', on ? 'go' : 'client']];
+    return P.mhead('Lock ' + usd(m.total) + ' and publish?', E(d.title) + ' · ' + d.cat) + P.mbox([['Worker reward', fmt(m.b)],['Verification fee', d.iv ? fmt(m.fee) : 'Off'],['Moves to Locked', usd(m.total)],['Signed by', on ? shortWallet(client) : 'Client wallet not connected']]) + P.callout(note, st.err ? 'error' : '') + P.mact(acts);
+  }, on:{
+    client(){ GS.afterConnect = () => X.publish(); connectPhantom('hire'); },
+    go(){
+      const client = phantomNow(), provider = phantomProvider();
+      if (!hiringLinked() || !client || !provider) { GS.afterConnect = () => X.publish(); connectPhantom('hire'); return; }
+      st.err = ''; st.s = 'loading'; PM.lock = true; drawM();
+      sendLock(provider, client, m.total, id).then(sig => {
+        if (!PM) return;
+        PM.lock = false;
+        place(sig);
+        st.sig = sig; st.s = 'done'; drawM();
+      }).catch(err => {
+        if (PM) PM.lock = false;
+        st.s = 'confirm';
+        const msg = (err && (err.message || String(err))) || '';
+        st.err = /reject|cancel|denied|User rejected/i.test(msg) ? 'You closed Phantom. Nothing was locked.' : (msg.replace(/^Error:\s*/, '').slice(0, 180) || 'The lock did not land. Nothing was published.');
+        drawM();
+      });
+    },
+    proof(){ if (st.sig) window.open('https://explorer.solana.com/tx/' + st.sig + '?cluster=devnet', '_blank', 'noopener'); },
+    done(){ closeM(); if (V.ui.lastPublished) show(taskKey(V.ui.lastPublished)); }
+  }});
 };
 
 
@@ -15091,7 +15284,7 @@ function heroFor(t){
   return '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + stPill(t.status) + pill(t.cat, '') + (t.iv ? pill('Independent verification', 'tech') : '') + '</div><h1 class="h1">' + E(t.title) + '</h1>' +
     '<div class="meta"><div style="display:flex;gap:10px;align-items:center">' + who[0] + '<span><b>' + who[1] + '</b><small>' + who[2] + '</small></span></div><div><b>' + dl[0] + '</b><small>' + dl[1] + '</small></div><div><b>' + (t.iv ? 'Independent · 1 reviewer' : 'Standard · by you') + '</b><small>Review</small></div></div></div>' +
     '<div class="esc">' + esc + '<div class="amt">' + fmt(amt) + '<small>USDC</small></div><div class="note">' + note + (t.iv && ACTIVE.includes(t.status) ? '<br>' + fmt(t.reward) + ' reward + ' + fmt(feeOf(t)) + ' fee' : '') + '</div>' +
-    (t.worker && ACTIVE.includes(t.status) && t.status !== 'dispute' ? P.btn('Message worker' + (t.unread ? ' · ' + t.unread + ' new' : ''), {sm:true, icon:'chat', x:'ctab:' + t.id + ':chat'}) : '') + '</div></div>' + rail(railFor(t)) + '</section>';
+    (t.worker && ACTIVE.includes(t.status) && t.status !== 'dispute' ? P.btn('Message worker' + (t.unread ? ' · ' + t.unread + ' new' : ''), {sm:true, icon:'chat', x:'openchat:' + t.id}) : '') + '</div></div>' + rail(railFor(t)) + '</section>';
 }
 function statusCard(t){
   const A = fmt(t.reward), crit = i => 'criterion ' + (i + 1);
@@ -15100,7 +15293,7 @@ function statusCard(t){
     case 'progress': return P.card(P.ch('tool', 'Worker #' + t.worker + ' is on it · due ' + (t.due || dayLabel(t.days))) + '<p class="sub2">Nothing needed from you right now. You’ll review the work when it’s submitted. Chat is for questions; new scope goes through a change request.</p>' +
         (t.cr && t.cr.status === 'pending' ? P.callout('Your change request is waiting for the worker. Until they answer, work continues on the current terms. If they decline, the current terms stay' + (t.cr && t.cr.extra ? ' and the extra ' + usd(t.cr.extra) + ' returns to Available' : '') + '.') : '') +
         (t.cx && t.cx.status === 'pending' ? P.callout('You asked to cancel together. Waiting for Worker #' + t.worker + '. Until they answer, work continues on the current terms.') : '') +
-        '<div class="acts">' + P.btn('Open conversation' + (t.unread ? ' · ' + t.unread + ' new' : ''), {v:'s', sm:true, icon:'chat', x:'ctab:' + t.id + ':chat'}) + '</div>', 'accent');
+        '<div class="acts">' + P.btn('Open conversation' + (t.unread ? ' · ' + t.unread + ' new' : ''), {v:'s', sm:true, icon:'chat', x:'openchat:' + t.id}) + '</div>', 'accent');
     case 'review': { const left = t.daysLeft != null ? t.daysLeft : 14;
       return P.card(P.ch('check', 'Work submitted ' + (t.submitted || '') + ' — your review is next') + '<p class="sub2">Accept to release ' + A + ' USDC to the worker. Request changes only against a locked criterion. No response by ' + (t.autoPay || dayLabel(14)) + ' pays the worker automatically.</p>' +
         '<div class="timer"><div class="th2"><span>Auto-payout timer</span><b>' + left + ' of 14 days left · ' + (t.autoPay || dayLabel(14)) + '</b></div><div class="days">' + Array.from({length:14}, (_, i) => '<i class="' + (i < 14 - left ? 'on' : '') + '"></i>').join('') + '</div></div>' +
@@ -15240,7 +15433,8 @@ function refundAll(t, how, amt){ const back = amt != null ? amt : lockedOf(t); t
 
 /* Accept → release: client signs, USDC moves from escrow to the worker wallet. */
 X.accept = (id) => {
-  const t = V.tasks[id], A = Math.round((t.reward + (t.extraLocked || 0)) * 100) / 100, st = {s:'confirm', err:'', escrow:null, to: t.payTo || GS.workerPay || ''};
+  const remembered = GS.workerPay && GS.workerPay !== GS.clientFull ? GS.workerPay : '';
+  const t = V.tasks[id], A = Math.round((t.reward + (t.extraLocked || 0)) * 100) / 100, st = {s:'confirm', err:'', escrow:null, to: t.payTo || remembered || ''};
   openM({render(){
     const client = phantomNow(), to = (st.to || '').trim();
     if (st.s === 'done') return P.mhead('Paid · ' + usd(A) + ' released', 'Settled on Solana · just now') + P.mbox([['To', shortWallet(t.payTo || to)],['Transaction', (t.sig || '').slice(0, 8) + '…']]) + P.callout('Worker #' + t.worker + ' got ' + usd(A) + ' on devnet. The task moves to Completed.', 'success') + P.mact([['View proof ↗','g','proof'],['Back to the task','p','close']]);
@@ -15277,7 +15471,8 @@ X.accept = (id) => {
         if (t.dsp && was === 'dispute') { t.dsp.status = 'decided'; t.dsp.decision = {label:'Closed by you', tone:'success', at:stamp(), note:'You accepted the work, so the dispute closed without a platform decision.', rows:[]}; }
         addEvent(t, 'Payout released', usd(A) + ' to ' + shortWallet(to), 'money');
         addEvent(t, 'You accepted the work', sig);
-        GS.workerPay = GS.workerPay || to;
+        if (!GS.workerPay || GS.workerPay === GS.clientFull) GS.workerPay = to;
+        shareTask(t, { status:'completed', worker_wallet: to, client_wallet: GS.clientFull || '' });
         st.s = 'done'; drawM();
       }).catch(err => {
         if (PM) PM.lock = false;
@@ -15290,6 +15485,12 @@ X.accept = (id) => {
     proof(){ if (t.sig) window.open('https://explorer.solana.com/tx/' + t.sig + '?cluster=devnet', '_blank', 'noopener'); }
   }});
   picoLibs().then(({web3}) => readDevnetUsdc(picoHoldKeypair(web3).publicKey.toString())).then(n => { if (!PM) return; st.escrow = n; drawM(); }).catch(() => { if (!PM) return; st.escrow = 0; drawM(); });
+  fetch('/api/pico/tasks?id=' + encodeURIComponent(t.id)).then(r => r.json()).then(row => {
+    if (!PM || !row || !row.worker_wallet) return;
+    const client = phantomNow();
+    if (row.worker_wallet === client || row.worker_wallet === GS.clientFull) return;
+    if (!st.to || st.to === client) { st.to = row.worker_wallet; drawM(); }
+  }).catch(() => {});
 };
 X.txproof = (id) => { const t = V.tasks[id]; if (t && t.sig) window.open('https://explorer.solana.com/tx/' + t.sig + '?cluster=devnet', '_blank', 'noopener'); else toast('This task has no devnet transaction yet.', 'info'); };
 /* close accept modal → refresh page */
@@ -15843,7 +16044,7 @@ SIM.v2bench = () => { const b = W().bench; if (b.state !== 'taking') return [];
 /* ---------- W6 · Working home ---------- */
 reg('w-home', 'Working · Home', 'v2whome', {h:1400});
 function wCard(t){
-  const el = eligible(t), mine = t.my !== 'open';
+  const el = eligible(t) || t.live, mine = t.my !== 'open';
   return '<div class="tcard' + (el || mine ? '' : ' off') + '"><div class="row3x"><div class="row2">' + pill(t.cat, '') + pill(t.level + (t.level === 'Senior' ? '' : ' and above'), '') + '</div><span class="wtag">' + t.posted + '</span></div><h3>' + E(t.title) + '</h3>' +
     '<p class="sub2 muted" style="font-size:13px;line-height:19px">' + E(t.desc) + '</p><div class="money">' + fmt(t.pay) + '<small>USDC · locked in escrow</small></div>' +
     '<small class="why">' + t.company + ' · ' + t.days + ' days after assignment · ' + (t.qual.on ? 'Qualification test' : 'No test · first to accept') + '</small>' +
@@ -15852,7 +16053,8 @@ function wCard(t){
 }
 RENDER.v2whome = (root) => {
   const pg = chrome(root, 'work', 'w-home', [['Working'], ['Home']]), w = W();
-  const T = w.order.map(wt), active = T.filter(t => WACTIVE.includes(t.my)), rel = T.filter(t => t.my === 'open' && eligible(t)).sort((a, b) => (w.topics[b.topic] ? 1 : 0) - (w.topics[a.topic] ? 1 : 0));
+  const T = w.order.map(wt), active = T.filter(t => WACTIVE.includes(t.my)), rel = T.filter(t => t.my === 'open' && (t.live || eligible(t))).sort((a, b) => (w.topics[b.topic] ? 1 : 0) - (w.topics[a.topic] ? 1 : 0));
+  pullSharedTasks(n => { if (n && cur === 'w-home') rerender(); });
   const paid = T.reduce((s, t) => s + (t.paidAmt || 0), 0), locked = active.reduce((s, t) => s + t.pay, 0);
   let h = P.pgh('Good to see you, #7310', w.skills.length ? 'Tasks that match your verified skills. Pay is locked in escrow before you start.' : 'Verify a skill to see tasks you can take.', P.btn('Relevant tasks', {v:'s', go:'w-find'}));
   if (!w.skills.length) h += P.card(P.ch('alert', 'You’re not verified yet', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Tasks are shown only to workers with a verified skill in the task’s domain and level. The benchmark takes a few minutes.</p><div class="acts">' + P.btn('Take the Skill Benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
@@ -15874,13 +16076,15 @@ reg('w-find', 'Working · Relevant tasks', 'v2wfind', {h:1400});
 RENDER.v2wfind = (root) => {
   const pg = chrome(root, 'work', 'w-find', [['Working', 'w-home'], ['Relevant tasks']]), w = W();
   const T = w.order.map(wt).filter(t => t.my !== 'completed');
+  pullSharedTasks(n => { if (n && cur === 'w-find') rerender(); });
   /* Only eligible tasks are ever listed (decision: a task is shown only to eligible workers). */
-  const F = {Relevant: t => eligible(t) && t.my === 'open', 'Followed topics': t => eligible(t) && w.topics[t.topic] && t.my === 'open', 'Your results': t => ['failed','taken'].includes(t.my)};
+  const F = {Relevant: t => (t.live || eligible(t)) && t.my === 'open', 'Followed topics': t => eligible(t) && w.topics[t.topic] && t.my === 'open', 'Your results': t => ['failed','taken'].includes(t.my)};
   const f = F[V.ui.wfilter] ? V.ui.wfilter : 'Relevant', list = T.filter(F[f]);
   const missing = SKILL_CATS.filter(c => !verified(c));
   let h = P.pgh('Relevant tasks', 'Shown only when your verified skill matches the domain and level. The first qualified worker gets the task.');
   if (w.skills.length && w.available === false) h += wPaused();
-  else if (!w.skills.length) h += P.card(P.ch('alert', 'Verify a skill to see tasks', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Pico shows a task only to workers with a verified skill in its domain and level. Nothing is listed until you pass a benchmark.</p><div class="acts">' + P.btn('Take the ' + (w.domain || 'Design') + ' benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
+  else if (!w.skills.length && !T.some(t => t.live && t.my === 'open')) h += P.card(P.ch('alert', 'Verify a skill to see tasks', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Pico shows a task only to workers with a verified skill in its domain and level. Nothing is listed until you pass a benchmark.</p><div class="acts">' + P.btn('Take the ' + (w.domain || 'Design') + ' benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
+  else if (!w.skills.length) h += P.card(P.ch('alert', 'Verify a skill to see more tasks', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Live tasks from clients are listed below. A verified skill unlocks the rest.</p><div class="acts">' + P.btn('Take the ' + (w.domain || 'Design') + ' benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn') + P.tabs(Object.keys(F).map(k => [k, k, T.filter(F[k]).length]), f, 'wfilter') + (list.length ? '<div class="grid3">' + list.map(wCard).join('') + '</div>' : P.empty('No live tasks yet.'));
   else {
     h += P.tabs(Object.keys(F).map(k => [k, k, T.filter(F[k]).length]), f, 'wfilter');
     h += list.length ? '<div class="grid3">' + list.map(wCard).join('') + '</div>' : P.empty({Relevant:'No open tasks match your verified skills right now. Topics you follow send a notification when one appears.', 'Followed topics':'No open tasks in the topics you follow. <button type="button" class="linkb" data-go="w-topics">Manage topics</button>', 'Your results':'No test results yet. Tasks you tested for and didn’t get show up here.'}[f]);
@@ -15965,8 +16169,8 @@ function wStatus(t){
   const due = t.due || dayLabel(t.days);
   switch (t.my) {
     case 'assigned': return P.card(P.ch('check', 'The task is yours · start when you’re ready', '', 'ok') + '<p class="sub2">Criteria are locked. The client sees In Progress when you press Start work. Ask questions in the conversation; chat can’t change the scope.</p>' +
-      P.kv([['Deadline', due],['Reward', usd(t.pay) + ' · locked in escrow'],['Review', t.iv ? 'Independent reviewer' : 'By the client · 14-day auto-payout']]) + '<div class="acts">' + P.btn('Start work', {x:'wstart:' + t.id}) + P.btn('Message ' + t.company, {v:'s', x:'wtab:' + t.id + ':chat'}) + '</div>', 'ok');
-    case 'progress': return P.card(P.ch('tool', 'In Progress · due ' + due) + '<p class="sub2">Submit when every criterion is met. You’ll add files or a link and confirm each criterion.</p><div class="acts">' + P.btn('Submit work', {x:'wsubmitwork:' + t.id}) + P.btn('Open conversation', {v:'s', x:'wtab:' + t.id + ':chat'}) + '</div>', 'accent');
+      P.kv([['Deadline', due],['Reward', usd(t.pay) + ' · locked in escrow'],['Review', t.iv ? 'Independent reviewer' : 'By the client · 14-day auto-payout']]) + '<div class="acts">' + P.btn('Start work', {x:'wstart:' + t.id}) + P.btn('Message ' + t.company, {v:'s', x:'wopenchat:' + t.id}) + '</div>', 'ok');
+    case 'progress': return P.card(P.ch('tool', 'In Progress · due ' + due) + '<p class="sub2">Submit when every criterion is met. You’ll add files or a link and confirm each criterion.</p><div class="acts">' + P.btn('Submit work', {x:'wsubmitwork:' + t.id}) + P.btn('Open conversation', {v:'s', x:'wopenchat:' + t.id}) + '</div>', 'accent');
     case 'review': return P.card(P.ch('check', 'Submitted · the client reviews next', '', 'warn') + '<p class="sub2">The client can accept, or request changes on one locked criterion. If they don’t respond, you’re paid automatically.</p>' +
       '<div class="timer"><div class="th2"><span>Auto-payout timer</span><b>14 of 14 days left · ' + (t.autoPay || dayLabel(14)) + '</b></div><div class="days">' + Array.from({length:14}, () => '<i></i>').join('') + '</div></div>', 'warn');
     case 'verification': return P.card(P.ch('tool', 'An independent reviewer is checking your work', '', 'tech') + '<p class="sub2">PASS pays you right away, with no extra client approval. NEEDS REVISION comes with feedback per criterion; the same reviewer checks your resubmission.</p>', 'tech');
@@ -16625,6 +16829,9 @@ reg('chats', 'Chats', 'v2chats', {h:1000});
 reg('w-chats', 'Working · Chats', 'v2wchats', {h:1000});
 RENDER.v2chats = root => chatsPage(root, 'hire');
 RENDER.v2wchats = root => chatsPage(root, 'work');
+/* Message worker / Open conversation on a task page opens Chats with that task's conversation selected */
+X.openchat = id => { V.ui.chatSel = V.ui.chatSel || {}; V.ui.chatSel.hire = id; if (V.tasks[id]) V.tasks[id].unread = 0; show('chats'); };
+X.wopenchat = id => { V.ui.chatSel = V.ui.chatSel || {}; V.ui.chatSel.work = id; show('w-chats'); };
 X.chatsel = a => { const [mode, id] = a.split(':'); V.ui.chatSel = V.ui.chatSel || {}; V.ui.chatSel[mode] = id; rerender(); };
 X.chatsend = a => { const [mode, id] = a.split(':'), i = stage.querySelector('#chxIn'), v = i && i.value.trim(); if (!v) { i && i.focus(); return; }
   const th = chatThreads(mode).find(x => x.id === id); if (!th) return; th.list.push(['y', dayLabel(0) + ' · ' + clockNow(), v]); rerender(); toast('Message sent to ' + th.who + '.', 'success'); };
@@ -16909,6 +17116,28 @@ const _showGaps = show; show = function(k, r){ const out = _showGaps(k, r); try 
   });
 })();
 
+/* One role per session: the Hiring / Working / Reviewer switch is gone once signed in.
+   The top bar shows the current role only; to change it, sign out and log in as another role. */
+const _modeLocked = X.mode;
+X.mode = m => {
+  if (V.user.signedIn && m !== (V.user.lastMode || 'hire')) {
+    const N = {hire:'Hiring', work:'Working', rev:'Reviewer'};
+    toast('You’re signed in as ' + N[V.user.lastMode || 'hire'] + '. Sign out to use Pico as ' + N[m] + '.', 'info');
+    const h = MODE_HOME[V.user.lastMode || 'hire']; if (cur !== h && !S[cur]) show(h);
+    return;
+  }
+  return _modeLocked(m);
+};
+const _showRole = show; show = function(k, r){ const out = _showRole(k, r);
+  stage.querySelectorAll('.tbr .mode button').forEach(b => { if (b.classList.contains('on')) { b.setAttribute('aria-disabled', 'true'); b.tabIndex = -1; b.title = 'Sign out to change role'; } });
+  return out; };
+/* Landing CTAs while signed in: going to another role's home explains the role lock instead of switching */
+const _actRole = act;
+act = function(a, btn){
+  if (V.user.signedIn && (a === 'go:home' || a === 'go:w-home')) { const m = a === 'go:home' ? 'hire' : 'work'; if (m !== (V.user.lastMode || 'hire')) { X.mode(m); return; } }
+  return _actRole(a, btn);
+};
+
 
 /* =====================================================================
    BOOT: screen picker grouped by role; legacy screens kept in an archive
@@ -17047,7 +17276,32 @@ regTask = function(id){ _v2RegTask(id); const g = [...sel.querySelectorAll('optg
 })();
 
 document.getElementById('reset').addEventListener('click',()=>{window.__noSave=true;try{localStorage.removeItem(LSK);localStorage.removeItem(TRACE_KEY)}catch(e){}location.hash='#auth';location.reload()});
+/* A saved address is not a session. Enter the app only after Phantom is live in this tab. */
+(function gateWalletAccount(){
+  const pk = GS.clientFull || GS.workerPay || '';
+  if (pk.length >= 32 && pk.indexOf('…') < 0 && !GS.signedOut) {
+    V.user.signedIn = false;
+    GS.connected = false;
+  }
+})();
 show(location.hash.slice(1)||(V.user.signedIn?(MODE_HOME[V.user.lastMode]||'home'):'auth'),false);
+(function resumeWallet(){
+  function tick(left){
+    if (GS.signedOut) return;
+    const provider = phantomProvider();
+    if (!provider) { if (left > 0) setTimeout(() => tick(left - 1), 200); return; }
+    const live = provider.isConnected && provider.publicKey ? provider.publicKey.toString() : '';
+    const go = pk => { if (!pk || pk.length < 32) return; const localKey = GS.clientFull || GS.workerPay || ''; const keep = localKey === pk ? num(GS.avail) : 0; const role = (V.user && V.user.lastMode === 'work') ? 'work' : 'hire'; openWalletAccount(pk, role, keep, true); };
+    if (live) { go(live); return; }
+    let pending;
+    try { pending = provider.connect({ onlyIfTrusted: true }); }
+    catch (e) { return; }
+    Promise.resolve(pending).then(res => {
+      go((res && res.publicKey && res.publicKey.toString()) || (provider.publicKey && provider.publicKey.toString()) || '');
+    }).catch(() => {});
+  }
+  setTimeout(() => tick(20), 40);
+})();
 document.fonts&&document.fonts.ready.then(()=>{if(S[cur]&&S[cur].html)refit()});
 </script>
 </body>
