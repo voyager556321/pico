@@ -14300,6 +14300,13 @@ function busy(el, label, ms, done){ if (!el) { done(); return; } el.classList.ad
 
 /* ---------- 4. Chrome with three modes ---------- */
 const MODE_HOME = {hire:'home', work:'w-home', rev:'r-home'};
+function screenMode(k){
+  if (!k) return '';
+  if (/^(w-|onb-work)/.test(k)) return 'work';
+  if (/^(r-|onb-rev)/.test(k)) return 'rev';
+  if (k === 'auth' || k === 'landing' || k === 'about' || k === 'how' || k === 'rules' || /^pub-/.test(k)) return '';
+  return 'hire';
+}
 const MODE_ONB  = {hire:'onb-hire', work:'onb-work', rev:'onb-rev'};
 X.mode = m => { V.user.lastMode = m; show(V.user.onb[m] ? MODE_HOME[m] : MODE_ONB[m]); };
 chrome = function(root, mode, active, crumbs){
@@ -14479,23 +14486,11 @@ RENDER.v2auth = (root) => {
     '<div class="eyebrow">One account · one role per session</div><h1>Get a task done, do the work, or check it.</h1><p class="lead">Budgets are locked before work starts and released only when the work meets the criteria.</p>' +
     '<div class="modes3">' + [['brief','Hiring','Post a task. Pico finds a qualified worker.'],['tool','Working','Take paid tasks that match your verified skills.'],['check','Reviewer','Check work against criteria. Opens after you verify a skill.']].map(m => '<div class="m"><span class="ic">' + IC[m[0]] + '</span><span><b>' + m[1] + '</b><small>' + m[2] + '</small></span></div>').join('') + '</div>' +
     '<div style="flex:1"></div><div class="fine">Runs on Solana · payments in USDC</div></div>';
-  let card;
-  if (A.tab === 'reset') {
-    card = '<div class="acard"><div><h2>Check your email</h2><p class="sub">We sent a link to reset your password to ' + E(A.email || 'your email') + '.</p></div>' +
-      P.callout('Didn’t get it? Check spam, or send the link again.', 'success') + P.btn('Back to log in', {full:true, x:'auth:tab-login'}) + P.btn('Send the link again', {v:'g', x:'auth:resend'}) + '</div>';
-  } else {
-    const su = A.tab === 'signup';
-    card = '<div class="acard">' + P.tabs([['signup','Sign up'],['login','Log in']], A.tab, 'auth:tab') +
-      '<div><h2>' + (su ? 'Create your account' : 'Welcome back') + '</h2><p class="sub">' + (su ? 'Pick how you’ll use Pico. One role per session.' : 'Pick the role for this session.') + '</p></div>' +
-      ('<div class="fg"><span class="mlabel">' + (su ? 'Start as' : 'Log in as') + '</span><div class="ochoice">' + (su ? [['hire','Hiring','Post tasks'],['work','Working','Take tasks']] : [['hire','Hiring','Post tasks'],['work','Working','Take tasks'],['rev','Reviewer','Check work']]).map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
-        '</div><div class="mhelp">' + (su ? 'To change role later, sign out and log in as another role. Reviewer opens after you verify a skill in Working.' : 'To change role, sign out and log in again.') + '</div></div>') +
-      P.field({id:'aEmail', label: su ? 'Work email' : 'Email', value:A.email, ph:'name@company.com', err:A.err.email, bind:'ui.auth.email', dis:A.busy}) +
-      P.field({id:'aPw', label:'Password', value:A.pw, ph: su ? 'At least 8 characters' : 'Your password', err:A.err.pw, bind:'ui.auth.pw', dis:A.busy}) +
-      (!su ? '<div style="display:flex;justify-content:flex-end;margin-top:-8px"><button class="linkb" data-x="auth:forgot">Forgot password?</button></div>' : '') +
-      '<button type="button" class="pbtn p full' + (A.busy ? ' loading' : '') + '" data-x="auth:submit"' + (A.busy ? ' disabled aria-busy="true"' : '') + '>' + (A.busy ? '<span class="spin"></span>' + (su ? 'Creating account…' : 'Logging in…') : (su ? 'Create account' : 'Log in')) + '</button>' +
-      '<div class="divor">or</div>' + P.btn('Continue with Phantom', {v:'s', full:true, icon:'wallet', x:'auth:phantom', dis:A.busy}) +
-      '<div class="fine">Your Pico account is the wallet you connect. The same address and balance come back on the next visit.</div></div>';
-  }
+  const card = '<div class="acard"><div><h2>Open Pico</h2><p class="sub">Your account is the Phantom wallet you connect. Pick a role for this session.</p></div>' +
+    '<div class="fg"><span class="mlabel">Use Pico as</span><div class="ochoice">' + [['hire','Hiring','Post tasks'],['work','Working','Take tasks']].map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
+    '</div><div class="mhelp">To change role later, sign out and connect again. Reviewer opens after you verify a skill in Working.</div></div>' +
+    P.btn(A.busy ? 'Waiting for Phantom…' : 'Continue with Phantom', {full:true, icon:'wallet', x:'auth:phantom', dis:A.busy}) +
+    '<div class="fine">The same address, skill and balance come back on the next visit. There is no separate email account.</div></div>';
   root.innerHTML = '<div class="auth">' + brand + '<div class="rightp">' + card + '</div></div>';
   wire2(root);
   root.querySelectorAll('input').forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') X.auth('submit'); }));
@@ -14506,8 +14501,6 @@ X.auth = (a) => {
   if (a.startsWith('tab-')){ const t = a.slice(4); V.ui.auth = {tab:t, start:t === 'login' ? (V.user.lastMode || 'hire') : (A.start === 'rev' ? 'hire' : A.start), email:t === 'login' ? '' : A.email, pw:'', err:{}}; rerender(); return; }
   if (a === 'tab') return;
   if (a.startsWith('start-')){ A.start = a.slice(6); rerender(); return; }
-  if (a === 'forgot'){ if (!EMAILRE.test(A.email)) { A.err = {email:'Enter your email first, then ask for a reset link.'}; rerender(); return; } A.tab = 'reset'; rerender(); return; }
-  if (a === 'resend'){ toast('Reset link sent again to ' + A.email + '.', 'success'); return; }
   if (a === 'phantom'){
     A.busy = true; rerender();
     const which = A.start === 'work' ? 'work' : 'hire';
@@ -14524,16 +14517,7 @@ X.auth = (a) => {
     connectPhantom(which);
     return;
   }
-  if (a === 'submit'){
-    const su = A.tab === 'signup'; A.err = {};
-    if (!EMAILRE.test(A.email || '')) A.err.email = 'Enter a full email, like name@company.com';
-    if ((A.pw || '').length < 8) A.err.pw = su ? 'Use at least 8 characters.' : 'Enter your password.';
-    if (A.err.email || A.err.pw) { rerender(); return; }
-    A.busy = true; rerender();
-    setTimeout(() => { A.busy = false;
-      if (!su && A.pw.toLowerCase().startsWith('wrong')) { A.err = {pw:'Email or password is wrong. Try again or reset it.'}; rerender(); return; }
-      finishAuth(su, A.email); }, 900);
-  }
+  if (a === 'submit' || a === 'forgot' || a === 'resend'){ toast('Pico accounts are Phantom wallets. Connect the wallet to continue.', 'info'); return; }
 };
 X.tab = () => {};
 function finishAuth(signup, who){
@@ -14688,7 +14672,9 @@ async function sendLock(provider, clientPk, amountUi, taskId){
   const { web3 } = await picoLibs();
   const connection = new web3.Connection('https://api.devnet.solana.com', 'confirmed');
   const client = new web3.PublicKey(clientPk);
-  const have = await readDevnetUsdc(picoHoldKeypair(web3).publicKey.toString());
+  const holdKp = picoHoldKeypair(web3);
+  GS.holdPk = holdKp.publicKey.toString();
+  const have = await readDevnetUsdc(GS.holdPk);
   if (amountUi > have + 1e-6) throw new Error('Escrow holds ' + have.toFixed(2) + ' USDC. This lock is ' + amountUi.toFixed(2) + '.');
   const tx = new web3.Transaction();
   tx.add(new web3.TransactionInstruction({
@@ -14707,16 +14693,102 @@ async function sendLock(provider, clientPk, amountUi, taskId){
   return sig;
 }
 function shareTask(t, patch){
-  const row = Object.assign({
+  const extra = patch || {};
+  const body = { title: t.title, cat: t.cat, level: t.level, days: t.days, desc: t.desc, crit: t.crit, deliv: t.deliv, qual: t.qual, files: t.files, reward: t.reward != null ? t.reward : t.pay, iv: t.iv, escrow: t.escrow || GS.holdPk || '', lockSig: t.lockSig || '' };
+  if (extra.body) Object.assign(body, extra.body);
+  const row = {
     id: t.id,
     title: t.title || '',
     cat: t.cat || '',
     reward: t.reward != null ? t.reward : (t.pay || 0),
-    status: t.status || 'finding',
-    client_wallet: GS.clientFull || '',
-    body: { title: t.title, cat: t.cat, level: t.level, days: t.days, desc: t.desc, crit: t.crit, deliv: t.deliv, qual: t.qual, files: t.files, reward: t.reward, iv: t.iv }
-  }, patch || {});
+    status: extra.status || t.status || 'finding',
+    body: body
+  };
+  const client = extra.client_wallet || t.clientWallet || GS.clientFull || '';
+  const worker = extra.worker_wallet || t.workerWallet || '';
+  if (client) row.client_wallet = client;
+  if (worker) row.worker_wallet = worker;
   return fetch('/api/pico/tasks', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(row) }).then(r => r.ok ? r.json() : null).catch(() => null);
+}
+const pushedAt = {};
+function pushLiveTask(t){
+  if (!t || !t.live || !t.id) return;
+  const status = {assigned:'assigned', progress:'progress', review:'review', verification:'verification', revision:'revision', dispute:'dispute', cancelled:'cancelled'}[t.my];
+  if (!status) return;
+  const key = t.id + ':' + status + ':' + (t.submitted || '');
+  if (pushedAt[key] && Date.now() - pushedAt[key] < 8000) return;
+  pushedAt[key] = Date.now();
+  shareTask(t, {
+    status: status,
+    reward: t.pay,
+    worker_wallet: GS.workerPay || t.workerWallet || '',
+    client_wallet: t.clientWallet || '',
+    body: { progress: { my: t.my, worker: t.worker || '7310', assigned: t.assigned || '', due: t.due || '', started: t.started || '', submitted: t.submitted || '', autoPay: t.autoPay || '', sub: t.sub || null, rounds: t.rounds || 0 } }
+  });
+}
+function syncWorkerProgress(){
+  try { const w = W(); if (!w || !w.order) return; w.order.forEach(id => pushLiveTask(w.tasks[id])); } catch (e) {}
+}
+function applyClientRow(t, row){
+  const p = (row.body && row.body.progress) || {};
+  const next = row.status || t.status;
+  if (!next || next === 'finding' || next === 'draft') return false;
+  if (t.sig && (t.status === 'completed' || t.status === 'cancelled')) return false;
+  const same = next === t.status && (p.submitted || '') === (t.submitted || '') && String(p.worker || t.worker || '') === String(t.worker || '');
+  if (same) return false;
+  const prev = t.status;
+  t.status = next;
+  if (p.worker) t.worker = String(p.worker);
+  if (row.worker_wallet) { t.workerWallet = row.worker_wallet; if (!t.payTo) t.payTo = row.worker_wallet; }
+  ['assigned','due','started','submitted','autoPay'].forEach(k => { if (p[k]) t[k] = p[k]; });
+  if (p.sub) t.sub = p.sub;
+  if (p.rounds != null) t.rounds = p.rounds;
+  if (next === 'review' && t.daysLeft == null) t.daysLeft = 14;
+  if (!t.events) t.events = [];
+  if (prev !== next) addEvent(t, 'Worker update', next === 'review' ? 'Work submitted · your review is next' : next === 'progress' ? 'Worker started' : next === 'assigned' ? 'Worker assigned' : 'Now ' + next);
+  t.serverAt = row.updated_at || '';
+  return true;
+}
+function applyWorkerRow(row){
+  if (!row || !row.id || row.status === 'finding') return false;
+  const w = W(); if (!w || !w.tasks[row.id] || !w.tasks[row.id].live) return false;
+  const t = w.tasks[row.id];
+  const my = {assigned:'assigned', progress:'progress', review:'review', verification:'verification', revision:'revision', dispute:'dispute', completed:'completed', cancelled:'cancelled'}[row.status];
+  if (!my || my === t.my) return false;
+  const forward = {open:0, testing:0, assigned:1, progress:2, review:3, verification:3, revision:3, dispute:4, completed:5, cancelled:5};
+  if ((forward[my] || 0) < (forward[t.my] || 0) && my !== 'revision' && my !== 'dispute') return false;
+  t.my = my;
+  const p = (row.body && row.body.progress) || {};
+  if (p.autoPay) t.autoPay = p.autoPay;
+  if (row.status === 'completed') { t.paid = t.paid || dayLabel(0); t.paidAmt = t.paidAmt || t.pay; t.how = t.how || 'accepted'; }
+  return true;
+}
+let clientPullAt = 0;
+function pullClientTasks(){
+  const now = Date.now();
+  if (now - clientPullAt < 1500) return;
+  clientPullAt = now;
+  fetch('/api/pico/tasks').then(r => r.json()).then(rows => {
+    if (!Array.isArray(rows)) return;
+    const byId = {};
+    rows.forEach(row => { if (row && row.id) byId[String(row.id)] = row; });
+    let n = 0;
+    clientTasks().forEach(t => {
+      if (!t || !t.id) return;
+      const row = byId[String(t.id)];
+      if (row && applyClientRow(t, row)) n++;
+      else if (!row && t.status === 'finding' && t.lockSig) shareTask(t, { client_wallet: GS.clientFull || '' });
+    });
+    if (n) { saveGS(); const k = String(cur || ''); if (k === 'home' || k === 'mytasks' || k.slice(0, 2) === 'c-') rerender(); }
+  }).catch(() => {});
+}
+function watchClientTasks(){
+  if (watchClientTasks.on) return;
+  watchClientTasks.on = true;
+  setInterval(() => {
+    const k = String(cur || '');
+    if (k === 'home' || k === 'mytasks' || k.slice(0, 2) === 'c-') pullClientTasks();
+  }, 4000);
 }
 function publishWorkerWallet(pk){
   if (!pk) return;
@@ -14739,7 +14811,7 @@ function adoptShared(row){
     pay: Number(row.reward) || Number(src.reward) || 0, days: src.days || 3, posted: 'live',
     desc: src.desc || '', crit: src.crit || [], deliv: src.deliv || [],
     qual: src.qual || { on:false, pass:75, qs:[] }, files: src.files || [],
-    workerWallet: row.worker_wallet || '', clientWallet: row.client_wallet || ''
+    workerWallet: row.worker_wallet || '', clientWallet: row.client_wallet || '', escrow: src.escrow || ''
   });
   const fresh = !w.tasks[id];
   w.tasks[id] = t;
@@ -14753,18 +14825,16 @@ function adoptShared(row){
 function pullSharedTasks(done){
   fetch('/api/pico/tasks').then(r => r.json()).then(rows => {
     let n = 0;
-    if (Array.isArray(rows)) rows.forEach(row => { if (adoptShared(row)) n++; });
+    if (Array.isArray(rows)) rows.forEach(row => { if (adoptShared(row) || applyWorkerRow(row)) n++; });
     done && done(n);
   }).catch(() => { done && done(0); });
 }
 function syncOpenTasks(){
-  try {
-    clientTasks().filter(t => t && t.status === 'finding' && t.lockSig).forEach(t => {
-      shareTask(t, { client_wallet: GS.clientFull || '' });
-    });
-  } catch (e) {}
+  pullClientTasks();
+  syncWorkerProgress();
 }
 syncOpenTasks();
+watchClientTasks();
 function solHint(){
   const d = MS && MS.devnetSol, m = MS && MS.mainnetSol;
   const sw = 'In Phantom: profile → Settings → Developer Settings → Testnet Mode → Solana Devnet. The popup must say Devnet, not Solana.';
@@ -14818,7 +14888,9 @@ function persistAccount(){
   const role = V.user.lastMode === 'work' ? 'work' : 'hire';
   const wallet = role === 'work' ? (GS.workerPay || '') : (GS.clientFull || '');
   if (wallet.length < 32) return;
+  const skills = (typeof W === 'function' && W() && W().skills) ? W().skills : [];
   const payload = { wallet: wallet, role: role, avail: num(GS.avail), company: V.user.company || '', onboarded: !!(V.user.onb && V.user.onb[role]) };
+  if (skills.length) payload.skills = skills;
   const snap = JSON.stringify(payload);
   if (snap === accountSnap) return;
   accountSnap = snap;
@@ -14835,7 +14907,7 @@ function importClientTasks(pk){
       if (!id || id.charAt(0) === '_') return;
       const src = row.body || {};
       if (!V.tasks[id]) {
-        V.tasks[id] = { id: id, title: row.title || src.title || 'Task', cat: row.cat || src.cat || 'Design', level: src.level || 'Mid', days: src.days || 3, desc: src.desc || '', crit: src.crit || [], deliv: src.deliv || [], reward: Number(row.reward) || 0, iv: !!src.iv, qual: src.qual || { on:false, pass:75, qs:[] }, status: row.status || 'finding', funded: 'live', chat: [], files: src.files || [], cands: [], rounds: 0, events: [], lockSig: src.lockSig || 'shared' };
+        V.tasks[id] = { id: id, title: row.title || src.title || 'Task', cat: row.cat || src.cat || 'Design', level: src.level || 'Mid', days: src.days || 3, desc: src.desc || '', crit: src.crit || [], deliv: src.deliv || [], reward: Number(row.reward) || 0, iv: !!src.iv, qual: src.qual || { on:false, pass:75, qs:[] }, status: row.status || 'finding', funded: 'live', chat: [], files: src.files || [], cands: [], rounds: 0, events: [], lockSig: src.lockSig || 'shared', escrow: src.escrow || '' };
         n++;
       }
       if (V.orderNew && !V.orderNew.includes(id)) V.orderNew.unshift(id);
@@ -14848,7 +14920,9 @@ function openWalletAccount(pk, preferredRole, localAvail, quiet){
   fetch('/api/pico/account?wallet=' + encodeURIComponent(pk)).then(r => r.ok ? r.json() : null).then(row => {
     if (row && row.error) row = null;
     const known = !!(row && row.wallet);
-    const role = known ? (row.role === 'work' ? 'work' : 'hire') : (preferredRole === 'work' ? 'work' : 'hire');
+    const pending = (V.ui && V.ui.afterAuth) || (quiet && (GS.lastScreen || location.hash.slice(1) || cur)) || '';
+    const asked = screenMode(pending);
+    const role = asked || (known ? (row.role === 'work' ? 'work' : 'hire') : (preferredRole === 'work' ? 'work' : 'hire'));
     setAcct('new');
     GS.avail = known ? (Number(row.avail) || 0) : (typeof localAvail === 'number' ? localAvail : 0);
     if (V.bal) V.bal.new = GS.avail;
@@ -14856,19 +14930,25 @@ function openWalletAccount(pk, preferredRole, localAvail, quiet){
     V.user.email = shortWallet(pk);
     V.user.lastMode = role;
     if (!V.user.onb) V.user.onb = { hire:false, work:false, rev:false };
-    V.user.onb[role] = known ? !!row.onboarded : !!V.user.onb[role];
+    V.user.onb[role] = known ? (!!row.onboarded || !!V.user.onb[role]) : !!V.user.onb[role];
     if (known && row.company) V.user.company = row.company;
+    const serverSkills = known && Array.isArray(row.skills) ? row.skills : [];
+    if (serverSkills.length && W()) W().skills = serverSkills;
     const provider = phantomProvider();
     if (role === 'work') { GS.workerPay = pk; if (provider) adoptPhantom(provider, null, 'work'); }
     else { GS.clientFull = pk; GS.clientShort = shortWallet(pk); if (provider) adoptPhantom(provider, null, 'hire'); }
     GS.connected = true;
     GS.signedOut = false;
-    accountSnap = JSON.stringify({ wallet: pk, role: role, avail: num(GS.avail), company: V.user.company || '', onboarded: !!V.user.onb[role] });
+    accountSnap = JSON.stringify({ wallet: pk, role: role, avail: num(GS.avail), company: V.user.company || '', onboarded: !!V.user.onb[role], skills: (W() && W().skills) || [] });
     saveGS();
     if (!known) { accountSnap = ''; persistAccount(); }
+    else if (!serverSkills.length && W() && W().skills && W().skills.length) { accountSnap = ''; persistAccount(); }
     if (role === 'hire') importClientTasks(pk);
-    const dest = V.user.onb[role] ? MODE_HOME[role] : MODE_ONB[role];
-    if (!V.user.onb[role] || cur === 'auth' || cur === 'landing') show(dest);
+    if (V.ui) V.ui.afterAuth = null;
+    const home = V.user.onb[role] ? MODE_HOME[role] : MODE_ONB[role];
+    const back = pending && S[pending] && screenMode(pending) === role ? pending : '';
+    if (back && V.user.onb[role]) { if (cur === back) rerender(); else show(back); }
+    else if (!V.user.onb[role] || cur === 'auth' || cur === 'landing') show(home);
     else rerender();
     if (!quiet) toast('Phantom connected · ' + shortWallet(pk) + '.', 'success');
   }).catch(() => {});
@@ -14956,6 +15036,7 @@ function taskTable(groups, emptyText){
 }
 reg('home', 'Home', 'v2home', {h:1400});
 RENDER.v2home = (root) => {
+  pullClientTasks();
   const pg = chrome(root, 'hire', 'home', [['Home']]);
   const T = clientTasks(), total = GS.avail + BAL.locked;
   const need = T.filter(t => GROUP_NEED.includes(t.status)), handling = T.filter(t => ACTIVE.includes(t.status) && !GROUP_NEED.includes(t.status)), done = T.filter(t => t.status === 'completed' || t.status === 'cancelled').slice(0, 2);
@@ -15216,7 +15297,7 @@ X.publish = () => {
   const st = {s:'confirm', err:'', sig:''};
   const place = (sig) => {
     const t = {id, title:d.title.trim(), cat:d.cat, level:d.level, days:+d.days, desc:d.desc, crit:(reqsOf(d.desc).length ? reqsOf(d.desc) : d.crit.filter(c => c.trim())), deliv:d.deliv.filter(c => c.trim()), reward:m.b, iv:d.iv,
-      qual:{on:d.qual.on, pass:+d.qual.pass, qs:d.qual.on ? d.qual.qs : qsFor(d.cat)}, status:'finding', funded:dayLabel(0), chat:[], files:d.links.slice(), cands:[], rounds:0, events:[], fresh:true, lockSig:sig};
+      qual:{on:d.qual.on, pass:+d.qual.pass, qs:d.qual.on ? d.qual.qs : qsFor(d.cat)}, status:'finding', funded:dayLabel(0), chat:[], files:d.links.slice(), cands:[], rounds:0, events:[], fresh:true, lockSig:sig, escrow:GS.holdPk || ''};
     addEvent(t, d.qual.on ? 'Qualification started' : 'Shown to eligible workers', d.qual.on ? 'Test sent to eligible ' + d.cat + ' workers' : 'Verified ' + d.cat + ' · ' + d.level + ' and above');
     addEvent(t, 'Funds locked', usd(m.total) + ' from Available', 'money');
     V.tasks[id] = t; const ord = V.user.acct === 'new' ? V.orderNew : V.order; if (!ord.includes(id)) ord.unshift(id);
@@ -15283,7 +15364,7 @@ function heroFor(t){
   const dl = t.status === 'finding' ? [t.days + ' days', 'After assignment'] : t.status === 'completed' ? ['Paid ' + (t.paid || ''), 'Completed'] : t.status === 'cancelled' ? ['Cancelled ' + (t.cancelled || ''), t.how === 'agreement' ? 'By agreement' : 'Before assignment'] : [t.due || dayLabel(t.days), 'Deadline'];
   return '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + stPill(t.status) + pill(t.cat, '') + (t.iv ? pill('Independent verification', 'tech') : '') + '</div><h1 class="h1">' + E(t.title) + '</h1>' +
     '<div class="meta"><div style="display:flex;gap:10px;align-items:center">' + who[0] + '<span><b>' + who[1] + '</b><small>' + who[2] + '</small></span></div><div><b>' + dl[0] + '</b><small>' + dl[1] + '</small></div><div><b>' + (t.iv ? 'Independent · 1 reviewer' : 'Standard · by you') + '</b><small>Review</small></div></div></div>' +
-    '<div class="esc">' + esc + '<div class="amt">' + fmt(amt) + '<small>USDC</small></div><div class="note">' + note + (t.iv && ACTIVE.includes(t.status) ? '<br>' + fmt(t.reward) + ' reward + ' + fmt(feeOf(t)) + ' fee' : '') + '</div>' +
+    '<div class="esc">' + esc + '<div class="amt">' + fmt(amt) + '<small>USDC</small></div><div class="note">' + note + (t.iv && ACTIVE.includes(t.status) ? '<br>' + fmt(t.reward) + ' reward + ' + fmt(feeOf(t)) + ' fee' : '') + '</div>' + escrowLink(t.escrow || GS.holdPk) +
     (t.worker && ACTIVE.includes(t.status) && t.status !== 'dispute' ? P.btn('Message worker' + (t.unread ? ' · ' + t.unread + ' new' : ''), {sm:true, icon:'chat', x:'openchat:' + t.id}) : '') + '</div></div>' + rail(railFor(t)) + '</section>';
 }
 function statusCard(t){
@@ -15389,6 +15470,7 @@ function qualSection(t){
 }
 RENDER.ctask = (root, s) => {
   const t = V.tasks[s.id]; if (!t) { setTimeout(() => show('mytasks'), 0); return; }
+  pullClientTasks();
   const pg = chrome(root, 'hire', 'mytasks', [['My tasks', 'mytasks'], [t.title]]);
   let h = '<button class="back" data-go="mytasks">← My tasks</button>' + heroFor(t) + statusCard(t);
   if (t.status === 'finding') {
@@ -15429,6 +15511,8 @@ X.cand = (a) => {
 
 /* ---------- Money + status transitions ---------- */
 function payout(t, how, amt){ t.status = 'completed'; t.how = how; t.paid = dayLabel(0); t.paidAmt = amt != null ? amt : t.reward + feeOf(t) + (t.extraLocked || 0); t.extraLocked = 0; t.cr && t.cr.status === 'pending' && (t.cr.status = 'declined'); }
+function needsClientSig(){ toast('USDC moves only when the client signs Accept and release in Phantom. This preview does not pay anyone.', 'info'); }
+function escrowLink(addr){ if (!addr || String(addr).length < 32) return ''; const a = String(addr); return '<a class="note" href="https://explorer.solana.com/address/' + a + '?cluster=devnet" target="_blank" rel="noopener">Escrow ' + shortWallet(a) + ' ↗</a>'; }
 function refundAll(t, how, amt){ const back = amt != null ? amt : lockedOf(t); t.status = 'cancelled'; t.how = how; t.cancelled = dayLabel(0); t.refund = back; t.extraLocked = 0; GS.avail += back; }
 
 /* Accept → release: client signs, USDC moves from escrow to the worker wallet. */
@@ -15605,29 +15689,29 @@ SIM.ctask = (s) => {
       L.push(['A worker reaches ' + t.qual.pass + ' / 100 first', () => { const c = t.cands.find(x => x.st === 'taking'); const id = c ? c.id : '8120'; t.status = 'assigned'; t.worker = id; t.assigned = dayLabel(0); t.due = dayLabel(t.days); addEvent(t, 'Worker assigned', 'Worker #' + id + ' · first to reach ' + t.qual.pass + ' / 100'); note('Worker assigned', t.title + ' · Worker #' + id, taskKey(t.id)); SIMNOTE('Worker #' + id + ' reached the pass mark first and got the task. Criteria are locked now.'); }, 'First qualified worker gets the task']);
     } else L.push(['An eligible worker accepts the task', () => { t.status = 'assigned'; t.worker = '8120'; t.assigned = dayLabel(0); t.due = dayLabel(t.days); addEvent(t, 'Worker assigned', 'Worker #8120 · first eligible to accept'); note('Worker assigned', t.title + ' · Worker #8120', taskKey(t.id)); SIMNOTE('Worker #8120 accepted first and got the task.'); }, 'Qualification off · first eligible worker']);
   }
-  if (t.status === 'finding') L.push(['7 days pass, no worker qualifies', () => { const back = lockedOf(t); refundAll(t, 'expired'); addEvent(t, 'Task closed automatically', 'No worker qualified in 7 days'); addEvent(t, 'Funds returned', usd(back) + ' to Available', 'money'); note('Task closed · funds returned', t.title + ' · ' + usd(back) + ' back in Available', taskKey(t.id)); SIMNOTE('No worker qualified in 7 days. ' + usd(back) + ' is back in Available.'); }]);
+  if (t.status === 'finding') L.push(['7 days pass, no worker qualifies', () => needsClientSig()]);
   if (t.status === 'assigned' && t.cr && t.cr.status === 'pending') { L.push(['Worker accepts the change request', () => { crAnswer(t, true); SIMNOTE('Change request accepted. The new terms apply now.'); }]); L.push(['Worker declines the change request', () => { crAnswer(t, false); SIMNOTE('Declined. Work continues on the current terms.'); }, '→ current terms stay']); }
   if (t.status === 'assigned') L.push(['Worker presses Start work', () => { t.status = 'progress'; t.started = dayLabel(0); addEvent(t, 'Worker started', 'In Progress'); SIMNOTE('Worker #' + t.worker + ' started. The task is In Progress.'); }]);
   if (['assigned','progress','revision','review'].includes(t.status)) L.push(['Worker sends a message', () => { t.chat.push(['w', dayLabel(0) + ' · ' + clockNow(), 'Quick question about criterion 1 — is the mobile breakpoint 375 or 390?']); t.unread = (t.unread || 0) + 1; SIMNOTE('New message from Worker #' + t.worker + '.'); }]);
   if (t.status === 'progress') {
     if (t.cr && t.cr.status === 'pending') { L.push(['Worker accepts the change request', () => { crAnswer(t, true); SIMNOTE('Change request accepted. The new terms apply now.'); }]); L.push(['Worker declines the change request', () => { crAnswer(t, false); SIMNOTE('Declined. Work continues on the current terms.'); }, '→ current terms stay']); }
-    if (t.cx && t.cx.status === 'pending') { L.push(['Worker agrees to cancel', () => { const back = lockedOf(t); refundAll(t, 'agreement'); addEvent(t, 'Cancelled by agreement', usd(back) + ' back to Available', 'money'); note('Task cancelled by agreement', t.title, taskKey(t.id)); SIMNOTE('Cancelled by agreement. ' + usd(back) + ' is back in Available.'); }]); L.push(['Worker declines to cancel', () => { t.cx.status = 'declined'; addEvent(t, 'Worker declined to cancel', 'Work continues', 'warn'); SIMNOTE('The worker declined. Work continues on the current terms.'); }]); }
+    if (t.cx && t.cx.status === 'pending') { L.push(['Worker agrees to cancel', () => needsClientSig()]); L.push(['Worker declines to cancel', () => { t.cx.status = 'declined'; addEvent(t, 'Worker declined to cancel', 'Work continues', 'warn'); SIMNOTE('The worker declined. Work continues on the current terms.'); }]); }
     L.push(['Worker submits the work', () => { submitWork(t); SIMNOTE(t.iv ? 'Submitted. An independent reviewer is checking it now.' : 'Submitted. Your review is next — auto-payout in 14 days.'); }, t.iv ? '→ In Verification' : '→ Awaiting Review']);
   }
-  if (t.status === 'review') L.push(['14 days pass with no response', () => { payout(t, 'auto'); addEvent(t, 'Automatic payout', usd(t.paidAmt) + ' to Worker #' + t.worker + ' · no response in 14 days', 'money'); SIMNOTE('Automatic payout: ' + usd(t.paidAmt) + ' went to the worker.'); }, 'Decision 3 · automatic payout']);
+  if (t.status === 'review') L.push(['14 days pass with no response', () => needsClientSig(), 'USDC moves only when the client signs']);
   if (t.status === 'revision') {
     L.push(['Worker resubmits', () => { t.rounds = (t.rounds || 0) + 1; submitWork(t); SIMNOTE(t.iv ? 'Resubmitted. The same reviewer checks it — no extra fee.' : 'Resubmitted. Your review is next.'); }]);
     if (!t.verdict) L.push(['Worker disagrees and opens a dispute', () => { t.status = 'dispute'; t.dsp = {crit:t.req ? t.req.crit : 0, by:'worker', opened:dayLabel(0), decideBy:dayLabel(7), claim:'The work meets criterion ' + ((t.req ? t.req.crit : 0) + 1) + ' as written. The change asked for goes beyond the locked criterion.', pos:t.req ? t.req.note : '', evidence:[['PNG','worker-evidence.png','Added by the worker']], status:'review'}; addEvent(t, 'Worker opened a dispute', 'Criterion ' + (t.dsp.crit + 1), 'err'); note('Worker opened a dispute', t.title + ' · Pico decides by ' + t.dsp.decideBy, taskKey(t.id)); SIMNOTE('The worker opened a dispute. Funds stay locked until Pico decides.'); }]);
   }
   if (t.status === 'verification') {
-    L.push(['Reviewer: PASS', () => { t.verdict = {res:'pass', at:stamp(), note:'All criteria met.', items:t.crit.map(() => [true, ''])}; payout(t, 'pass'); addEvent(t, 'Payout released', fmt(t.reward) + ' to Worker #' + t.worker + ' · ' + fmt(feeOf(t)) + ' fee to the reviewer', 'money'); addEvent(t, 'Reviewer: PASS', 'All ' + t.crit.length + ' criteria met'); note('Verification passed', t.title + ' · paid automatically', taskKey(t.id)); SIMNOTE('PASS. The payout went out automatically — no approval needed.'); }, 'Decision 2 · payout without client approval']);
+    L.push(['Reviewer: PASS', () => needsClientSig(), 'USDC moves only when the client signs']);
     L.push(['Reviewer: NEEDS REVISION', () => { t.verdict = {res:'revision', at:stamp(), note:'Two criteria aren’t met yet. Feedback for each one is below.', items:t.crit.map((c, i) => i === 1 ? [false, 'Only 3 of the required cases are covered; the criterion asks for all of them.'] : i === t.crit.length - 1 ? [false, 'The required document section is missing.'] : [true, ''])}; t.status = 'revision'; t.due = dayLabel(3); addEvent(t, 'Reviewer: NEEDS REVISION', '2 criteria not met · same reviewer checks the resubmission', 'rev'); note('Needs revision', t.title + ' · 2 criteria not met', taskKey(t.id)); SIMNOTE('NEEDS REVISION. The worker gets feedback per criterion and resubmits to the same reviewer.'); }]);
   }
   if (t.status === 'dispute' && t.dsp.status !== 'decided') {
     const decide = (label, tone, note2, fn) => () => { const L0 = lockedOf(t); const rows = fn(L0); t.dsp.status = 'decided'; t.dsp.decision = {label, tone, at:stamp(), note:note2, rows}; addEvent(t, 'Platform decision', label, 'err'); note('Dispute decided', t.title + ' · ' + label, taskKey(t.id)); rerender(); toast('Pico decided: ' + label + '.', 'info'); };
-    L.push(['Pico decides: full payout to the worker', decide('Full payout', 'success', 'Criterion ' + (t.dsp.crit + 1) + ' is met as written. The worker is paid in full.', L0 => { payout(t, 'dispute'); return [['Released ' + usd(L0) + ' to Worker #' + t.worker, 'Released ' + dayLabel(0)]]; })]);
-    L.push(['Pico decides: partial payout', decide('Partial payout', 'warning', 'Criterion ' + (t.dsp.crit + 1) + ' is partly met. The work followed the brief that was current at submission; the later change was never sent as a change request.', L0 => { const half = Math.round(L0 * 50) / 100; payout(t, 'partial', half); t.refund = L0 - half; GS.avail += L0 - half; return [[usd(half) + ' to Worker #' + t.worker, 'Released ' + dayLabel(0)],[usd(L0 - half) + ' back to your Available', 'Returned ' + dayLabel(0)]]; })]);
-    L.push(['Pico decides: refund to you', decide('Refund to you', '', 'Criterion ' + (t.dsp.crit + 1) + ' is not met. The locked funds return to you.', L0 => { refundAll(t, 'refund'); return [[usd(L0) + ' back to your Available', 'Returned ' + dayLabel(0)]]; })]);
+    L.push(['Pico decides: full payout to the worker', () => needsClientSig()]);
+    L.push(['Pico decides: partial payout', () => needsClientSig()]);
+    L.push(['Pico decides: refund to you', () => needsClientSig()]);
     L.push(['Pico decides: reopen the task', decide('Task reopened', '', 'The worker couldn’t finish. The task goes back to Finding Worker; your funds stay locked.', L0 => { t.status = 'finding'; t.worker = null; t.assigned = null; t.started = null; t.sub = null; t.cands = []; return []; })]);
     L.push(['Pico decides: back to Needs Revision', decide('Back to Needs Revision', 'rev', 'The work can meet the criterion with a fix. The worker revises and resubmits.', L0 => { t.status = 'revision'; t.req = {crit:t.dsp.crit, note:'Fix per the platform decision.', at:stamp(), by:'platform'}; t.due = dayLabel(3); return []; })]);
   }
@@ -15832,7 +15916,7 @@ X.wob = (a) => { const w = W();
   if (a === 'back'){ w.obStep = 0; rerender(); return; }
   if (a === 'start'){ if (!w.domain) { w.err = 'Pick a domain to start.'; rerender(); return; } w.bench = {state:'taking', cat:w.domain, ans:{}}; show('w-bench'); }
 };
-SIM.v2onbWork = () => { const w = W(); const L = [['Skip: use a verified demo worker', () => { w.phantom = true; w.domain = 'Design'; w.skills = [{cat:'Design', level:'Mid', score:75, date:dayLabel(0)}]; w.attempts = [{cat:'Design', score:75, pass:true, date:dayLabel(0)}]; w.bench = {state:'passed', cat:'Design', score:75, ans:{}}; V.user.onb.work = true; show('w-home'); toast('Demo worker: Design · Mid, verified.', 'info'); }, 'Phantom connected · Design · Mid verified']];
+SIM.v2onbWork = () => { const w = W(); const L = [['Skip: use a verified demo worker', () => { w.phantom = true; w.domain = 'Design'; w.skills = [{cat:'Design', level:'Mid', score:75, date:dayLabel(0)}]; w.attempts = [{cat:'Design', score:75, pass:true, date:dayLabel(0)}]; w.bench = {state:'passed', cat:'Design', score:75, ans:{}}; V.user.onb.work = true; saveGS(); show('w-home'); toast('Demo worker: Design · Mid, verified.', 'info'); }, 'Phantom connected · Design · Mid verified']];
   if ((w.obStep || 0) === 0 && !w.phantom && !w.phMissing && !w.phBusy) L.push(['Phantom isn’t installed', () => { w.phMissing = true; w.phErr = false; rerender(); }, 'Shows the install state']);
   if (w.phBusy) L.push(['Reject the request in Phantom', () => { w.phBusy = false; w.phErr = true; rerender(); }]); return L; };
 /* ---------- W4–W5 · Skill Benchmark + result ---------- */
@@ -15955,6 +16039,7 @@ function recordBench(w, b, cases){
   if (b.state === 'passed') {
     w.skills = w.skills.filter(s => s.cat !== cat).concat({cat, level:b.score === 100 ? 'Senior' : 'Mid', score:b.score, date:dayLabel(0)});
     V.user.onb.work = true;
+    saveGS();
   }
 }
 function mockBench(root, w, b, cat){
@@ -16024,7 +16109,7 @@ X.wbench = (a, el) => { const w = W(), b = w.bench;
   if (a === 'submit') { const miss = qs.findIndex((q, i) => b.ans[i] == null || (Array.isArray(b.ans[i]) && !b.ans[i].length)); if (miss >= 0) { b.err = 'Answer question ' + (miss + 1) + ' before you submit.'; rerender(); return; }
     b.err = null; busy(el, 'Scoring…', 800, () => { b.score = scoreOf(qs, b.ans); b.state = b.score >= 75 ? 'passed' : 'failed';
       w.attempts = (w.attempts || []).concat({cat:b.cat, score:b.score, pass:b.state === 'passed', date:dayLabel(0)});
-      if (b.state === 'passed') { w.skills = w.skills.filter(s => s.cat !== b.cat).concat({cat:b.cat, level:b.score === 100 ? 'Senior' : 'Mid', score:b.score, date:dayLabel(0)}); V.user.onb.work = true; }
+      if (b.state === 'passed') { w.skills = w.skills.filter(s => s.cat !== b.cat).concat({cat:b.cat, level:b.score === 100 ? 'Senior' : 'Mid', score:b.score, date:dayLabel(0)}); V.user.onb.work = true; saveGS(); }
       rerender(); }); return; }
   if (a === 'done') { V.user.onb.work = true; show('w-find'); return; }
   if (a === 'home') { V.user.onb.work = true; show('w-home'); }
@@ -16044,7 +16129,7 @@ SIM.v2bench = () => { const b = W().bench; if (b.state !== 'taking') return [];
 /* ---------- W6 · Working home ---------- */
 reg('w-home', 'Working · Home', 'v2whome', {h:1400});
 function wCard(t){
-  const el = eligible(t) || t.live, mine = t.my !== 'open';
+  const el = eligible(t), mine = t.my !== 'open';
   return '<div class="tcard' + (el || mine ? '' : ' off') + '"><div class="row3x"><div class="row2">' + pill(t.cat, '') + pill(t.level + (t.level === 'Senior' ? '' : ' and above'), '') + '</div><span class="wtag">' + t.posted + '</span></div><h3>' + E(t.title) + '</h3>' +
     '<p class="sub2 muted" style="font-size:13px;line-height:19px">' + E(t.desc) + '</p><div class="money">' + fmt(t.pay) + '<small>USDC · locked in escrow</small></div>' +
     '<small class="why">' + t.company + ' · ' + t.days + ' days after assignment · ' + (t.qual.on ? 'Qualification test' : 'No test · first to accept') + '</small>' +
@@ -16053,7 +16138,7 @@ function wCard(t){
 }
 RENDER.v2whome = (root) => {
   const pg = chrome(root, 'work', 'w-home', [['Working'], ['Home']]), w = W();
-  const T = w.order.map(wt), active = T.filter(t => WACTIVE.includes(t.my)), rel = T.filter(t => t.my === 'open' && (t.live || eligible(t))).sort((a, b) => (w.topics[b.topic] ? 1 : 0) - (w.topics[a.topic] ? 1 : 0));
+  const T = w.order.map(wt), active = T.filter(t => WACTIVE.includes(t.my)), rel = T.filter(t => t.my === 'open' && eligible(t)).sort((a, b) => (w.topics[b.topic] ? 1 : 0) - (w.topics[a.topic] ? 1 : 0));
   pullSharedTasks(n => { if (n && cur === 'w-home') rerender(); });
   const paid = T.reduce((s, t) => s + (t.paidAmt || 0), 0), locked = active.reduce((s, t) => s + t.pay, 0);
   let h = P.pgh('Good to see you, #7310', w.skills.length ? 'Tasks that match your verified skills. Pay is locked in escrow before you start.' : 'Verify a skill to see tasks you can take.', P.btn('Relevant tasks', {v:'s', go:'w-find'}));
@@ -16078,13 +16163,12 @@ RENDER.v2wfind = (root) => {
   const T = w.order.map(wt).filter(t => t.my !== 'completed');
   pullSharedTasks(n => { if (n && cur === 'w-find') rerender(); });
   /* Only eligible tasks are ever listed (decision: a task is shown only to eligible workers). */
-  const F = {Relevant: t => (t.live || eligible(t)) && t.my === 'open', 'Followed topics': t => eligible(t) && w.topics[t.topic] && t.my === 'open', 'Your results': t => ['failed','taken'].includes(t.my)};
+  const F = {Relevant: t => eligible(t) && t.my === 'open', 'Followed topics': t => eligible(t) && w.topics[t.topic] && t.my === 'open', 'Your results': t => ['failed','taken'].includes(t.my)};
   const f = F[V.ui.wfilter] ? V.ui.wfilter : 'Relevant', list = T.filter(F[f]);
   const missing = SKILL_CATS.filter(c => !verified(c));
-  let h = P.pgh('Relevant tasks', 'Shown only when your verified skill matches the domain and level. The first qualified worker gets the task.');
+  let h = P.pgh('Relevant tasks', 'Shown only when your verified skill matches the domain and level.');
   if (w.skills.length && w.available === false) h += wPaused();
-  else if (!w.skills.length && !T.some(t => t.live && t.my === 'open')) h += P.card(P.ch('alert', 'Verify a skill to see tasks', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Pico shows a task only to workers with a verified skill in its domain and level. Nothing is listed until you pass a benchmark.</p><div class="acts">' + P.btn('Take the ' + (w.domain || 'Design') + ' benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
-  else if (!w.skills.length) h += P.card(P.ch('alert', 'Verify a skill to see more tasks', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Live tasks from clients are listed below. A verified skill unlocks the rest.</p><div class="acts">' + P.btn('Take the ' + (w.domain || 'Design') + ' benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn') + P.tabs(Object.keys(F).map(k => [k, k, T.filter(F[k]).length]), f, 'wfilter') + (list.length ? '<div class="grid3">' + list.map(wCard).join('') + '</div>' : P.empty('No live tasks yet.'));
+  else if (!w.skills.length) h += P.card(P.ch('alert', 'Verify a skill to see tasks', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Pico shows a task only to workers with a verified skill in its domain and level. Nothing is listed until you pass a benchmark.</p><div class="acts">' + P.btn('Take the ' + (w.domain || 'Design') + ' benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
   else {
     h += P.tabs(Object.keys(F).map(k => [k, k, T.filter(F[k]).length]), f, 'wfilter');
     h += list.length ? '<div class="grid3">' + list.map(wCard).join('') + '</div>' : P.empty({Relevant:'No open tasks match your verified skills right now. Topics you follow send a notification when one appears.', 'Followed topics':'No open tasks in the topics you follow. <button type="button" class="linkb" data-go="w-topics">Manage topics</button>', 'Your results':'No test results yet. Tasks you tested for and didn’t get show up here.'}[f]);
@@ -16101,7 +16185,7 @@ RENDER.wtask2 = (root, s) => {
   let h = '<button class="back" data-go="w-find">← Relevant tasks</button>';
   h += '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + pill(t.cat, '') + pill(t.level + (t.level === 'Senior' ? '' : ' and above'), '') + pill(t.company, '') + (t.my !== 'open' ? wPill(t.my) : '') + '</div><h1 class="h1">' + E(t.title) + '</h1>' +
     '<div class="meta"><div><b>' + t.days + ' days</b><small>After assignment</small></div><div><b>' + (t.qual.on ? 'Test · pass mark ' + t.qual.pass : 'No test') + '</b><small>' + (t.qual.on ? 'First to reach it gets the task' : 'First eligible to accept') + '</small></div><div><b>By the client</b><small>Review · 14-day auto-payout</small></div></div></div>' +
-    '<div class="esc"><span class="pill success">' + IC.lock.replace('<svg', '<svg width="12" height="12"') + 'Locked in escrow</span><div class="amt">' + fmt(t.pay) + '<small>USDC</small></div><div class="note">Yours when the work is accepted</div></div></div></section>';
+    '<div class="esc"><span class="pill success">' + IC.lock.replace('<svg', '<svg width="12" height="12"') + 'Locked in escrow</span><div class="amt">' + fmt(t.pay) + '<small>USDC</small></div><div class="note">Yours when the work is accepted</div>' + escrowLink(t.escrow) + '</div></div></section>';
   h += P.card(P.ch('lock', 'What the client needs') + '<p class="sub2">' + E(t.desc) + '</p><div class="lst">' + t.crit.map((c, i) => '<div class="li"><span class="num">' + (i + 1) + '</span><div class="tx"><b style="font-weight:500">' + E(c) + '</b></div></div>').join('') + '</div>' + (t.deliv.length ? '<p class="sub2 muted">Deliverables: ' + t.deliv.map(E).join(' · ') + '</p>' : ''));
   if (!eligible(t)) h += P.card(P.ch('alert', 'You can’t take this task yet', '', 'warn') + '<p class="sub2">It needs a verified ' + skillLabel(t.cat) + ' skill at ' + t.level + ' level or above. Your verified skills: ' + (w.skills.map(x => skillLabel(x.cat) + ' · ' + x.level).join(', ') || 'none') + '.</p><div class="acts">' + P.btn('Take the ' + t.cat + ' benchmark', {x:'wverify:' + t.cat}) + '</div>', 'warn');
   else if (t.my === 'open') h += P.card(P.ch(t.qual.on ? 'sparkle' : 'check', t.qual.on ? 'Qualification test · required for this task' : 'No qualification test') + '<p class="sub2">' + (t.qual.on ? 'Accept to take a 4-question test. Answers are scored automatically against fixed correct answers. Among people who pass, Pico assigns the highest verified ' + skillLabel(t.cat) + ' score. Tests are not paid.' : 'You’re eligible through your verified ' + skillLabel(t.cat) + ' score. Pico assigns the closest score at this level. There is no shortlist.') + '</p>' +
@@ -16123,7 +16207,7 @@ X.wsubmit = (id, el) => { const t = wt(id), qs = t.qual.qs; const miss = qs.find
     if (t.score < t.qual.pass) { t.my = 'failed'; W().rep.score = Math.max(0, W().rep.score - 1); t.events.unshift(['Test scored', t.score + ' / 100 · below the pass mark', stamp(), 'warn']); rerender(); return; }
     if (t.outcome === 'taken') { t.my = 'taken'; t.events.unshift(['Task already taken', 'Another worker reached the pass mark first', stamp(), '']); rerender(); return; }
     assignW(t); show(wRoom(id)); toast('PASS · ' + t.score + ' / 100. You were first — the task is yours.', 'success'); }); };
-function assignW(t){ t.my = 'assigned'; t.worker = '7310'; t.assigned = dayLabel(0); t.due = dayLabel(t.days); t.events.unshift(['Task assigned to you', t.qual.on ? 'First to reach ' + t.qual.pass + ' / 100' : 'First eligible to accept', stamp(), '']); t.events.unshift(['Funds locked for you', usd(t.pay) + ' in escrow', stamp(), 'money']); t.files = [['DOC','Brief and materials', t.company.toLowerCase().replace(/ /g,'') + '.com/brief']]; }
+function assignW(t){ t.my = 'assigned'; t.worker = '7310'; t.assigned = dayLabel(0); t.due = dayLabel(t.days); t.events.unshift(['Task assigned to you', t.qual.on ? 'First to reach ' + t.qual.pass + ' / 100' : 'First eligible to accept', stamp(), '']); t.events.unshift(['Funds locked for you', usd(t.pay) + ' in escrow', stamp(), 'money']); t.files = [['DOC','Brief and materials', t.company.toLowerCase().replace(/ /g,'') + '.com/brief']]; pushLiveTask(t); }
 SIM.wtask2 = (s) => { const t = wt(s.id); if (t.my === 'testing') return [['Fill in answers that pass', () => { t.qual.qs.forEach((q, i) => t.ans[i] = q.multi ? q.c.slice() : q.c[0]); rerender(); }, '4 of 4 correct'],['Fill in answers that fail', () => { t.qual.qs.forEach((q, i) => t.ans[i] = q.multi ? [2] : (q.c[0] + 1) % 3); rerender(); }, 'below the pass mark']];
   if (t.my === 'open' && t.outcome === 'free') return [['Another worker gets there first', () => { t.outcome = 'taken'; toast('Now another worker will reach the pass mark first. Try accepting.', 'info'); }, 'Shows Task Already Taken']]; return []; };
 
@@ -16208,6 +16292,8 @@ function wStatus(t){
 }
 RENDER.wroom = (root, s) => {
   const t = wt(s.id); if (!WACTIVE.includes(t.my) && !['completed','cancelled','ended'].includes(t.my)) { setTimeout(() => show(wKey(t.id)), 0); return; }
+  pushLiveTask(t);
+  pullSharedTasks(n => { if (n && cur === wRoom(t.id)) rerender(); });
   const pg = chrome(root, 'work', 'w-mywork', [['My work', 'w-mywork'], [t.title]]);
   let h = '<button class="back" data-go="w-mywork">← My work</button>';
   h += '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + wPill(t.my) + pill(t.cat, '') + pill(t.company, '') + '</div><h1 class="h1">' + E(t.title) + '</h1>' +
@@ -16233,7 +16319,7 @@ RENDER.wroom = (root, s) => {
 };
 X.wtab = a => { const [id, tab] = a.split(':'); V.ui.tab['w' + id] = tab; rerender(); };
 X.wsend = id => { const t = wt(id), i = stage.querySelector('#wMsg'), v = i && i.value.trim(); if (!v) { i && i.focus(); return; } t.chat.push(['y', dayLabel(0) + ' · ' + clockNow(), v]); rerender(); toast('Message sent to ' + t.company + '.', 'success'); };
-X.wstart = (id, el) => { const t = wt(id); busy(el, 'Starting…', 500, () => { t.my = 'progress'; t.started = dayLabel(0); t.events.unshift(['You started the work', 'Status: In Progress', stamp(), '']); rerender(); toast('Started. The client sees In Progress.', 'success'); }); };
+X.wstart = (id, el) => { const t = wt(id); busy(el, 'Starting…', 500, () => { t.my = 'progress'; t.started = dayLabel(0); t.events.unshift(['You started the work', 'Status: In Progress', stamp(), '']); pushLiveTask(t); rerender(); toast('Started. The client sees In Progress.', 'success'); }); };
 
 /* W16 · Submit work: files (upload states), link, criteria checklist, submitting */
 X.wsubmitwork = id => { const t = wt(id), re = t.my === 'revision';
@@ -16282,6 +16368,7 @@ X.wsubmitwork = id => { const t = wt(id), re = t.my === 'revision';
           if (re) t.rounds++; t.sub = {at:stamp(), note:st.note.trim(), files}; files.forEach(f => t.files.push([f[0], f[1] + ' · round ' + (t.rounds + 1), f[2]])); t.submitted = dayLabel(0); t.req = null;
           if (t.iv) t.my = 'verification'; else { t.my = 'review'; t.autoPay = dayLabel(14); }
           t.events.unshift([t.rounds ? 'You resubmitted · round ' + (t.rounds + 1) : 'You submitted the work', t.iv ? 'Independent reviewer is checking' : 'Client reviews by ' + t.autoPay, stamp(), '']);
+          pushLiveTask(t);
           closeM(); toast('Submitted. ' + (t.iv ? 'The reviewer checks it now.' : 'The client reviews next · auto-payout on ' + t.autoPay + '.'), 'success'); }, 900); } }});
 };
 /* W15 · answer a change request */
@@ -16341,18 +16428,18 @@ SIM.wroom = (s) => { const t = wt(s.id), L = [];
   if (live && !wait) L.push(['Client asks to cancel together', () => { t.cx = {status:'pending', reason:'Our launch moved, so we no longer need this.'}; note('Cancel request', t.title + ' · your answer needed', wRoom(t.id), 'work'); rerender(); }, 'Stop by agreement (W23)']);
   if (t.wcx && t.wcx.status === 'pending') { L.push(['Client agrees to cancel', () => { t.my = 'cancelled'; t.cxBy = 'you'; t.wcx.status = 'accepted'; t.events.unshift(['Cancelled by agreement', 'The client agreed · nothing was paid', stamp(), '']); note('Task cancelled by agreement', t.title, wRoom(t.id), 'work'); rerender(); }, '→ Cancelled']); L.push(['Client declines to cancel', () => { t.wcx.status = 'declined'; t.events.unshift(['The client declined to cancel', 'Work continues', stamp(), 'warn']); rerender(); }]); }
   if (['assigned','progress'].includes(t.my)) L.push(['Client sends a message', () => { t.chat.push(['w', dayLabel(0) + ' · ' + clockNow(), 'Looks good so far. Is the mobile variant coming today?']); note('New message', t.company + ' · ' + t.title, wRoom(t.id), 'work'); rerender(); toast('New message from ' + t.company + '.', 'info'); }]);
-  if (t.my === 'review') { L.push(['Client accepts the work', () => { wPaid(t, 'accepted'); rerender(); }, '→ Paid']);
+  if (t.my === 'review') { L.push(['Client accepts the work', () => needsClientSig(), 'USDC moves only when the client signs']);
     L.push(['Client requests changes on criterion 2', () => { const c = Math.min(1, t.crit.length - 1); t.my = 'revision'; t.due = dayLabel(2); t.req = {crit:c, note:'The mobile variant is missing the error state.', by:'client'}; t.events.unshift(['Client requested changes', 'Criterion ' + (c + 1), stamp(), 'rev']); note('Changes requested', t.title + ' · criterion ' + (c + 1), wRoom(t.id), 'work'); rerender(); }]);
     L.push(['Client opens a dispute on criterion 1', () => { t.my = 'dispute'; t.dsp = {crit:0, by:'client', kind:'dispute', claim:'The delivered file doesn’t meet criterion 1: the mobile variant is missing.', opened:dayLabel(0), decideBy:dayLabel(7), ev:[['PNG', 'Screenshot from the client', 'mobile-missing.png', 'Client']]}; t.events.unshift(['Client opened a dispute', 'Criterion 1 · Pico decides by ' + t.dsp.decideBy, stamp(), 'err']); note('Dispute opened', t.title + ' · respond before ' + t.dsp.decideBy, wRoom(t.id), 'work'); rerender(); }, 'You respond with evidence']);
-    L.push(['14 days pass with no response', () => { wPaid(t, 'auto'); rerender(); }, 'Automatic payout']); }
-  if (t.my === 'verification') { L.push(['Reviewer: PASS', () => { wPaid(t, 'pass'); rerender(); }]);
+    L.push(['14 days pass with no response', () => needsClientSig(), 'USDC moves only when the client signs']); }
+  if (t.my === 'verification') { L.push(['Reviewer: PASS', () => needsClientSig(), 'USDC moves only when the client signs']);
     L.push(['Reviewer: NEEDS REVISION', () => { const nn = REVNOTES[t.id] || ['Not fully met yet.','Not fully met yet.'], last = Math.min(2, t.crit.length - 1); t.my = 'revision'; t.due = dayLabel(3);
       t.req = {by:'reviewer', crit:0, marks:t.crit.map((c, i) => i === 0 ? {met:false, note:nn[0]} : i === last && last > 0 ? {met:false, note:nn[1]} : {met:true}), note:'Close. Two criteria need a fix; everything else is done.'};
       t.events.unshift(['Reviewer: NEEDS REVISION', t.req.marks.filter(m => !m.met).length + ' of ' + t.crit.length + ' criteria not met · same reviewer checks the resubmission', stamp(), 'rev']); note('Needs revision', t.title + ' · reviewer feedback', wRoom(t.id), 'work'); rerender(); }, 'Feedback per criterion']); }
   if (t.my === 'dispute') { const c = t.dsp.crit + 1, dec = (label, text, fn) => () => { t.dsp.decision = {label, text}; t.events.unshift(['Platform decision', label, stamp(), 'err']); fn(); note('Dispute decided', t.title + ' · ' + label, wRoom(t.id), 'work'); rerender(); };
-    L.push(['Pico decides: full payout to you', dec('Full payout to you', 'Criterion ' + c + ' is met by the submitted work. The full reward goes to the worker.', () => wPaid(t, 'dispute'))]);
-    L.push(['Pico decides: partial payout', dec('Partial payout', 'Criterion ' + c + ' is partly met. The locked reward is split 50 / 50.', () => wPaid(t, 'partial', Math.round(t.pay * 50) / 100))]);
-    L.push(['Pico decides: refund to the client', dec('Refund to the client', 'Criterion ' + c + ' is not met by the submitted work. The locked reward returns to the client.', () => { t.my = 'cancelled'; t.closed = {how:'refund', text:t.dsp.decision.text}; })]);
+    L.push(['Pico decides: full payout to you', () => needsClientSig()]);
+    L.push(['Pico decides: partial payout', () => needsClientSig()]);
+    L.push(['Pico decides: refund to the client', () => needsClientSig()]);
     L.push(['Pico decides: reopen the task', dec('Task reopened', 'The task can’t be finished as assigned. It goes back to Finding Worker for other workers.', () => { t.my = 'cancelled'; t.closed = {how:'reopen', text:t.dsp.decision.text}; })]);
     L.push(['Pico decides: back to Needs Revision', dec('Back to Needs Revision', 'Criterion ' + c + ' isn’t met yet, but it can be fixed. Resubmit with the fix.', () => { t.my = 'revision'; t.due = dayLabel(3); t.req = {crit:t.dsp.crit, note:t.dsp.decision.text, by:'platform'}; })]); }
   return L; };
@@ -17017,10 +17104,11 @@ const isPublic = k => PUBLIC_KEYS.includes(k) || /^pub-/.test(k);
 const _showGuard = show;
 show = function(k, r){
   if (!V.user.signedIn && !window.__noGuard && !isPublic(k)) {
-    const start = /^(w-|onb-work)/.test(k) || /^(r-|onb-rev)/.test(k) ? 'work' : 'hire';
+    const start = screenMode(k) || 'hire';
     V.ui.auth = {tab:'signup', start}; V.ui.afterAuth = k;
     return _showGuard('auth', r);
   }
+  if (k && !isPublic(k)) GS.lastScreen = k;
   return _showGuard(k, r);
 };
 /* After log in, continue to the screen the person was trying to open */
@@ -17276,15 +17364,21 @@ regTask = function(id){ _v2RegTask(id); const g = [...sel.querySelectorAll('optg
 })();
 
 document.getElementById('reset').addEventListener('click',()=>{window.__noSave=true;try{localStorage.removeItem(LSK);localStorage.removeItem(TRACE_KEY)}catch(e){}location.hash='#auth';location.reload()});
-/* A saved address is not a session. Enter the app only after Phantom is live in this tab. */
+/* A saved wallet keeps the screen you refreshed. Phantom confirms the session in place. */
 (function gateWalletAccount(){
   const pk = GS.clientFull || GS.workerPay || '';
   if (pk.length >= 32 && pk.indexOf('…') < 0 && !GS.signedOut) {
-    V.user.signedIn = false;
+    V.user.signedIn = true;
     GS.connected = false;
   }
 })();
-show(location.hash.slice(1)||(V.user.signedIn?(MODE_HOME[V.user.lastMode]||'home'):'auth'),false);
+(function(){
+  const fromHash = location.hash.slice(1);
+  let k = fromHash;
+  let keepHash = true;
+  if (V.user.signedIn && (!k || k === 'auth' || k === 'landing') && GS.lastScreen && S[GS.lastScreen]) { k = GS.lastScreen; keepHash = false; }
+  show(k || (V.user.signedIn ? (MODE_HOME[V.user.lastMode] || 'home') : 'auth'), keepHash ? false : undefined);
+})();
 (function resumeWallet(){
   function tick(left){
     if (GS.signedOut) return;

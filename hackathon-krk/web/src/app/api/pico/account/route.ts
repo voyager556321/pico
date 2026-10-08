@@ -9,6 +9,7 @@ type AccountRow = {
   avail?: number | string;
   company?: string;
   onboarded?: boolean;
+  skills?: unknown;
   updated_at?: string | Date;
 };
 
@@ -38,6 +39,7 @@ function shape(row: AccountRow) {
     avail: row.avail == null ? 0 : Number(row.avail),
     company: row.company || "",
     onboarded: !!row.onboarded,
+    skills: Array.isArray(row.skills) ? row.skills : [],
     updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at || null,
   };
 }
@@ -58,8 +60,10 @@ async function withDb<T>(fn: (client: Client) => Promise<T>) {
       avail numeric not null default 0,
       company text not null default '',
       onboarded boolean not null default false,
+      skills jsonb not null default '[]'::jsonb,
       updated_at timestamptz not null default now()
     )`);
+    await client.query(`alter table pico_accounts add column if not exists skills jsonb not null default '[]'::jsonb`);
     return await fn(client);
   } finally {
     await client.end().catch(() => {});
@@ -94,17 +98,19 @@ export async function POST(req: Request) {
         avail: patch.avail ?? prev?.avail ?? 0,
         company: patch.company ?? prev?.company ?? "",
         onboarded: patch.onboarded ?? prev?.onboarded ?? false,
+        skills: Array.isArray(patch.skills) ? patch.skills : prev?.skills,
       });
       await client.query(
-        `insert into pico_accounts (wallet, role, avail, company, onboarded, updated_at)
-         values ($1, $2, $3, $4, $5, now())
+        `insert into pico_accounts (wallet, role, avail, company, onboarded, skills, updated_at)
+         values ($1, $2, $3, $4, $5, $6::jsonb, now())
          on conflict (wallet) do update set
            role = excluded.role,
            avail = excluded.avail,
            company = excluded.company,
            onboarded = excluded.onboarded,
+           skills = excluded.skills,
            updated_at = now()`,
-        [next.wallet, next.role, next.avail, next.company, next.onboarded]
+        [next.wallet, next.role, next.avail, next.company, next.onboarded, JSON.stringify(next.skills)]
       );
       return next;
     });

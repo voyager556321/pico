@@ -101,15 +101,22 @@ export async function POST(req: Request) {
     const row = await withDb(async (client) => {
       const prevQ = await client.query<TaskRow>("select * from pico_tasks where id = $1", [patch.id]);
       const prev = prevQ.rows[0] || {};
+      const prevBody = prev.body && typeof prev.body === "object" ? prev.body : {};
+      const patchBody = patch.body && typeof patch.body === "object" ? patch.body : {};
+      let status = patch.status ?? prev.status ?? "finding";
+      const late = ["review", "verification", "revision", "dispute", "completed", "cancelled"];
+      const early = ["finding", "draft", "assigned", "progress"];
+      if (prev.status && late.includes(prev.status) && early.includes(status)) status = prev.status;
+      if ((prev.status === "completed" || prev.status === "cancelled") && status !== prev.status) status = prev.status;
       const next = shape({
         id: patch.id as string,
         title: patch.title ?? prev.title ?? "",
         cat: patch.cat ?? prev.cat ?? "",
         reward: patch.reward ?? prev.reward ?? 0,
-        status: patch.status ?? prev.status ?? "finding",
-        client_wallet: patch.client_wallet ?? prev.client_wallet ?? null,
-        worker_wallet: patch.worker_wallet ?? prev.worker_wallet ?? null,
-        body: patch.body ?? prev.body ?? {},
+        status,
+        client_wallet: patch.client_wallet || prev.client_wallet || null,
+        worker_wallet: patch.worker_wallet || prev.worker_wallet || null,
+        body: { ...prevBody, ...patchBody },
       });
       await client.query(
         `insert into pico_tasks (id, title, cat, reward, status, client_wallet, worker_wallet, body, updated_at)
