@@ -14500,9 +14500,9 @@ RENDER.v2auth = (root) => {
     P.field({id:'aEmail', label:'Email', value:A.email, ph:'name@company.com', err:A.err.email, bind:'ui.auth.email', dis:A.busy}) +
     P.field({id:'aPw', label:'Password', value:A.pw, ph: su ? 'At least 8 characters' : 'Your password', err:A.err.pw, bind:'ui.auth.pw', dis:A.busy}) +
     (!su ? '<div style="display:flex;justify-content:flex-end;margin-top:-8px"><button class="linkb" data-x="auth:forgot">Forgot password?</button></div>' : '') +
-    '<button type="button" class="pbtn p full' + (A.busy ? ' loading' : '') + '" data-x="auth:submit"' + (A.busy ? ' disabled aria-busy="true"' : '') + '>' + (A.busy ? '<span class="spin"></span>' + (su ? 'Creating account…' : 'Logging in…') : (su ? 'Create account' : 'Log in')) + '</button>' +
-    '<div class="divor">or</div>' + P.btn(A.busy ? 'Waiting for Phantom…' : 'Continue with Phantom', {v:'s', full:true, icon:'wallet', x:'auth:phantom', dis:A.busy}) +
-    '<div class="fine">Email and name stay on your account. Phantom is how you lock and release USDC, and you connect it on the next step.</div></div>';
+    '<button type="button" class="pbtn p full' + (A.busy ? ' loading' : '') + '" data-x="auth:submit"' + ((A.busy || A.phWait) ? ' disabled aria-busy="true"' : '') + '>' + (A.busy ? '<span class="spin"></span>' + (su ? 'Creating account…' : 'Logging in…') : (su ? 'Create account' : 'Log in')) + '</button>' +
+    '<div class="divor">or</div>' + P.btn(A.phWait ? 'Waiting for Phantom…' : 'Continue with Phantom', {v:'s', full:true, icon:'wallet', x:'auth:phantom', dis:A.busy || A.phWait}) +
+    '<div class="fine">Email and name stay on your account. Continue with Phantom opens the wallet in this browser — approve the address there.</div></div>';
   root.innerHTML = '<div class="auth">' + brand + '<div class="rightp">' + card + '</div></div>';
   wire2(root);
   root.querySelectorAll('input').forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') X.auth('submit'); }));
@@ -14544,22 +14544,42 @@ X.auth = (a) => {
   if (a.startsWith('start-')){ A.start = a.slice(6); A.err = {}; if (V.ui) V.ui.afterAuth = null; rerender(); return; }
   if (a === 'forgot'){ if (!EMAILRE.test(A.email || '')) { A.err = {email:'Enter your email first, then ask for a reset link.'}; rerender(); return; } toast('Password reset isn’t sent in this demo. Use the password you choose here, at least 8 characters.', 'info'); return; }
   if (a === 'resend'){ toast('Password reset isn’t sent in this demo.', 'info'); return; }
-  if (a === 'phantom' || a === 'submit'){
+  if (a === 'submit'){
     if (!authFieldsOk()) { rerender(); return; }
     applyAuthProfile();
-    const which = authRole() === 'work' ? 'work' : 'hire';
-    if (a === 'submit') { A.busy = false; openRoleSetup(); toast(A.tab === 'login' ? 'Signed in.' : 'Account created.', 'success'); return; }
-    A.busy = true; rerender();
+    A.busy = false;
+    openRoleSetup();
+    toast(A.tab === 'login' ? 'Signed in.' : 'Account created.', 'success');
+    return;
+  }
+  if (a === 'phantom'){
+    const role = authRole();
+    const which = role === 'work' ? 'work' : 'hire';
+    const typedEmail = (A.email || '').trim();
+    const typedName = role === 'hire' ? (A.company || '').trim() : (A.workerName || '').trim();
+    if (realEmail(typedEmail)) V.user.email = typedEmail;
+    if (role === 'hire' && typedName) V.user.company = typedName;
+    else if (typedName) V.user.workerName = typedName;
+    V.user.lastMode = role;
+    A.err = {};
+    A.pw = '';
+    A.phWait = true;
     const prevKey = which === 'work' ? (GS.workerPay || '') : (GS.clientFull || '');
     const prevAvail = num(GS.avail);
     const prevAcct = V.user.acct;
+    GS.signedOut = false;
     GS.afterConnect = () => {
       A.busy = false;
+      A.phWait = false;
       const pk = which === 'work' ? GS.workerPay : GS.clientFull;
-      if (!pk) { openRoleSetup(); return; }
+      if (!pk) { rerender(); return; }
+      setAcct('new');
+      V.user.signedIn = true;
+      if (role === 'hire' && !hireReady()) V.ui.onbH = { step: 0, company: V.user.company || '', email: realEmail(V.user.email) ? V.user.email : '', site:'', needs: V.user.needs || ['Design'], err:{} };
       openWalletAccount(pk, which, prevKey === pk && prevAcct === 'new' ? prevAvail : 0);
     };
-    connectPhantom(which);
+    if (!connectPhantom(which)) { A.phWait = false; GS.afterConnect = null; rerender(); return; }
+    if (cur === 'auth') rerender();
     return;
   }
 };
@@ -14642,13 +14662,16 @@ function phantomProvider(){
 let fundsAfterConnect = false;
 function phantomNow(){
   const live = phantomProvider();
-  return (live && live.isConnected && live.publicKey && live.publicKey.toString()) || '';
+  try { if (live && live.publicKey) return live.publicKey.toString(); } catch (e) {}
+  return '';
 }
 function hiringLinked(){
-  return GS.connected !== false && !!(GS.clientFull && phantomNow() === GS.clientFull);
+  const now = phantomNow();
+  return GS.connected !== false && !!GS.clientFull && (!now || now === GS.clientFull);
 }
 function workerLinked(){
-  return GS.connected !== false && !!(GS.workerPay && phantomNow() === GS.workerPay);
+  const now = phantomNow();
+  return GS.connected !== false && !!GS.workerPay && (!now || now === GS.workerPay);
 }
 async function picoLibs(){
   const web3 = await import('https://esm.sh/@solana/web3.js@1.95.8');
@@ -14979,7 +15002,7 @@ function hireReady(){
   return !!c && c !== 'Northwind Studio' && c !== 'Your company' && realEmail(V.user.email);
 }
 function openWalletAccount(pk, preferredRole, localAvail, quiet){
-  fetch('/api/pico/account?wallet=' + encodeURIComponent(pk)).then(r => r.ok ? r.json() : null).then(row => {
+  const apply = row => {
     if (row && row.error) row = null;
     const known = !!(row && row.wallet);
     const pending = quiet ? ((GS.lastScreen || location.hash.slice(1) || cur) || '') : '';
@@ -15000,8 +15023,8 @@ function openWalletAccount(pk, preferredRole, localAvail, quiet){
     const serverSkills = known && Array.isArray(row.skills) ? row.skills : [];
     if (serverSkills.length && W()) W().skills = serverSkills;
     const provider = phantomProvider();
-    if (role === 'work') { GS.workerPay = pk; if (provider) adoptPhantom(provider, null, 'work'); }
-    else { GS.clientFull = pk; GS.clientShort = shortWallet(pk); if (provider) adoptPhantom(provider, null, 'hire'); }
+    if (role === 'hire') { GS.clientFull = pk; GS.clientShort = shortWallet(pk); if (provider) adoptPhantom(provider, null, 'hire'); }
+    else { GS.workerPay = pk; if (provider) adoptPhantom(provider, null, 'work'); }
     GS.connected = true;
     GS.signedOut = false;
     claimOwnAccount();
@@ -15020,7 +15043,8 @@ function openWalletAccount(pk, preferredRole, localAvail, quiet){
     else if (!ready || cur === 'auth' || cur === 'landing') show(home);
     else rerender();
     if (!quiet) toast('Phantom connected · ' + shortWallet(pk) + '.', 'success');
-  }).catch(() => {});
+  };
+  fetch('/api/pico/account?wallet=' + encodeURIComponent(pk)).then(r => r.ok ? r.json() : null).then(row => apply(row)).catch(() => apply(null));
 }
 function finishConnect(which){
   const label = which === 'work' ? (GS.workerPay ? shortWallet(GS.workerPay) : '') : (GS.clientShort || '');
@@ -15032,42 +15056,45 @@ function finishConnect(which){
   if (GS.afterConnect) { const fn = GS.afterConnect; GS.afterConnect = null; setTimeout(fn, 40); }
   else saveGS();
 }
+function phantomFail(which, err){
+  fundsAfterConnect = false;
+  GS.afterConnect = null;
+  if (V.ui && V.ui.auth) { V.ui.auth.busy = false; V.ui.auth.phWait = false; }
+  const w = W();
+  if (which === 'work' && w) { w.phBusy = false; w.phErr = true; w.phantom = false; }
+  rerender();
+  const msg = String((err && (err.message || err)) || '');
+  const code = err && err.code;
+  if (code === 4001 || /reject|cancel|closed/i.test(msg)) toast('Phantom closed the request. Press Connect again and approve the address.', 'info');
+  else if (/pending/i.test(msg)) toast('Phantom already has a request open. Click the Phantom icon and approve it.', 'info');
+  else toast('Phantom didn’t connect. Unlock the wallet and press Connect again.', 'error');
+}
 function connectPhantom(which){
   const w = W();
   const provider = phantomProvider();
-  if (!provider) {
+  if (!provider || typeof provider.connect !== 'function') {
     fundsAfterConnect = false;
     GS.afterConnect = null;
-    if (which === 'work') { w.phMissing = true; w.phErr = false; w.phBusy = false; }
+    if (which === 'work' && w) { w.phMissing = true; w.phErr = false; w.phBusy = false; }
     else GS.phMissing = true;
+    if (V.ui && V.ui.auth) { V.ui.auth.busy = false; V.ui.auth.phWait = false; }
     rerender();
     toast(phantomBlockReason(), 'info');
-    return;
+    return false;
   }
-  const now = provider.isConnected && provider.publicKey ? provider.publicKey.toString() : '';
-  const clash = !!(now && ((which === 'work' && now === GS.clientFull) || (which !== 'work' && GS.workerPay && now === GS.workerPay && now !== GS.clientFull)));
-  const begin = () => {
-    if (which === 'work') { w.phBusy = true; w.phErr = false; w.phMissing = false; }
-    GS.phMissing = false;
-    let pending;
-    try { pending = provider.connect(); }
-    catch (e) { pending = Promise.reject(e); }
-    if (which === 'work') rerender();
-    Promise.resolve(pending).then(res => {
-      if (!adoptPhantom(provider, res, which)) throw new Error('no key');
-      finishConnect(which);
-    }).catch(() => {
-      fundsAfterConnect = false;
-      GS.afterConnect = null;
-      if (V.ui && V.ui.auth) V.ui.auth.busy = false;
-      if (which === 'work') { w.phBusy = false; w.phErr = true; w.phantom = false; w.walletFull = ''; GS.workerPay = ''; }
-      if (!GS.clientFull && !GS.workerPay) GS.connected = false;
-      rerender();
-    });
-  };
-  if (now && !clash && adoptPhantom(provider, null, which)) { finishConnect(which); return; }
-  if (clash && provider.disconnect) { Promise.resolve(provider.disconnect()).then(begin, begin); return; }
-  begin();
+  const now = phantomNow();
+  if (now && adoptPhantom(provider, null, which)) { finishConnect(which); return true; }
+  if (which === 'work' && w) { w.phBusy = true; w.phErr = false; w.phMissing = false; }
+  GS.phMissing = false;
+  let pending;
+  try { pending = provider.connect(); }
+  catch (e) { phantomFail(which, e); return false; }
+  if (which === 'work') rerender();
+  Promise.resolve(pending).then(res => {
+    if (!adoptPhantom(provider, res, which)) throw new Error('no key');
+    finishConnect(which);
+  }).catch(err => phantomFail(which, err));
+  return true;
 }
 X.onbh = (a) => {
   const O = V.ui.onbH;
@@ -15945,7 +15972,7 @@ reg('onb-work', 'Worker onboarding', 'v2onbWork', {h:960});
 RENDER.v2onbWork = (root) => {
   root.className = 'app solo';
   const seen = phantomProvider();
-  if (seen && seen.isConnected && seen.publicKey && !W().phantom && seen.publicKey.toString() !== GS.clientFull) adoptPhantom(seen, null, 'work');
+  if (seen && seen.publicKey && !W().phantom) adoptPhantom(seen, null, 'work');
   const w = W(); if ((w.obStep || 0) > 1) w.obStep = 1; const step = w.obStep || 0, miss = w.phMissing && !w.phantom;
   const DOMS = [['Design','sparkle'],['Development','tool'],['QA & Testing','check'],['Linux','tool']];
   const addr = wWallet();
@@ -16681,9 +16708,12 @@ X.wproof = () => {
 };
 X.wwallet = () => {
   const provider = phantomProvider();
-  const again = () => connectPhantom('work');
-  if (provider && provider.disconnect) Promise.resolve(provider.disconnect()).then(again, again);
-  else again();
+  const w = W();
+  if (w) { w.phantom = false; w.phBusy = false; w.phErr = false; w.walletFull = ''; w.wallet = ''; }
+  GS.workerPay = '';
+  const done = () => { rerender(); toast('Disconnected. Press Connect Phantom and approve the address.', 'info'); };
+  if (provider && provider.disconnect) Promise.resolve(provider.disconnect()).then(done, done);
+  else done();
 };
 
 
@@ -17495,15 +17525,12 @@ document.getElementById('reset').addEventListener('click',()=>{window.__noSave=t
     if (GS.signedOut) return;
     const provider = phantomProvider();
     if (!provider) { if (left > 0) setTimeout(() => tick(left - 1), 200); return; }
-    const live = provider.isConnected && provider.publicKey ? provider.publicKey.toString() : '';
-    const go = pk => { if (!pk || pk.length < 32) return; const localKey = GS.clientFull || GS.workerPay || ''; const keep = localKey === pk && V.user.acct === 'new' ? num(GS.avail) : 0; const role = (V.user && V.user.lastMode === 'work') ? 'work' : 'hire'; openWalletAccount(pk, role, keep, true); };
-    if (live) { go(live); return; }
-    let pending;
-    try { pending = provider.connect({ onlyIfTrusted: true }); }
-    catch (e) { return; }
-    Promise.resolve(pending).then(res => {
-      go((res && res.publicKey && res.publicKey.toString()) || (provider.publicKey && provider.publicKey.toString()) || '');
-    }).catch(() => {});
+    const live = phantomNow();
+    if (!live) return;
+    const localKey = GS.clientFull || GS.workerPay || '';
+    const keep = localKey === live && V.user.acct === 'new' ? num(GS.avail) : 0;
+    const role = (V.user && V.user.lastMode === 'work') ? 'work' : 'hire';
+    openWalletAccount(live, role, keep, true);
   }
   setTimeout(() => tick(20), 40);
 })();
