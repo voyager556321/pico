@@ -14323,7 +14323,7 @@ chrome = function(root, mode, active, crumbs){
   const cn = typeof companyName === 'function' ? companyName() : 'Northwind Studio';
   const wkAddr = (typeof GS !== 'undefined' && GS.workerPay && String(GS.workerPay).length > 30 && typeof shortWallet === 'function') ? shortWallet(GS.workerPay) : '';
   const hireAddr = (typeof GS !== 'undefined' && GS.clientFull && String(GS.clientFull).length > 30 && typeof shortWallet === 'function') ? shortWallet(GS.clientFull) : '';
-  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, hireAddr ? 'Phantom · ' + hireAddr : 'Company account','client-profile'], work:[wkAddr ? wkAddr.slice(0, 2).toUpperCase() : '73', wkAddr || 'Worker', 'Working role','w-profile'], rev:['73','Reviewer #7310','Verified reviewer','r-profile']}[mode];
+  const acct = {hire:[cn.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(), cn, hireAddr ? 'Phantom · ' + hireAddr : 'Company account','client-profile'], work:[wkAddr ? wkAddr.slice(0, 2).toUpperCase() : '73', wkAddr || 'Worker', 'Working role','w-profile'], rev:[wkAddr ? wkAddr.slice(0, 2).toUpperCase() : '73', V.user.acct === 'new' ? (wkAddr || 'Reviewer') : 'Reviewer #7310','Verified reviewer','r-profile']}[mode];
   let sb = '<aside class="sb"><div class="brandrow"><button class="logo" data-go="' + MODE_HOME[mode] + '" aria-label="Pico home"><i>P</i>Pico</button><span class="icb">' + IC.side + '</span></div>' +
     '<button class="srch" data-act="search">' + IC.search + '<span>Search…</span><kbd>⌘</kbd><kbd>K</kbd></button>';
   NAV.forEach(([lbl, items], gi) => { if (gi) sb += '<hr>'; sb += '<div class="lbl">' + lbl + '</div><div class="nv">' + items.map(([k, l, ic]) => '<button class="ni' + (k === active ? ' on' : '') + '" data-go="' + k + '"' + (k === active ? ' aria-current="page"' : '') + '>' + IC[ic] + l + '</button>').join('') + '</div>'; });
@@ -14483,44 +14483,85 @@ const EMAILRE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 reg('auth', 'Sign up / Log in', 'v2auth', {h:960});
 RENDER.v2auth = (root) => {
   root.className = 'app solo';
-  const A = V.ui.auth = dflt(V.ui.auth || {}, {tab:'signup', start:'hire', email:'', pw:'', err:{}});
+  const A = V.ui.auth = dflt(V.ui.auth || {}, {tab:'signup', start:'hire', email:'', pw:'', company:'', workerName:'', err:{}});
   if (A.tab === 'login' && A.email === 'anna@northwind.studio' && !A.touched) A.email = '';
   const brand = '<div class="brandp">' + FACETS.replace('class="fac"', 'class="fac"') + '<button class="logo2" data-go="landing" aria-label="Pico"><i>P</i>Pico</button><div style="flex:1"></div>' +
     '<div class="eyebrow">One account · one role per session</div><h1>Get a task done, do the work, or check it.</h1><p class="lead">Budgets are locked before work starts and released only when the work meets the criteria.</p>' +
     '<div class="modes3">' + [['brief','Hiring','Post a task. Pico finds a qualified worker.'],['tool','Working','Take paid tasks that match your verified skills.'],['check','Reviewer','Check work against criteria. Opens after you verify a skill.']].map(m => '<div class="m"><span class="ic">' + IC[m[0]] + '</span><span><b>' + m[1] + '</b><small>' + m[2] + '</small></span></div>').join('') + '</div>' +
     '<div style="flex:1"></div><div class="fine">Runs on Solana · payments in USDC</div></div>';
-  const card = '<div class="acard"><div><h2>Open Pico</h2><p class="sub">Your account is the Phantom wallet you connect. Pick a role for this session.</p></div>' +
-    '<div class="fg"><span class="mlabel">Use Pico as</span><div class="ochoice">' + [['hire','Hiring','Post tasks'],['work','Working','Take tasks']].map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
-    '</div><div class="mhelp">To change role later, sign out and connect again. Reviewer opens after you verify a skill in Working.</div></div>' +
-    P.btn(A.busy ? 'Waiting for Phantom…' : 'Continue with Phantom', {full:true, icon:'wallet', x:'auth:phantom', dis:A.busy}) +
-    '<div class="fine">The same address, skill and balance come back on the next visit. There is no separate email account.</div></div>';
+  const su = A.tab !== 'login';
+  const roles = su ? [['hire','Hiring','Post tasks'],['work','Working','Take tasks']] : [['hire','Hiring','Post tasks'],['work','Working','Take tasks'],['rev','Reviewer','Check work']];
+  const named = A.start === 'hire' ? 'company' : 'workerName';
+  const card = '<div class="acard">' + P.tabs([['signup','Sign up'],['login','Log in']], A.tab === 'login' ? 'login' : 'signup', 'auth:tab') +
+    '<div><h2>' + (su ? 'Create your account' : 'Welcome back') + '</h2><p class="sub">' + (su ? 'Pick how you’ll use Pico. One role per session.' : 'Pick the role for this session.') + '</p></div>' +
+    '<div class="fg"><span class="mlabel">' + (su ? 'Start as' : 'Log in as') + '</span><div class="ochoice">' + roles.map(o => '<button type="button" aria-pressed="' + (A.start === o[0]) + '" data-x="auth:start-' + o[0] + '"><b>' + o[1] + '</b><small>' + o[2] + '</small></button>').join('') +
+    '</div><div class="mhelp">To change role later, sign out and sign in again. Reviewer opens after you verify a skill in Working.</div></div>' +
+    P.field({id:'aName', label: A.start === 'hire' ? 'Company name' : 'Your name', value: A[named] || '', ph: A.start === 'hire' ? 'e.g. Northwind Studio' : 'Your name', err: A.err[named], bind:'ui.auth.' + named, dis:A.busy, help: A.start === 'hire' ? 'Private. Workers never see it.' : 'Private. Clients see a worker ID, not this name.'}) +
+    P.field({id:'aEmail', label:'Email', value:A.email, ph:'name@company.com', err:A.err.email, bind:'ui.auth.email', dis:A.busy}) +
+    P.field({id:'aPw', label:'Password', value:A.pw, ph: su ? 'At least 8 characters' : 'Your password', err:A.err.pw, bind:'ui.auth.pw', dis:A.busy}) +
+    (!su ? '<div style="display:flex;justify-content:flex-end;margin-top:-8px"><button class="linkb" data-x="auth:forgot">Forgot password?</button></div>' : '') +
+    '<button type="button" class="pbtn p full' + (A.busy ? ' loading' : '') + '" data-x="auth:submit"' + (A.busy ? ' disabled aria-busy="true"' : '') + '>' + (A.busy ? '<span class="spin"></span>' + (su ? 'Creating account…' : 'Logging in…') : (su ? 'Create account' : 'Log in')) + '</button>' +
+    '<div class="divor">or</div>' + P.btn(A.busy ? 'Waiting for Phantom…' : 'Continue with Phantom', {v:'s', full:true, icon:'wallet', x:'auth:phantom', dis:A.busy}) +
+    '<div class="fine">Email and name stay on your account. Phantom is how you lock and release USDC, and you connect it on the next step.</div></div>';
   root.innerHTML = '<div class="auth">' + brand + '<div class="rightp">' + card + '</div></div>';
   wire2(root);
   root.querySelectorAll('input').forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') X.auth('submit'); }));
   root.querySelector('#aPw') && (root.querySelector('#aPw').type = 'password');
 };
+function authRole(){ const s = V.ui.auth && V.ui.auth.start; return s === 'work' || s === 'rev' ? s : 'hire'; }
+function authFieldsOk(){
+  const A = V.ui.auth; A.err = {};
+  const role = authRole();
+  if (role === 'hire') { if (!(A.company || '').trim()) A.err.company = 'Add your company name.'; }
+  else if (!(A.workerName || '').trim()) A.err.workerName = 'Add your name.';
+  if (!EMAILRE.test(A.email || '')) A.err.email = 'Enter a full email, like name@company.com';
+  if ((A.pw || '').length < 8) A.err.pw = A.tab === 'login' ? 'Enter your password.' : 'Use at least 8 characters.';
+  return !(A.err.company || A.err.workerName || A.err.email || A.err.pw);
+}
+function applyAuthProfile(){
+  const A = V.ui.auth, role = authRole();
+  V.user.email = A.email.trim();
+  if (role === 'hire') { V.user.company = A.company.trim(); V.user.needs = V.user.needs || ['Design']; }
+  else V.user.workerName = A.workerName.trim();
+  A.pw = '';
+  V.user.lastMode = role;
+  setAcct('new');
+  V.user.signedIn = true;
+  GS.signedOut = false;
+  if (V.ui) V.ui.afterAuth = null;
+}
+function openRoleSetup(){
+  const role = V.user.lastMode || 'hire';
+  if (role === 'work') { const w = W(); if (w) { w.obStep = 0; if (!workerLinked()) { w.phantom = false; w.phBusy = false; } } show(V.user.onb.work && workerLinked() ? 'w-home' : 'onb-work'); return; }
+  if (role === 'rev') { show(V.user.onb.rev ? 'r-home' : 'onb-rev'); return; }
+  V.ui.onbH = { step: 1, company: V.user.company || '', email: V.user.email || '', site:'', needs: V.user.needs || ['Design'], err:{} };
+  show(hireReady() && hiringLinked() ? 'home' : 'onb-hire');
+}
 X.auth = (a) => {
   const A = V.ui.auth; if (a.startsWith('tab:')) a = 'tab-' + a.slice(4);
-  if (a.startsWith('tab-')){ const t = a.slice(4); V.ui.auth = {tab:t, start:t === 'login' ? (V.user.lastMode || 'hire') : (A.start === 'rev' ? 'hire' : A.start), email:t === 'login' ? '' : A.email, pw:'', err:{}}; rerender(); return; }
+  if (a.startsWith('tab-')){ const t = a.slice(4); const start = t === 'login' ? (A.start || V.user.lastMode || 'hire') : (A.start === 'rev' ? 'hire' : (A.start || 'hire')); V.ui.auth = {tab:t, start, email:A.email || '', pw:'', company:A.company || '', workerName:A.workerName || '', err:{}}; rerender(); return; }
   if (a === 'tab') return;
-  if (a.startsWith('start-')){ A.start = a.slice(6); rerender(); return; }
-  if (a === 'phantom'){
+  if (a.startsWith('start-')){ A.start = a.slice(6); A.err = {}; if (V.ui) V.ui.afterAuth = null; rerender(); return; }
+  if (a === 'forgot'){ if (!EMAILRE.test(A.email || '')) { A.err = {email:'Enter your email first, then ask for a reset link.'}; rerender(); return; } toast('Password reset isn’t sent in this demo. Use the password you choose here, at least 8 characters.', 'info'); return; }
+  if (a === 'resend'){ toast('Password reset isn’t sent in this demo.', 'info'); return; }
+  if (a === 'phantom' || a === 'submit'){
+    if (!authFieldsOk()) { rerender(); return; }
+    applyAuthProfile();
+    const which = authRole() === 'work' ? 'work' : 'hire';
+    if (a === 'submit') { A.busy = false; openRoleSetup(); toast(A.tab === 'login' ? 'Signed in.' : 'Account created.', 'success'); return; }
     A.busy = true; rerender();
-    const which = A.start === 'work' ? 'work' : 'hire';
     const prevKey = which === 'work' ? (GS.workerPay || '') : (GS.clientFull || '');
     const prevAvail = num(GS.avail);
     const prevAcct = V.user.acct;
-    GS.signedOut = false;
     GS.afterConnect = () => {
       A.busy = false;
       const pk = which === 'work' ? GS.workerPay : GS.clientFull;
-      if (!pk) { rerender(); return; }
+      if (!pk) { openRoleSetup(); return; }
       openWalletAccount(pk, which, prevKey === pk && prevAcct === 'new' ? prevAvail : 0);
     };
     connectPhantom(which);
     return;
   }
-  if (a === 'submit' || a === 'forgot' || a === 'resend'){ toast('Pico accounts are Phantom wallets. Connect the wallet to continue.', 'info'); return; }
 };
 X.tab = () => {};
 function finishAuth(signup, who){
@@ -14536,13 +14577,24 @@ function finishAuth(signup, who){
     show(V.user.onb[m] ? MODE_HOME[m] : MODE_ONB[m]); toast('Logged in as Northwind Studio.', 'success');
   }
 }
-X.logout = () => { V.user.signedIn = false; GS.connected = false; GS.signedOut = true; V.ui.auth = {tab:'login'}; saveGS(); show('auth'); toast('Logged out. Connect Phantom to open your account again.', 'info'); };
+X.logout = () => {
+  V.user.signedIn = false;
+  GS.connected = false;
+  GS.signedOut = true;
+  GS.afterConnect = null;
+  if (typeof W === 'function' && W()) { W().phantom = false; W().phBusy = false; W().phErr = false; }
+  if (V.ui) { V.ui.afterAuth = null; V.ui.auth = {tab:'login', start:'hire', email:'', pw:'', company:'', workerName:'', err:{}, busy:false}; }
+  saveGS();
+  show('auth');
+  toast('Logged out. Choose Hiring or Working, then connect Phantom.', 'info');
+};
+X.signout = () => X.logout();
 
 /* =================== C1 · Client onboarding =================== */
 reg('onb-hire', 'Client onboarding', 'v2onbHire', {h:960});
 RENDER.v2onbHire = (root) => {
   root.className = 'app solo';
-  const O = V.ui.onbH = dflt(V.ui.onbH || {}, {step:0, company: V.user.company || '', site:'', needs:['Design'], err:{}});
+  const O = V.ui.onbH = dflt(V.ui.onbH || {}, {step:0, company: (V.user.company && V.user.company !== 'Northwind Studio' && V.user.company !== 'Your company') ? V.user.company : '', email: realEmail(V.user.email) ? V.user.email : '', site:'', needs: V.user.needs || ['Design'], err:{}});
   if (O.step > 1) O.step = 1;
   const cn = O.company.trim() || 'Your company', ini = c => c.split(/\s+/).map(x => x[0] || '').join('').slice(0, 2).toUpperCase() || 'YC';
   const NEEDS = [['Design','sparkle'],['Development','tool'],['QA & Testing','check']];
@@ -14552,8 +14604,9 @@ RENDER.v2onbHire = (root) => {
       '<div class="mk-h"><div class="mk-row"><span class="vk-av">C#</span><div><b class="vk-co">Client #4821</b><span class="mk-s">New client · posted just now</span></div></div><span class="pill success">' + IC.lock.replace('<svg', '<svg width="12" height="12"') + 'Locked in escrow</span></div>' +
       '<div class="vk-t">Landing page hero</div><div class="row2">' + pill(O.needs[0] || 'Design', '') + pill('Mid and above', '') + pill('3 days', '') + '</div><div class="vk-amt">120.00<small>USDC</small></div></div></div>',
     body: P.field({label:'Company name · private', value:O.company, ph:'e.g. Northwind Studio', err:O.err.company, bind:'ui.onbH.company', help:'For receipts and support. Never shown to workers.'}) +
+      P.field({label:'Email for receipts', value:O.email, ph:'you@company.com', err:O.err.email, bind:'ui.onbH.email', help:'Dispute notices and receipts. Never shown to workers.'}) +
       '<div><span class="obs-lbl">You usually need</span>' + P.ich(NEEDS.map(n => ({k:n[0], t:n[0], ic:n[1], on:O.needs.includes(n[0])})), 'onbh:need-') + (O.err.needs ? '<div class="mhelp error">' + O.err.needs + '</div>' : '') + '</div>',
-    cta: P.btn('Continue', {lg:true, x:'onbh:next'}), top: P.btn('Skip for now', {v:'g', sm:true, x:'onbh:skip'})};
+    cta: P.btn('Continue', {lg:true, x:'onbh:next'}), top: P.btn('Sign out', {v:'g', sm:true, x:'logout'})};
   else o = {eyebrow:'Hiring', title:'Pay only for work that meets your criteria', sub:'The budget locks when you publish. It’s released when you accept, on PASS, or 14 days after submission.',
     visual: MK.flow([['sparkle','Describe','Criteria + test'],['lock','Lock','120 USDC'],['user','Assigned','First qualified'],['check','Released','When it’s done','ok']]) + '<div class="vx-gap"></div>' +
       '<div class="mk"><span class="tag">Example balance</span><div class="mk-h"><div><div class="mk-s">Your Pico balance</div><div class="mk-amt">500.00<small>USDC</small></div></div>' + pill('Phantom', 'success', true) + '</div>' +
@@ -14893,6 +14946,7 @@ function persistAccount(){
   if (wallet.length < 32) return;
   const skills = (typeof W === 'function' && W() && W().skills) ? W().skills : [];
   const payload = { wallet: wallet, role: role, avail: num(GS.avail), company: V.user.company || '', onboarded: !!(V.user.onb && V.user.onb[role]) };
+  if (realEmail(V.user.email)) payload.email = V.user.email.trim();
   if (skills.length) payload.skills = skills;
   const snap = JSON.stringify(payload);
   if (snap === accountSnap) return;
@@ -14919,22 +14973,30 @@ function importClientTasks(pk){
     if (n) { saveGS(); if (V.user.lastMode !== 'work' && cur !== 'auth') rerender(); }
   }).catch(() => {});
 }
+function realEmail(v){ return EMAILRE.test(String(v || '').trim()); }
+function hireReady(){
+  const c = String(V.user.company || '').trim();
+  return !!c && c !== 'Northwind Studio' && c !== 'Your company' && realEmail(V.user.email);
+}
 function openWalletAccount(pk, preferredRole, localAvail, quiet){
   fetch('/api/pico/account?wallet=' + encodeURIComponent(pk)).then(r => r.ok ? r.json() : null).then(row => {
     if (row && row.error) row = null;
     const known = !!(row && row.wallet);
-    const pending = (V.ui && V.ui.afterAuth) || (quiet && (GS.lastScreen || location.hash.slice(1) || cur)) || '';
+    const pending = quiet ? ((GS.lastScreen || location.hash.slice(1) || cur) || '') : '';
     const asked = screenMode(pending);
-    const role = asked || (known ? (row.role === 'work' ? 'work' : 'hire') : (preferredRole === 'work' ? 'work' : 'hire'));
+    const chosen = !quiet && (preferredRole === 'work' || preferredRole === 'hire') ? preferredRole : '';
+    const role = chosen || asked || (known ? (row.role === 'work' ? 'work' : 'hire') : (preferredRole === 'work' ? 'work' : 'hire'));
     setAcct('new');
     GS.avail = known ? (Number(row.avail) || 0) : (typeof localAvail === 'number' ? localAvail : 0);
+    if (Math.round(num(GS.avail) * 100) === 65000 && !ownActivity()) GS.avail = 0;
     if (V.bal) V.bal.new = GS.avail;
     V.user.signedIn = true;
-    V.user.email = shortWallet(pk);
+    if (!realEmail(V.user.email)) V.user.email = '';
+    if (known && realEmail(row.email)) V.user.email = String(row.email).trim();
     V.user.lastMode = role;
     if (!V.user.onb) V.user.onb = { hire:false, work:false, rev:false };
-    V.user.onb[role] = known ? (!!row.onboarded || !!V.user.onb[role]) : !!V.user.onb[role];
-    if (known && row.company) V.user.company = row.company;
+    if (known && row.company && row.company !== 'Northwind Studio' && !String(V.user.company || '').trim()) V.user.company = row.company;
+    V.user.onb.hire = hireReady();
     const serverSkills = known && Array.isArray(row.skills) ? row.skills : [];
     if (serverSkills.length && W()) W().skills = serverSkills;
     const provider = phantomProvider();
@@ -14942,16 +15004,20 @@ function openWalletAccount(pk, preferredRole, localAvail, quiet){
     else { GS.clientFull = pk; GS.clientShort = shortWallet(pk); if (provider) adoptPhantom(provider, null, 'hire'); }
     GS.connected = true;
     GS.signedOut = false;
+    claimOwnAccount();
     accountSnap = JSON.stringify({ wallet: pk, role: role, avail: num(GS.avail), company: V.user.company || '', onboarded: !!V.user.onb[role], skills: (W() && W().skills) || [] });
     saveGS();
-    if (!known) { accountSnap = ''; persistAccount(); }
+    if (!known || (row && row.role !== role) || (realEmail(V.user.email) && row && row.email !== V.user.email) || (V.user.company && row && row.company !== V.user.company)) { accountSnap = ''; persistAccount(); }
     else if (!serverSkills.length && W() && W().skills && W().skills.length) { accountSnap = ''; persistAccount(); }
     if (role === 'hire') importClientTasks(pk);
     if (V.ui) V.ui.afterAuth = null;
-    const home = V.user.onb[role] ? MODE_HOME[role] : MODE_ONB[role];
+    const ready = role === 'hire' ? hireReady() : !!V.user.onb[role];
+    V.user.onb[role] = ready;
+    const home = ready ? MODE_HOME[role] : MODE_ONB[role];
     const back = pending && S[pending] && screenMode(pending) === role ? pending : '';
-    if (back && V.user.onb[role]) { if (cur === back) rerender(); else show(back); }
-    else if (!V.user.onb[role] || cur === 'auth' || cur === 'landing') show(home);
+    if (!quiet) show(home);
+    else if (back && ready) { if (cur === back) rerender(); else show(back); }
+    else if (!ready || cur === 'auth' || cur === 'landing') show(home);
     else rerender();
     if (!quiet) toast('Phantom connected · ' + shortWallet(pk) + '.', 'success');
   }).catch(() => {});
@@ -15008,14 +15074,13 @@ X.onbh = (a) => {
   if (a.startsWith('need-')){ const c = a.slice(5); O.needs = O.needs.includes(c) ? O.needs.filter(x => x !== c) : O.needs.concat(c); O.err.needs = null; rerender(); return; }
   if (a.startsWith('jump:')) return;
   if (a === 'next'){
-    if (O.step === 0){ O.err = {}; if (!O.company.trim()) O.err.company = 'Add your company name. Workers see it on your tasks.'; if (!O.needs.length) O.err.needs = 'Pick at least one category.'; if (O.err.company || O.err.needs) { rerender(); return; } V.user.company = O.company.trim(); }
+    if (O.step === 0){ O.err = {}; if (!O.company.trim()) O.err.company = 'Add your company name. It stays private.'; if (!realEmail(O.email)) O.err.email = 'Add an email for receipts, like you@company.com.'; if (!O.needs.length) O.err.needs = 'Pick at least one category.'; if (O.err.company || O.err.email || O.err.needs) { rerender(); return; } V.user.company = O.company.trim(); V.user.email = O.email.trim(); V.user.needs = O.needs.slice(); accountSnap = ''; persistAccount(); }
     O.step++; rerender(); return;
   }
   if (a === 'back'){ O.step = Math.max(0, O.step - 1); rerender(); return; }
   if (a === 'connect'){ connectPhantom('hire'); return; }
   if (a === 'installed'){ GS.phMissing = false; rerender(); return; }
-  if (a === 'skip' || a === 'finish'){ if (!V.user.company) V.user.company = O.company.trim() || 'Your company'; V.user.onb.hire = true; show('home'); toast('You’re all set. Describe your first task.', 'success'); return; }
-  if (a === 'funds'){ if (!V.user.company) V.user.company = O.company.trim() || 'Your company'; V.user.onb.hire = true; show('home'); setTimeout(() => openFunds(), 150); }
+  if (a === 'skip' || a === 'finish' || a === 'funds'){ if (O.company.trim()) V.user.company = O.company.trim(); if (realEmail(O.email)) V.user.email = O.email.trim(); V.user.onb.hire = hireReady(); accountSnap = ''; persistAccount(); if (!hireReady()) { O.step = 0; O.err = O.err || {}; if (!O.company.trim()) O.err.company = 'Add your company name. It stays private.'; if (!realEmail(O.email)) O.err.email = 'Add an email for receipts, like you@company.com.'; rerender(); return; } show('home'); if (a === 'funds') setTimeout(() => openFunds(), 150); else toast('You’re all set. Describe your first task.', 'success'); return; }
 };
 
 /* =================== C3 · Client Home =================== */
@@ -15472,7 +15537,7 @@ function qualSection(t){
       '<p class="sub2 muted" style="font-size:12px">Workers below ' + Q.pass + ' / 100 can’t get this task. Pico keeps waiting for the next qualified worker.</p>');
 }
 RENDER.ctask = (root, s) => {
-  const t = V.tasks[s.id]; if (!t) { setTimeout(() => show('mytasks'), 0); return; }
+  const t = V.tasks[s.id]; if (!t || (V.user.acct === 'new' && DEMO_CLIENT.has(s.id))) { setTimeout(() => show('mytasks'), 0); return; }
   pullClientTasks();
   const pg = chrome(root, 'hire', 'mytasks', [['My tasks', 'mytasks'], [t.title]]);
   let h = '<button class="back" data-go="mytasks">← My tasks</button>' + heroFor(t) + statusCard(t);
@@ -15864,7 +15929,7 @@ if (V.wk) {
 GS.connected = false;
 if (V.wk) { V.wk.phantom = false; V.wk.phBusy = false; V.wk.phErr = false; V.wk.phMissing = false; }
 const W = () => V.wk;
-const wWallet = () => (V.wk && V.wk.wallet) || '7xKX…9fQ2';
+const wWallet = () => { const full = GS.workerPay || (V.wk && V.wk.walletFull) || ''; if (full.length >= 32 && full.indexOf('…') < 0) return shortWallet(full); if (V.user.acct === 'new') return 'Your wallet'; return (V.wk && V.wk.wallet) || '7xKX…9fQ2'; };
 const wt = id => W().tasks[id];
 const verified = cat => W().skills.find(s => s.cat === cat);
 const LV = {Junior:1, Mid:2, Senior:3};
@@ -15908,7 +15973,7 @@ RENDER.v2onbWork = (root) => {
     body: '<div><span class="obs-lbl">Your domain</span>' + P.ich(DOMS.map(d => ({k:d[0], t:d[0], ic:d[1], on:w.domain === d[0]})), 'wob:domain-') + (w.err ? '<div class="mhelp error">' + w.err + '</div>' : '') + '</div>' +
       '<div class="obs-meta">' + (linux ? pill('3 cases', '') + pill('Pass mark 75', '') + pill('Answered here', '') + pill('Linux I2C', '') : dev ? pill('2 code cases', '') + pill('Pass mark 75', '') + pill('Answered here', '') + pill('Solana · Solidity', '') : pill('4 questions', '') + pill('Pass mark 75', '') + pill('No time limit', '') + pill('No AI judging', '')) + '</div>',
     cta: P.btn('Start benchmark', {lg:true, x:'wob:start'}), back:'wob:back'}; }
-  root.innerHTML = P.obs(Object.assign({role:'work', n:2, step, top:P.btn('Back to Hiring', {v:'g', sm:true, x:'mode:hire'})}, o));
+  root.innerHTML = P.obs(Object.assign({role:'work', n:2, step, top:P.btn('Sign out', {v:'g', sm:true, x:'logout'})}, o));
   wire2(root);
 };
 X.wob = (a) => { const w = W();
@@ -16144,7 +16209,7 @@ RENDER.v2whome = (root) => {
   const T = w.order.map(wt), active = T.filter(t => WACTIVE.includes(t.my)), rel = T.filter(t => t.my === 'open' && eligible(t)).sort((a, b) => (w.topics[b.topic] ? 1 : 0) - (w.topics[a.topic] ? 1 : 0));
   pullSharedTasks(n => { if (n && cur === 'w-home') rerender(); });
   const paid = T.reduce((s, t) => s + (t.paidAmt || 0), 0), locked = active.reduce((s, t) => s + t.pay, 0);
-  let h = P.pgh('Good to see you, #7310', w.skills.length ? 'Tasks that match your verified skills. Pay is locked in escrow before you start.' : 'Verify a skill to see tasks you can take.', P.btn('Relevant tasks', {v:'s', go:'w-find'}));
+  let h = P.pgh(V.user.acct === 'new' ? ('Good to see you' + (V.user.workerName ? ', ' + V.user.workerName : '')) : 'Good to see you, #7310', w.skills.length ? 'Tasks that match your verified skills. Pay is locked in escrow before you start.' : 'Verify a skill to see tasks you can take.', P.btn('Relevant tasks', {v:'s', go:'w-find'}));
   if (!w.skills.length) h += P.card(P.ch('alert', 'You’re not verified yet', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Tasks are shown only to workers with a verified skill in the task’s domain and level. The benchmark takes a few minutes.</p><div class="acts">' + P.btn('Take the Skill Benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
   h += P.stats([[fmt(paid), 'Paid out to you', 'USDC · ' + T.filter(t => t.my === 'completed').length + ' tasks', 'color:var(--status-success)'],[fmt(locked), 'Locked for your tasks', 'Paid when the work is accepted'],[active.length, 'Active tasks', 'Assigned or in progress', 'color:var(--text-accent)'],[w.rep.score, 'Reputation', 'Separate from skill level']]);
   h += P.card(P.ch('tasks', 'Current work', P.btn('My work', {v:'g', sm:true, go:'w-mywork'})) + (active.length ? '<div class="lst">' + active.map(t => '<button type="button" class="li click" data-go="' + wRoom(t.id) + '"><span class="ext">' + t.cat.slice(0,2).toUpperCase() + '</span><div class="tx"><b>' + E(t.title) + ' · ' + t.company + '</b><small>' + wNext(t) + '</small></div>' + wPill(t.my) + '</button>').join('') + '</div>' : P.empty('Nothing assigned yet. Take a test or accept a task below.')));
@@ -16183,7 +16248,8 @@ X.wfilter = f => { V.ui.wfilter = f; rerender(); };
 
 /* ---------- W10–W12 · Task details + qualification + result ---------- */
 RENDER.wtask2 = (root, s) => {
-  const t = wt(s.id), w = W(); const pg = chrome(root, 'work', 'w-find', [['Relevant tasks', 'w-find'], [t.title]]);
+  const t = wt(s.id); if (!t) { setTimeout(() => show('w-find'), 0); return; }
+  const w = W(); const pg = chrome(root, 'work', 'w-find', [['Relevant tasks', 'w-find'], [t.title]]);
   if (WACTIVE.includes(t.my) || ['completed','cancelled','ended'].includes(t.my)) { setTimeout(() => show(wRoom(t.id)), 0); return; }
   let h = '<button class="back" data-go="w-find">← Relevant tasks</button>';
   h += '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + pill(t.cat, '') + pill(t.level + (t.level === 'Senior' ? '' : ' and above'), '') + pill(t.company, '') + (t.my !== 'open' ? wPill(t.my) : '') + '</div><h1 class="h1">' + E(t.title) + '</h1>' +
@@ -16294,13 +16360,14 @@ function wStatus(t){
   return '';
 }
 RENDER.wroom = (root, s) => {
-  const t = wt(s.id); if (!WACTIVE.includes(t.my) && !['completed','cancelled','ended'].includes(t.my)) { setTimeout(() => show(wKey(t.id)), 0); return; }
+  const t = wt(s.id); if (!t) { setTimeout(() => show('w-mywork'), 0); return; }
+  if (!WACTIVE.includes(t.my) && !['completed','cancelled','ended'].includes(t.my)) { setTimeout(() => show(wKey(t.id)), 0); return; }
   pushLiveTask(t);
   pullSharedTasks(n => { if (n && cur === wRoom(t.id)) rerender(); });
   const pg = chrome(root, 'work', 'w-mywork', [['My work', 'w-mywork'], [t.title]]);
   let h = '<button class="back" data-go="w-mywork">← My work</button>';
   h += '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + wPill(t.my) + pill(t.cat, '') + pill(t.company, '') + '</div><h1 class="h1">' + E(t.title) + '</h1>' +
-    '<div class="meta"><div><b>' + (['completed','ended'].includes(t.my) ? 'Paid ' + t.paid : t.due || dayLabel(t.days)) + '</b><small>' + (t.my === 'completed' ? 'Completed' : t.my === 'ended' ? 'Ended' : 'Deadline') + '</small></div><div><b>' + (t.iv ? 'Independent reviewer' : 'By the client') + '</b><small>Review</small></div><div><b>Worker #7310</b><small>You</small></div></div></div>' +
+    '<div class="meta"><div><b>' + (['completed','ended'].includes(t.my) ? 'Paid ' + t.paid : t.due || dayLabel(t.days)) + '</b><small>' + (t.my === 'completed' ? 'Completed' : t.my === 'ended' ? 'Ended' : 'Deadline') + '</small></div><div><b>' + (t.iv ? 'Independent reviewer' : 'By the client') + '</b><small>Review</small></div><div><b>' + (V.user.acct === 'new' ? 'You' : 'Worker #7310') + '</b><small>You</small></div></div></div>' +
     '<div class="esc">' + (t.my === 'completed' ? pill('Paid to your Phantom', 'success') : t.my === 'ended' ? pill('50% paid to your Phantom', 'success') : t.my === 'cancelled' ? pill('Nothing paid', '') : '<span class="pill success">' + IC.lock.replace('<svg', '<svg width="12" height="12"') + 'Locked for you</span>') + '<div class="amt">' + fmt(['completed','ended'].includes(t.my) ? (t.paidAmt || t.pay) : t.my === 'cancelled' ? 0 : t.pay) + '<small>USDC</small></div><div class="note">' + (t.my === 'completed' ? 'Settled on Solana' : t.my === 'ended' ? 'Change declined · task ended' : t.my === 'cancelled' ? 'Funds returned to the client' : 'Released when the work is accepted') + '</div></div></div>' + (['cancelled','ended'].includes(t.my) ? '' : rail(wRail(t))) + '</section>';
   h += wPending(t) + wStatus(t);
   const tab = (V.ui.tab['w' + t.id] === 'chat' ? null : V.ui.tab['w' + t.id]) || 'overview';
@@ -16472,7 +16539,7 @@ RENDER.v2wearn = (root) => {
 reg('w-profile', 'Working · Profile & skills', 'v2wprof', {h:1200});
 RENDER.v2wprof = (root) => {
   const pg = chrome(root, 'work', 'w-profile', [['Working', 'w-home'], ['Profile & skills']]), w = W();
-  let h = P.pgh('Worker #7310', 'Clients see each verified skill as a score. Reputation is how you deliver, kept separate. They never see your answers.', P.btn('Verify another skill', {v:'s', x:'wverifynext'}));
+  let h = P.pgh(V.user.acct === 'new' ? 'Your skills' : 'Worker #7310', 'Clients see each verified skill as a score. Reputation is how you deliver, kept separate. They never see your answers.', P.btn('Verify another skill', {v:'s', x:'wverifynext'}));
   h += '<div class="grid2">' + P.card(P.ch('check', 'Skills', '', 'ok') + (w.skills.length ? w.skills.map(s => { const chain = skillChain(s.cat); return '<div class="skill"><span class="bnum">' + skillLabel(s.cat).slice(0, 2).toUpperCase() + '</span><div class="tx"><b>' + E(skillLabel(s.cat)) + '</b><small style="display:block;font:500 12px/16px var(--font);color:var(--text-muted)">' + (chain.length > 1 ? E(chain.join(' → ')) : 'Verified ' + s.date) + '</small></div><div class="lv"><b>' + s.score + '</b><small>' + s.level + '</small></div>' + (s.level === 'Senior' ? pill('Top level', 'success') : P.btn('Retake', {v:'g', sm:true, x:'wverify:' + s.cat, title:'Retake the ' + skillLabel(s.cat) + ' benchmark'})) + '</div>'; }).join('') : P.empty('No verified skills yet. A skill appears here only after its benchmark.'))) +
     P.card(P.ch('sparkle', 'Reputation') + '<div class="score"><b>' + w.rep.score + '</b><small>/ 100</small></div><p class="sub2 muted">Finished tasks and on-time delivery. This is not a skill score.</p>' + P.kv([['Completed tasks', String(w.rep.done)],['On time', w.rep.onTime],['Verified competition results', String(w.comp.results.length)]])) + '</div>';
   const attempts = w.attempts || [];
@@ -16583,7 +16650,7 @@ reg('w-settings', 'Working · Settings', 'v2wset', {h:1300});
 RENDER.v2wset = (root) => {
   const pg = chrome(root, 'work', 'w-settings', [['Working', 'w-home'], ['Settings']]), w = W(); w.nt = w.nt || {tasks:true, msgs:true, pay:true};
   const row = (on, x, title, sub) => '<div class="topic">' + P.tgl(on, x, title) + '<div class="tx"><b>' + title + '</b><small>' + sub + '</small></div></div>';
-  let h = P.pgh('Settings', 'Working mode · Worker #7310. Hiring settings stay in Hiring mode.');
+  let h = P.pgh('Settings', V.user.acct === 'new' ? 'Working mode. Hiring settings stay in Hiring mode.' : 'Working mode · Worker #7310. Hiring settings stay in Hiring mode.');
   h += P.sec('Payout wallet', 'Pico sends USDC for accepted work to this wallet. A payout wallet is required for Working mode.',
     payoutRow() +
     P.kv([['Paid to this wallet', usd(W().order.map(wt).reduce((a, t) => a + (t.paidAmt || 0), 0))],['Locked for your active tasks', usd(W().order.map(wt).filter(t => WACTIVE.includes(t.my)).reduce((a, t) => a + t.pay, 0))]]));
@@ -16593,7 +16660,7 @@ RENDER.v2wset = (root) => {
     P.field({label:'Channel', type:'select', value:w.notify === 'Off' ? 'In-app only' : w.notify, bind:'wk.notify', opts:['In-app and email','In-app only'], help: w.notify === 'In-app only' ? 'Only in the bell in the top bar.' : 'In the bell and by email to ' + (V.user.email || 'your account email') + '.'}) +
     '<div class="lst">' + row(w.nt.tasks, 'wnt:tasks', 'New tasks in topics you follow', 'Only tasks you’re eligible for. Topics and alert channels are on Task alerts.') + row(w.nt.msgs, 'wnt:msgs', 'Messages from clients', 'New messages in your workrooms.') + row(w.nt.pay, 'wnt:pay', 'Payouts', 'When USDC is sent to your Phantom.') +
     '<div class="topic"><span class="pill success" style="flex:none"><span class="dot"></span>Always on</span><div class="tx"><b>Change requests, cancel requests, revisions and disputes</b><small>They need your answer, so you can’t turn them off.</small></div></div></div>') + '</div>';
-  h += P.sec('Account', 'One account for Hiring, Working and Reviewer modes.', P.kv([['Worker ID', '#7310'],['Email', E(V.user.email || 'Not set')],['Verified skills', w.skills.map(x => x.cat + ' · ' + x.level).join(', ') || 'None yet']]) + '<div class="acts">' + P.btn('Sign out', {v:'g', x:'signout'}) + '</div>');
+  h += P.sec('Account', 'One account for Hiring, Working and Reviewer modes.', P.kv([['Worker ID', V.user.acct === 'new' ? wWallet() : '#7310'],['Email', E(V.user.email || 'Not set')],['Verified skills', w.skills.map(x => x.cat + ' · ' + x.level).join(', ') || 'None yet']]) + '<div class="acts">' + P.btn('Sign out', {v:'g', x:'signout'}) + '</div>');
   pg.innerHTML = h; wire2(root);
 };
 X.wnt = k => { const w = W(); w.nt[k] = !w.nt[k]; rerender(); toast((w.nt[k] ? 'On: ' : 'Off: ') + ({tasks:'new tasks in followed topics', msgs:'messages from clients', pay:'payouts'}[k]) + '.', 'success'); };
@@ -16618,7 +16685,6 @@ X.wwallet = () => {
   if (provider && provider.disconnect) Promise.resolve(provider.disconnect()).then(again, again);
   else again();
 };
-X.signout = () => { V.user.signedIn = false; show('auth'); toast('Signed out.', 'info'); };
 
 
 /* =====================================================================
@@ -16663,6 +16729,47 @@ function seedReviewer(){
   return {domains:null, available:true, notify:'In-app and email', nt:{req:true, pay:true}, reviews:R, order:['rq1','rq6','rq2','rq3','rq4','rq5'], rep:{score:91}};
 }
 if (!V.rv) V.rv = seedReviewer();
+const DEMO_CLIENT = new Set(['signup','landingqa','pricing','checkout','webhook','onboarding','newsletter','launch','icons','apidocs','mobilenav']);
+const DEMO_WORKER = new Set(['mcheckout','herofin','emptystates','dashcards','flaky','retries','i2cread','iconaudit','bannerset']);
+const DEMO_REV = new Set(['rq1','rq2','rq3','rq4','rq5','rq6']);
+function ownActivity(){
+  const client = (V.orderNew || []).some(id => !DEMO_CLIENT.has(id) && V.tasks[id]);
+  const work = !!(V.wk && (V.wk.order || []).some(id => V.wk.tasks[id] && V.wk.tasks[id].live));
+  return client || work;
+}
+function foreignGo(go){
+  const g = String(go || '');
+  if (g.indexOf('c-') === 0 && DEMO_CLIENT.has(g.slice(2))) return true;
+  const wk = g.replace(/^w-(?:t|room)-/, '');
+  if (wk !== g && DEMO_WORKER.has(wk)) return true;
+  if (g.indexOf('r-rev-') === 0 && DEMO_REV.has(g.slice(6))) return true;
+  return false;
+}
+function claimOwnAccount(){
+  const pk = GS.clientFull || GS.workerPay || '';
+  if (!(pk.length >= 32 && pk.indexOf('…') < 0)) return;
+  setAcct('new');
+  if (V.user.company === 'Northwind Studio') V.user.company = '';
+  (V.order || []).forEach(id => { if (!DEMO_CLIENT.has(id) && V.orderNew.indexOf(id) < 0) V.orderNew.unshift(id); });
+  if (V.wk && V.wk.tasks) {
+    DEMO_WORKER.forEach(id => { const t = V.wk.tasks[id]; if (t && !t.live) delete V.wk.tasks[id]; });
+    V.wk.order = (V.wk.order || []).filter(id => V.wk.tasks[id]);
+    const realDone = V.wk.order.filter(id => { const t = V.wk.tasks[id]; return t && t.live && (t.my === 'completed' || t.my === 'ended'); }).length;
+    if (!V.wk.rep || !realDone || (V.wk.rep.score === 82 && V.wk.rep.done === 2)) V.wk.rep = { score: 0, done: realDone, onTime: '—' };
+    else V.wk.rep.done = realDone;
+  }
+  if (V.rv && V.rv.reviews) {
+    DEMO_REV.forEach(id => { if (V.rv.reviews[id] && !V.rv.reviews[id].live) delete V.rv.reviews[id]; });
+    V.rv.order = (V.rv.order || []).filter(id => V.rv.reviews[id]);
+    if (!V.rv.order.length || (V.rv.rep && V.rv.rep.score === 91)) V.rv.rep = { score: 0 };
+  }
+  if (Array.isArray(V.notes)) V.notes = V.notes.filter(n => !foreignGo(n && n.go));
+  if (foreignGo(GS.lastScreen)) GS.lastScreen = (typeof MODE_HOME !== 'undefined' && MODE_HOME[V.user.lastMode]) || 'home';
+  if (Math.round(num(GS.avail) * 100) === 65000 && !ownActivity()) { GS.avail = 0; if (V.bal) V.bal.new = 0; }
+  if (V.ledger && Array.isArray(V.ledger.new)) V.ledger.new = V.ledger.new.filter(l => !(l && String(l[1] || '').indexOf('7xKX') >= 0));
+  saveGS();
+}
+claimOwnAccount();
 const RV = () => V.rv, rv = id => RV().reviews[id];
 const rFee = r => Math.round(r.reward * 10) / 100;
 const DOMAINS = SKILL_CATS, DICON = {'Design':'sparkle', 'Development':'tool', 'QA & Testing':'check', 'Linux':'tool'};
@@ -16751,7 +16858,8 @@ function rSub(r){ return P.card(P.ch('file', 'Worker submission', pill('Round ' 
 function verdictList(r){ return '<div class="lst">' + r.crit.map((c, i) => { const it = r.items[i] || [];
   return '<div class="li" style="align-items:flex-start"><span class="num">' + n2r(i) + '</span><div class="tx"><b style="font-weight:500">' + E(c) + '</b>' + (it[0] === false ? '<span class="fb">' + E(it[1] || '') + '</span>' + (it[2] ? '<small>Evidence: ' + E(it[2]) + '</small>' : '') : '') + '</div>' + (it[0] ? pill('Met', 'success') : pill('Not met', 'rev')) + '</div>'; }).join('') + '</div>'; }
 RENDER.rreview = (root, s) => {
-  const r = rv(s.id), pg = chrome(root, 'rev', r.state === 'request' ? 'r-requests' : 'r-home', [['Reviewer', 'r-home'], [r.title]]);
+  const r = rv(s.id); if (!r) { setTimeout(() => show('r-home'), 0); return; }
+  const pg = chrome(root, 'rev', r.state === 'request' ? 'r-requests' : 'r-home', [['Reviewer', 'r-home'], [r.title]]);
   let h = '<button class="back" data-go="' + (r.state === 'request' ? 'r-requests' : 'r-home') + '">← ' + (r.state === 'request' ? 'Review requests' : 'Reviewer home') + '</button>';
   h += '<section class="hero">' + FACETS + '<div class="htop"><div class="hl"><div class="row2">' + rPill(r.state) + pill(r.cat, '') + pill(r.level, '') + '</div><h1 class="h1">' + E(r.title) + '</h1>' +
     '<div class="meta"><div><b>Client hidden</b><small>Identity</small></div><div><b>Worker hidden</b><small>Identity</small></div><div><b>' + (r.due || '—') + '</b><small>Review deadline</small></div></div></div>' +
@@ -16836,7 +16944,7 @@ reg('r-profile', 'Reviewer · Profile', 'v2rprof', {h:1000});
 RENDER.v2rprof = (root) => {
   const pg = chrome(root, 'rev', 'r-profile', [['Reviewer', 'r-home'], ['Reviewer profile']]);
   const L = RV().order.map(rv), done = L.filter(r => r.state === 'done');
-  let h = P.pgh('Reviewer #7310', 'Reputation here is separate from your skill level and from your worker reputation.', P.btn('Completed reviews', {v:'s', go:'r-history'}));
+  let h = P.pgh(V.user.acct === 'new' ? 'Your reviews' : 'Reviewer #7310', 'Reputation here is separate from your skill level and from your worker reputation.', P.btn('Completed reviews', {v:'s', go:'r-history'}));
   h += '<div class="grid2">' + P.card(P.ch('sparkle', 'Reviewer reputation') + '<div class="score"><b>' + RV().rep.score + '</b><small>/ 100</small></div><p class="sub2 muted">Based on completed reviews and on appeal outcomes. How it is shown to others is still being defined.</p>' + P.kv([['Completed reviews', String(done.length)],['Rewards earned', usd(done.reduce((s, r) => s + rFee(r), 0))],['Open appeals', String(L.filter(r => r.state === 'appeal').length)]])) +
     P.card(P.ch('check', 'Domains you review', P.btn('Change', {v:'g', sm:true, go:'r-settings'}), 'ok') + (W().skills.length ? W().skills.map(s => '<div class="skill"><span class="bnum">' + s.cat.slice(0,2).toUpperCase() + '</span><div class="tx"><b>' + s.cat + '</b><small style="display:block;font:500 12px/16px var(--font);color:var(--text-muted)">' + (rDomains().includes(s.cat) ? 'Reviewing' : 'Turned off') + '</small></div><div class="lv"><b>' + s.level + '</b><small>Up to this level</small></div></div>').join('') : P.empty('No verified skills yet.'))) + '</div>';
   pg.innerHTML = h; wire2(root);
@@ -16847,7 +16955,7 @@ reg('r-settings', 'Reviewer · Settings', 'v2rset', {h:1300});
 RENDER.v2rset = (root) => {
   const pg = chrome(root, 'rev', 'r-settings', [['Reviewer', 'r-home'], ['Settings']]), R2 = RV(); R2.nt = R2.nt || {req:true, pay:true};
   const row = (on, x, title, sub) => '<div class="topic">' + P.tgl(on, x, title) + '<div class="tx"><b>' + title + '</b><small>' + sub + '</small></div></div>';
-  let h = P.pgh('Settings', 'Reviewer mode · Reviewer #7310. Hiring and Working settings stay in their modes.');
+  let h = P.pgh('Settings', V.user.acct === 'new' ? 'Reviewer mode. Hiring and Working settings stay in their modes.' : 'Reviewer mode · Reviewer #7310. Hiring and Working settings stay in their modes.');
   h += P.sec('Domains you review', 'Requests come only in these domains, up to your verified level.', rDomainRows('settings'));
   h += P.sec('Availability', 'Pause when you can’t take new reviews. Accepted reviews, re-reviews and appeals continue.',
     row(R2.available !== false, 'ravail:toggle', 'Available for review requests', R2.available !== false ? 'New requests in your domains reach you.' : 'Paused: new requests go to other reviewers.'));
@@ -16856,7 +16964,7 @@ RENDER.v2rset = (root) => {
     '<div class="lst">' + row(R2.nt.req, 'rnt:req', 'New review requests', 'Requests in the domains you review.') + row(R2.nt.pay, 'rnt:pay', 'Rewards paid', 'When your reward is sent to your Phantom.') +
     '<div class="topic"><span class="pill success" style="flex:none"><span class="dot"></span>Always on</span><div class="tx"><b>Resubmissions to re-review and appeals on your verdicts</b><small>They’re part of reviews you accepted, so you can’t turn them off.</small></div></div></div>');
   h += P.sec('Payout wallet', 'The same wallet as Working mode. Rewards go here.', payoutRow());
-  h += P.sec('Account', 'One account for Hiring, Working and Reviewer modes.', P.kv([['Reviewer ID', '#7310'],['Email', E(V.user.email || 'Not set')],['Verified skills', W().skills.map(x => x.cat + ' · ' + x.level).join(', ') || 'None yet']]) + '<div class="acts">' + P.btn('Sign out', {v:'g', x:'signout'}) + '</div>');
+  h += P.sec('Account', 'One account for Hiring, Working and Reviewer modes.', P.kv([['Reviewer ID', V.user.acct === 'new' ? wWallet() : '#7310'],['Email', E(V.user.email || 'Not set')],['Verified skills', W().skills.map(x => x.cat + ' · ' + x.level).join(', ') || 'None yet']]) + '<div class="acts">' + P.btn('Sign out', {v:'g', x:'signout'}) + '</div>');
   pg.innerHTML = h; wire2(root);
 };
 X.rnt = k => { const R2 = RV(); R2.nt[k] = !R2.nt[k]; rerender(); toast((R2.nt[k] ? 'On: ' : 'Off: ') + ({req:'new review requests', pay:'rewards paid'}[k]) + '.', 'success'); };
@@ -17388,7 +17496,7 @@ document.getElementById('reset').addEventListener('click',()=>{window.__noSave=t
     const provider = phantomProvider();
     if (!provider) { if (left > 0) setTimeout(() => tick(left - 1), 200); return; }
     const live = provider.isConnected && provider.publicKey ? provider.publicKey.toString() : '';
-    const go = pk => { if (!pk || pk.length < 32) return; const localKey = GS.clientFull || GS.workerPay || ''; const keep = localKey === pk ? num(GS.avail) : 0; const role = (V.user && V.user.lastMode === 'work') ? 'work' : 'hire'; openWalletAccount(pk, role, keep, true); };
+    const go = pk => { if (!pk || pk.length < 32) return; const localKey = GS.clientFull || GS.workerPay || ''; const keep = localKey === pk && V.user.acct === 'new' ? num(GS.avail) : 0; const role = (V.user && V.user.lastMode === 'work') ? 'work' : 'hire'; openWalletAccount(pk, role, keep, true); };
     if (live) { go(live); return; }
     let pending;
     try { pending = provider.connect({ onlyIfTrusted: true }); }
