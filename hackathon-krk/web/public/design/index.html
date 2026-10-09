@@ -14631,7 +14631,7 @@ RENDER.v2onbHire = (root) => {
     visual: MK.flow([['sparkle','Describe','Criteria + test'],['lock','Lock','120 USDC'],['user','Assigned','First qualified'],['check','Released','When it’s done','ok']]) + '<div class="vx-gap"></div>' +
       '<div class="mk"><span class="tag">Example balance</span><div class="mk-h"><div><div class="mk-s">Your Pico balance</div><div class="mk-amt">500.00<small>USDC</small></div></div>' + pill('Phantom', 'success', true) + '</div>' +
       '<div class="mk-bar"><i style="width:76%;background:#d4d4d8"></i><i style="width:24%;background:var(--indigo-400)"></i></div><div class="mk-leg"><div style="--c:#d4d4d8"><b>380.00</b><small>Available</small></div><div style="--c:var(--indigo-400)"><b>120.00</b><small>Locked</small></div><div style="--c:var(--status-success)"><b>240.00</b><small>Paid out</small></div></div></div>',
-    body: '<div class="obs-bal"><div><small>Available</small><b>' + fmt(GS.avail) + '</b></div><div><small>Locked</small><b style="color:var(--text-accent)">' + fmt(BAL.locked) + '</b></div><div><small>Paid out</small><b style="color:var(--status-success)">' + fmt(BAL.paid) + '</b></div></div>' +
+    body: (hiringLinked() ? '<div class="obs-bal"><div><small>Available</small><b>' + fmt(GS.avail) + '</b></div><div><small>Locked</small><b style="color:var(--text-accent)">' + fmt(BAL.locked) + '</b></div><div><small>Paid out</small><b style="color:var(--status-success)">' + fmt(BAL.paid) + '</b></div></div>' : '') +
       (GS.phMissing ? '<div class="phantom"><span class="pi">' + ICON.wallet + '</span><div style="flex:1"><b>Phantom · Devnet</b><small>Not installed in this browser</small></div><div class="row2">' + P.btn('Install ↗', {v:'s', x:'toast:Opens phantom.app to install the browser extension. Not linked in the prototype.'}) + P.btn('I’ve installed it', {x:'onbh:installed'}) + '</div></div>' + P.line('Install the extension, then press “I’ve installed it”.') : hiringLinked() ? P.line('Phantom connected · ' + (GS.clientShort || '') + '. You confirm every transfer there.', 'ok') : '<div>' + P.btn('Connect Phantom', {v:'s', icon:'wallet', x:'onbh:connect'}) + '</div>'),
     cta: P.btn('Add funds', {lg:true, x:'onbh:funds'}) + P.btn('Go to Home', {v:'s', lg:true, x:'onbh:finish'}), back:'onbh:back'};
   root.innerHTML = P.obs(Object.assign({role:'hire', n:2, step:O.step}, o));
@@ -14941,6 +14941,10 @@ function sessionChip(mode){
   if (mode === 'work') return workerLinked() ? shortWallet(GS.workerPay) : 'Not connected';
   return hiringLinked() ? shortWallet(GS.clientFull) : 'Not connected';
 }
+function connectGate(which){
+  const work = which === 'work';
+  return '<div class="gen" style="margin-top:8px"><span class="bnum">' + ICON.wallet + '</span><b>Connect Phantom</b><small>Your balance and tasks stay hidden until Phantom confirms this address.</small>' + P.btn('Connect Phantom', {icon:'wallet', x: work ? 'wconnect' : 'onbh:connect'}) + '</div>';
+}
 function adoptPhantom(provider, res, which){
   const pk = (res && res.publicKey && res.publicKey.toString()) || (provider.publicKey && provider.publicKey.toString()) || '';
   if (!pk) return false;
@@ -14977,7 +14981,12 @@ function persistAccount(){
   fetch('/api/pico/account', { method:'POST', headers:{'content-type':'application/json'}, body: snap }).then(r => { if (!r.ok) accountSnap = ''; }).catch(() => { accountSnap = ''; });
 }
 window.persistAccount = persistAccount;
+let importAt = 0;
 function importClientTasks(pk){
+  if (!pk) return;
+  const now = Date.now();
+  if (now - importAt < 1500) return;
+  importAt = now;
   fetch('/api/pico/tasks').then(r => r.json()).then(rows => {
     if (!Array.isArray(rows)) return;
     let n = 0;
@@ -14987,14 +14996,15 @@ function importClientTasks(pk){
       if (!id || id.charAt(0) === '_') return;
       const src = row.body || {};
       if (!V.tasks[id]) {
-        V.tasks[id] = { id: id, title: row.title || src.title || 'Task', cat: row.cat || src.cat || 'Design', level: src.level || 'Mid', days: src.days || 3, desc: src.desc || '', crit: src.crit || [], deliv: src.deliv || [], reward: Number(row.reward) || 0, iv: !!src.iv, qual: src.qual || { on:false, pass:75, qs:[] }, status: row.status || 'finding', funded: 'live', chat: [], files: src.files || [], cands: [], rounds: 0, events: [], lockSig: src.lockSig || 'shared', escrow: src.escrow || '' };
+        V.tasks[id] = { id: id, title: row.title || src.title || 'Task', cat: row.cat || src.cat || 'Design', level: src.level || 'Mid', days: src.days || 3, desc: src.desc || '', crit: src.crit || [], deliv: src.deliv || [], reward: Number(row.reward) || 0, iv: !!src.iv, qual: src.qual || { on:false, pass:75, qs:[] }, status: row.status || 'finding', funded: 'live', chat: [], files: src.files || [], cands: [], rounds: 0, events: [], lockSig: src.lockSig || 'shared', escrow: src.escrow || '', clientWallet: pk };
         n++;
-      }
-      if (V.orderNew && !V.orderNew.includes(id)) V.orderNew.unshift(id);
+      } else if (!V.tasks[id].clientWallet) V.tasks[id].clientWallet = pk;
+      if (!V.orderNew) V.orderNew = [];
+      if (!V.orderNew.includes(id)) { V.orderNew.unshift(id); n++; }
       if (!S['c-' + id]) regTask(id);
     });
     if (n) { saveGS(); if (V.user.lastMode !== 'work' && cur !== 'auth') rerender(); }
-  }).catch(() => {});
+  }).catch(() => { importAt = 0; });
 }
 function realEmail(v){ return EMAILRE.test(String(v || '').trim()); }
 function hireReady(){
@@ -15049,9 +15059,10 @@ function openWalletAccount(pk, preferredRole, localAvail, quiet){
 function finishConnect(which){
   const label = which === 'work' ? (GS.workerPay ? shortWallet(GS.workerPay) : '') : (GS.clientShort || '');
   GS.signedOut = false;
+  if (which === 'hire' && GS.clientFull) importClientTasks(GS.clientFull);
+  if (which === 'work' && GS.workerPay) publishWorkerWallet(GS.workerPay);
   rerender();
   if (!GS.afterConnect) toast('Phantom connected · ' + label + '.', 'success');
-  if (which === 'work' && GS.workerPay) publishWorkerWallet(GS.workerPay);
   if (fundsAfterConnect) { fundsAfterConnect = false; openFunds(); }
   if (GS.afterConnect) { const fn = GS.afterConnect; GS.afterConnect = null; setTimeout(fn, 40); }
   else saveGS();
@@ -15084,6 +15095,17 @@ function connectPhantom(which){
   }
   const now = phantomNow();
   if (now && adoptPhantom(provider, null, which)) { finishConnect(which); return true; }
+  if (window.__picoTrust) {
+    const role = which;
+    window.__picoTrust.then(() => {
+      if (GS.signedOut || GS.connected) return;
+      const pk = phantomNow();
+      const providerNow = phantomProvider();
+      if (pk && providerNow && adoptPhantom(providerNow, null, role)) { finishConnect(role); return; }
+      connectPhantom(role);
+    });
+    return true;
+  }
   if (which === 'work' && w) { w.phBusy = true; w.phErr = false; w.phMissing = false; }
   GS.phMissing = false;
   let pending;
@@ -15117,7 +15139,7 @@ const nextText = t => ({
   assigned:['Worker hasn’t started yet',''], progress:['Due ' + (t.due || dayLabel(t.days)), ''], submitted:['Submitted',''],
   review:['Auto-pay in ' + (t.daysLeft != null ? t.daysLeft : 14) + ' days','acc'], verification:['Reviewer checking',''], revision:['Resubmit by ' + (t.due || dayLabel(3)),''],
   dispute:[t.dsp && t.dsp.status === 'decided' ? 'Decided' : 'Pico decides by ' + (t.dsp ? t.dsp.decideBy : dayLabel(7)),''], completed:[(t.paid || '') + ' · receipt',''], cancelled:['Cancelled ' + (t.cancelled || ''),'']
-})[t.status];
+})[t.status] || ['Open',''];
 function taskRow(t, need){
   const nx = nextText(t), action = need ? P.btn('Review work', {sm:true, go:taskKey(t.id)}) : '';
   return '<div role="button" tabindex="0" class="tr' + (need ? ' need' : '') + '" ' + (t.status === 'draft' ? 'data-x="draftopen:' + t.id + '"' : 'data-go="' + taskKey(t.id) + '"') + '><div class="tn"><b>' + E(t.title) + '</b><small>' + E(t.cat) + (t.worker ? ' · Worker #' + t.worker : '') + (t.iv ? ' · Independent verification' : '') + '</small></div>' +
@@ -15133,23 +15155,26 @@ reg('home', 'Home', 'v2home', {h:1400});
 RENDER.v2home = (root) => {
   pullClientTasks();
   const pg = chrome(root, 'hire', 'home', [['Home']]);
-  const T = clientTasks(), total = GS.avail + BAL.locked;
+  const linked = hiringLinked();
+  if (linked) importClientTasks(GS.clientFull);
+  const T = linked ? clientTasks() : [], total = linked ? GS.avail + BAL.locked : 0;
   const need = T.filter(t => GROUP_NEED.includes(t.status)), handling = T.filter(t => ACTIVE.includes(t.status) && !GROUP_NEED.includes(t.status)), done = T.filter(t => t.status === 'completed' || t.status === 'cancelled').slice(0, 2);
   const aw = total ? Math.max(4, Math.round(GS.avail / total * 280)) : 0, lw = total ? 284 - aw : 0;
   const c = V.ui.compose || '';
   let h = '<section class="hhero">' + FACETS + '<div><h1>What do you need done?</h1><p class="lead">Pico locks the budget and finds a qualified specialist.</p>' +
-    '<div class="compose' + (V.ui.composeErr ? ' error' : '') + '"><span class="plus">' + ICON.plus + '</span><input id="compose" placeholder="Describe the result you need…" value="' + E(c) + '" data-bind="ui.compose" aria-label="Describe the result you need">' + P.btn('Create task', {x:'create'}) + '</div>' +
+    '<div class="compose' + (V.ui.composeErr ? ' error' : '') + '"><span class="plus">' + ICON.plus + '</span><input id="compose" placeholder="Describe the result you need…" value="' + E(c) + '" data-bind="ui.compose" aria-label="Describe the result you need">' + P.btn(linked ? 'Create task' : 'Connect Phantom', {icon: linked ? '' : 'wallet', x:'create'}) + '</div>' +
     (V.ui.composeErr ? '<div class="mhelp error">Describe the result first, or pick one of the suggestions.</div>' : '') +
     '<div class="sugg">Try ' + [['Landing page design','A landing page for our spring sale: one page for desktop and mobile, built around the 30% offer.'],['Responsive fixes','Fix the checkout on mobile: buttons overlap below 400 px and the order summary gets cut off.'],['Bug fix','Find why 3 login tests fail randomly in CI and make them stable.']].map(s => '<button type="button" class="xchip" data-x="suggest:' + E(s[1]) + '">' + s[0] + '</button>').join('') + '</div>' +
     '<div class="hsteps"><span class="i">' + ICON.plus + '</span>Describe<hr><span class="i">' + IC.lock + '</span>Reserve budget<hr><span class="i">' + IC.user + '</span>Pico finds a worker<hr><span class="i">' + IC.check + '</span>Pay when it’s done</div></div>' +
-    '<div class="bcard"><div class="bh"><span class="wi">' + IC.wallet + '</span>General balance</div><div class="big">' + fmt(total) + '<small>USDC</small></div><div class="cap">Your balance on Pico</div>' +
+    (linked ? '<div class="bcard"><div class="bh"><span class="wi">' + IC.wallet + '</span>General balance</div><div class="big">' + fmt(total) + '<small>USDC</small></div><div class="cap">Your balance on Pico</div>' +
     '<div class="abar">' + (total ? '<i style="width:' + aw + 'px"></i><i class="l" style="width:' + lw + 'px"></i>' : '<i class="z"></i>') + '</div><hr>' +
     '<div class="brow">' + IC.wallet + 'Available<span class="v">' + usd(GS.avail) + '</span></div>' +
     '<div class="brow">' + IC.lock + 'Locked for ' + BAL.lockedCount + (BAL.lockedCount === 1 ? ' task' : ' tasks') + '<span class="v l">' + usd(BAL.locked) + '</span></div>' +
     '<div class="brow sm">Paid out · all time<span class="v">' + usd(BAL.paid) + '</span></div>' +
-    P.btn('Add funds', {v:'s', x:'funds'}) + '<div class="trust">' + IC.lock + 'Released only when the task is done</div></div></section>';
+    P.btn('Add funds', {v:'s', x:'funds'}) + '<div class="trust">' + IC.lock + 'Released only when the task is done</div></div>'
+    : '<div class="bcard"><div class="bh"><span class="wi">' + IC.wallet + '</span>Phantom · Devnet</div><div class="big" style="font-size:28px;line-height:36px">Connect</div><div class="cap">Your balance appears after Phantom confirms this address.</div>' + P.btn('Connect Phantom', {icon:'wallet', x:'onbh:connect'}) + '</div>') + '</section>';
   h += '<section style="display:flex;flex-direction:column;gap:4px"><div class="pgh" style="margin-bottom:12px"><div><h1 style="font-size:22px;line-height:28px">Your tasks</h1></div>' + (T.length ? '<button class="linkb" data-go="mytasks">View all tasks</button>' : '') + '</div>' +
-    (T.length ? taskTable([['Needs you', true, need],['Pico is handling', false, handling],['Completed', false, done]], '') :
+    (!linked ? connectGate('hire') : T.length ? taskTable([['Needs you', true, need],['Pico is handling', false, handling],['Completed', false, done]], '') :
       '<div class="gen"><span class="bnum">' + ICON.plus + '</span><b>No tasks yet</b><small>Describe what you need above. Pico drafts the criteria, and you add funds when you publish.</small>' + (GS.avail <= 0 ? P.btn('Add funds first', {v:'s', sm:true, x:'funds'}) : '') + '</div>') + '</section>';
   pg.innerHTML = h; wire2(root);
   const inp = root.querySelector('#compose'); inp.addEventListener('keydown', e => { if (e.key === 'Enter') X.create(); });
@@ -15157,6 +15182,7 @@ RENDER.v2home = (root) => {
 X.funds = () => openFunds();
 X.suggest = (txt) => { V.ui.compose = txt; V.ui.composeErr = false; rerender(); const i = stage.querySelector('#compose'); i && i.focus(); };
 X.create = () => {
+  if (!hiringLinked()) { GS.afterConnect = () => X.create(); connectPhantom('hire'); return; }
   const v = (V.ui.compose || '').trim();
   if (!v) { V.ui.composeErr = true; rerender(); toast('Describe the result first, or pick one of the suggestions.', 'error'); return; }
   V.ui.composeErr = false; newDraft(v); V.ui.compose = ''; show('ct-details');
@@ -15168,6 +15194,8 @@ reg('mytasks', 'My tasks', 'v2mytasks', {h:1400});
 const MT_FILTERS = [['All', null],['Needs you', ['review']],['Finding Worker', ['finding']],['Working', ['assigned','progress','revision']],['In review', ['review','verification']],['Dispute', ['dispute']],['Drafts', ['draft']],['Completed', ['completed']],['Cancelled', ['cancelled']]];
 RENDER.v2mytasks = (root) => {
   const pg = chrome(root, 'hire', 'mytasks', [['My tasks']]);
+  if (!hiringLinked()) { pg.innerHTML = P.pgh('My tasks', 'Your tasks appear after Phantom confirms this address.') + connectGate('hire'); wire2(root); return; }
+  importClientTasks(GS.clientFull);
   const T = clientTasks(), f = V.ui.filter || 'All', def = MT_FILTERS.find(x => x[0] === f) || MT_FILTERS[0];
   const list = def[1] ? T.filter(t => def[1].includes(t.status)) : T;
   let h = P.pgh('My tasks', 'Every task you’ve posted — from draft to payout.', P.btn('Create task', {icon:'plus', x:'newtask'}));
@@ -15178,12 +15206,13 @@ RENDER.v2mytasks = (root) => {
   pg.innerHTML = h; wire2(root);
 };
 X.mtfilter = (f) => { V.ui.filter = f; rerender(); };
-X.newtask = () => { newDraft(''); show('ct-details'); };
+X.newtask = () => { if (!hiringLinked()) { GS.afterConnect = () => X.newtask(); connectPhantom('hire'); return; } newDraft(''); show('ct-details'); };
 
 /* =================== C22 · Balance =================== */
 reg('balance', 'Balance', 'v2balance', {h:1400});
 RENDER.v2balance = (root) => {
   const pg = chrome(root, 'hire', 'balance', [['Balance']]);
+  if (!hiringLinked()) { pg.innerHTML = P.pgh('Balance', 'Your Pico balance appears after Phantom confirms this address.') + connectGate('hire'); wire2(root); return; }
   const T = clientTasks(), act2 = T.filter(t => ACTIVE.includes(t.status));
   let h = P.pgh('Balance', 'Your Pico balance in USDC. Funds for a task are locked when you publish and released when the work is done.', P.btn('Withdraw', {v:'s', x:'toast:Withdrawals to Phantom are not part of this MVP demo.'}) + P.btn('Add funds', {icon:'plus', x:'funds'}));
   h += P.stats([[fmt(GS.avail), 'Available', 'Ready for new tasks'],[fmt(BAL.locked), 'Locked', act2.length + ' active ' + (act2.length === 1 ? 'task' : 'tasks'), 'color:var(--text-accent)'],[fmt(BAL.paid), 'Paid out · all time', 'Released to workers and reviewers', 'color:var(--status-success)']]);
@@ -15199,6 +15228,7 @@ RENDER.v2balance = (root) => {
 reg('activity', 'History', 'v2activity', {h:1400});
 RENDER.v2activity = (root) => {
   const pg = chrome(root, 'hire', 'activity', [['History']]);
+  if (!hiringLinked()) { pg.innerHTML = P.pgh('History', 'Your task history appears after Phantom confirms this address.') + connectGate('hire'); wire2(root); return; }
   const f = V.ui.afilter || 'All';
   const all = [];
   clientTasks().forEach(t => t.events.forEach(e => all.push([e[0], t.title + ' · ' + e[1], e[2], e[3], t.id])));
@@ -15392,7 +15422,7 @@ X.publish = () => {
   const st = {s:'confirm', err:'', sig:''};
   const place = (sig) => {
     const t = {id, title:d.title.trim(), cat:d.cat, level:d.level, days:+d.days, desc:d.desc, crit:(reqsOf(d.desc).length ? reqsOf(d.desc) : d.crit.filter(c => c.trim())), deliv:d.deliv.filter(c => c.trim()), reward:m.b, iv:d.iv,
-      qual:{on:d.qual.on, pass:+d.qual.pass, qs:d.qual.on ? d.qual.qs : qsFor(d.cat)}, status:'finding', funded:dayLabel(0), chat:[], files:d.links.slice(), cands:[], rounds:0, events:[], fresh:true, lockSig:sig, escrow:GS.holdPk || ''};
+      qual:{on:d.qual.on, pass:+d.qual.pass, qs:d.qual.on ? d.qual.qs : qsFor(d.cat)}, status:'finding', funded:dayLabel(0), chat:[], files:d.links.slice(), cands:[], rounds:0, events:[], fresh:true, lockSig:sig, escrow:GS.holdPk || '', clientWallet: GS.clientFull || ''};
     addEvent(t, d.qual.on ? 'Qualification started' : 'Shown to eligible workers', d.qual.on ? 'Test sent to eligible ' + d.cat + ' workers' : 'Verified ' + d.cat + ' · ' + d.level + ' and above');
     addEvent(t, 'Funds locked', usd(m.total) + ' from Available', 'money');
     V.tasks[id] = t; const ord = V.user.acct === 'new' ? V.orderNew : V.order; if (!ord.includes(id)) ord.unshift(id);
@@ -16236,10 +16266,14 @@ RENDER.v2whome = (root) => {
   const T = w.order.map(wt), active = T.filter(t => WACTIVE.includes(t.my)), rel = T.filter(t => t.my === 'open' && eligible(t)).sort((a, b) => (w.topics[b.topic] ? 1 : 0) - (w.topics[a.topic] ? 1 : 0));
   pullSharedTasks(n => { if (n && cur === 'w-home') rerender(); });
   const paid = T.reduce((s, t) => s + (t.paidAmt || 0), 0), locked = active.reduce((s, t) => s + t.pay, 0);
+  const linked = workerLinked();
   let h = P.pgh(V.user.acct === 'new' ? ('Good to see you' + (V.user.workerName ? ', ' + V.user.workerName : '')) : 'Good to see you, #7310', w.skills.length ? 'Tasks that match your verified skills. Pay is locked in escrow before you start.' : 'Verify a skill to see tasks you can take.', P.btn('Relevant tasks', {v:'s', go:'w-find'}));
+  if (!linked) h += connectGate('work');
+  else {
   if (!w.skills.length) h += P.card(P.ch('alert', 'You’re not verified yet', pill('Skill Benchmark needed', 'warning', true), 'warn') + '<p class="sub2">Tasks are shown only to workers with a verified skill in the task’s domain and level. The benchmark takes a few minutes.</p><div class="acts">' + P.btn('Take the Skill Benchmark', {x:'wverify:' + (w.domain || 'Design')}) + '</div>', 'warn');
   h += P.stats([[fmt(paid), 'Paid out to you', 'USDC · ' + T.filter(t => t.my === 'completed').length + ' tasks', 'color:var(--status-success)'],[fmt(locked), 'Locked for your tasks', 'Paid when the work is accepted'],[active.length, 'Active tasks', 'Assigned or in progress', 'color:var(--text-accent)'],[w.rep.score, 'Reputation', 'Separate from skill level']]);
   h += P.card(P.ch('tasks', 'Current work', P.btn('My work', {v:'g', sm:true, go:'w-mywork'})) + (active.length ? '<div class="lst">' + active.map(t => '<button type="button" class="li click" data-go="' + wRoom(t.id) + '"><span class="ext">' + t.cat.slice(0,2).toUpperCase() + '</span><div class="tx"><b>' + E(t.title) + ' · ' + t.company + '</b><small>' + wNext(t) + '</small></div>' + wPill(t.my) + '</button>').join('') + '</div>' : P.empty('Nothing assigned yet. Take a test or accept a task below.')));
+  }
   if (w.skills.length && w.available === false) h += wPaused(); else
   h += '<section class="card"><div class="ch"><span class="si">' + IC.sparkle + '</span><h2>Relevant tasks</h2><span class="sp"></span>' + pill(w.skills.map(s => skillLabel(s.cat) + ' · ' + s.level).join(' · ') || 'No verified skills', '') + '</div>' +
     (rel.length ? '<div class="grid3">' + rel.slice(0, 3).map(wCard).join('') + '</div>' : P.empty(w.skills.length ? 'No open tasks match right now. Topics you follow send a notification when one appears.' : 'Verify a skill to unlock tasks.')) + '</section>';
@@ -16554,7 +16588,9 @@ RENDER.v2wmy = (root) => {
 /* ---------- Earnings ---------- */
 reg('w-earn', 'Working · Earnings', 'v2wearn', {h:1200});
 RENDER.v2wearn = (root) => {
-  const pg = chrome(root, 'work', 'w-earn', [['Working', 'w-home'], ['Earnings']]), T = W().order.map(wt);
+  const pg = chrome(root, 'work', 'w-earn', [['Working', 'w-home'], ['Earnings']]);
+  if (!workerLinked()) { pg.innerHTML = P.pgh('Earnings', 'Payouts appear after Phantom confirms this address.') + connectGate('work'); wire2(root); return; }
+  const T = W().order.map(wt);
   const paid = T.filter(t => ['completed','ended'].includes(t.my) && t.paidAmt), locked = T.filter(t => WACTIVE.includes(t.my));
   let h = P.pgh('Earnings', 'Payouts go straight to your Phantom wallet in USDC when the work is accepted.');
   h += P.stats([[fmt(paid.reduce((s, t) => s + (t.paidAmt || 0), 0)), 'Paid out', paid.length + ' tasks', 'color:var(--status-success)'],[fmt(locked.reduce((s, t) => s + t.pay, 0)), 'Locked for you', locked.length + ' active tasks', 'color:var(--text-accent)'],[wWallet(), 'Payout wallet', 'Phantom · Devnet · change in Settings']]);
@@ -17131,7 +17167,7 @@ RENDER.v2cset = root => {
   let h = P.pgh('Settings', 'Hiring mode · ' + (typeof companyName === 'function' ? companyName() : 'Your company') + '. Working and Reviewer settings stay in their modes.');
   h += P.sec('Funding wallet', 'Pico takes money for tasks from this wallet only when you confirm in Phantom.',
     '<div class="phantom"><span class="pi">' + ICON.wallet + '</span><div style="flex:1"><b>Phantom · Devnet</b><small>' + (hiringLinked() ? E(GS.clientShort) + ' · funds tasks' : 'Not connected') + '</small></div>' + pill(hiringLinked() ? 'Connected' : 'Not connected', hiringLinked() ? 'success' : '', true) + (hiringLinked() ? P.btn('Add funds', {v:'s', sm:true, x:'funds'}) : P.btn('Connect Phantom', {v:'s', sm:true, x:'onbh:connect'})) + '</div>' +
-    P.kv([['Available on Pico', usd(GS.avail)],['Locked in tasks', usd(BAL.locked)],['Paid out', usd(BAL.paid)]]));
+    (hiringLinked() ? P.kv([['Available on Pico', usd(GS.avail)],['Locked in tasks', usd(BAL.locked)],['Paid out', usd(BAL.paid)]]) : '<p class="sub2">Connect Phantom to see your balance.</p>'));
   h += '<div id="cNotif">' + P.sec('Notifications', 'In the bell in the top bar, always. Email is optional.',
     '<div class="lst">' + '<div class="topic"><span class="pill success" style="flex:none"><span class="dot"></span>Always on</span><div class="tx"><b>In-app</b><small>Every event below appears in the bell.</small></div></div>' + row(n.email, 'cnt:email', 'Email', n.email ? 'Also by email to ' + E(V.user.email || 'your account email') + '.' : 'Off · in-app only.') + '</div>' +
     '<span class="mlabel" style="margin-top:8px">What you hear about</span><div class="lst">' + row(n.assigned, 'cnt:assigned', 'Worker assigned', 'When the first qualified worker takes your task.') + row(n.submitted, 'cnt:submitted', 'Work submitted', 'Includes the date of the 14-day auto-payout.') + row(n.crans, 'cnt:crans', 'Answers to your change requests', 'Accepted or declined by the worker.') + row(n.msgs, 'cnt:msgs', 'Messages from workers', 'New messages in Chats.') +
@@ -17521,23 +17557,37 @@ document.getElementById('reset').addEventListener('click',()=>{window.__noSave=t
   show(k || (V.user.signedIn ? (MODE_HOME[V.user.lastMode] || 'home') : 'auth'), keepHash ? false : undefined);
 })();
 (function resumeWallet(){
+  function resume(pk){
+    if (GS.signedOut || GS.connected || !pk) return;
+    const localKey = GS.clientFull || GS.workerPay || '';
+    const keep = localKey === pk && V.user.acct === 'new' ? num(GS.avail) : 0;
+    const role = (V.user && V.user.lastMode === 'work') ? 'work' : 'hire';
+    openWalletAccount(pk, role, keep, true);
+  }
   function tick(left){
-    if (GS.signedOut) return;
+    if (GS.signedOut || GS.connected) return;
     const provider = phantomProvider();
     if (!provider) { if (left > 0) setTimeout(() => tick(left - 1), 200); return; }
     const live = phantomNow();
-    if (!live) return;
-    const localKey = GS.clientFull || GS.workerPay || '';
-    const keep = localKey === live && V.user.acct === 'new' ? num(GS.avail) : 0;
-    const role = (V.user && V.user.lastMode === 'work') ? 'work' : 'hire';
-    openWalletAccount(live, role, keep, true);
+    if (live) { resume(live); return; }
+    if (!window.__picoTrustTried && typeof provider.connect === 'function') {
+      window.__picoTrustTried = true;
+      let pending;
+      try { pending = provider.connect({ onlyIfTrusted: true }); }
+      catch (e) { pending = Promise.reject(e); }
+      window.__picoTrust = Promise.resolve(pending).then(res => {
+        const pk = (res && res.publicKey && res.publicKey.toString()) || phantomNow();
+        if (pk) resume(pk);
+      }).catch(() => {}).finally(() => { window.__picoTrust = null; });
+    }
+    if (left > 0) setTimeout(() => tick(left - 1), 200);
   }
-  setTimeout(() => tick(20), 40);
+  setTimeout(() => tick(25), 40);
 })();
 document.fonts&&document.fonts.ready.then(()=>{if(S[cur]&&S[cur].html)refit()});
 
 /* onboarding: grow the page if the form is taller than the fixed screen height */
-(function(){const _s=show;show=function(k,r){const o=_s.apply(this,arguments);try{const a=stage.querySelector('.app');if(a&&S[cur]&&a.scrollHeight>S[cur].h+1)refit()}catch(e){}return o}})();
+(function(){const _s=show;show=function(k,r){if(k&&String(k).indexOf('ct-')===0&&typeof hiringLinked==='function'&&!hiringLinked()){GS.afterConnect=function(){show(k,r)};connectPhantom('hire');return}const o=_s.apply(this,arguments);try{const a=stage.querySelector('.app');if(a&&S[cur]&&a.scrollHeight>S[cur].h+1)refit()}catch(e){}return o}})();
 </script>
 </body>
 </html>
