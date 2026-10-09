@@ -1038,7 +1038,7 @@ body:not(.proto) > header.bar{display:none}
 
 
 .sb{position:sticky;top:var(--sbt,0px);align-self:start;height:calc(100vh / var(--s,1));overflow-y:auto}.sb .sbout{margin-bottom:8px;color:var(--text-secondary)}.sb .sbout:hover{color:var(--text-primary)}
-</style>
+.obs{height:auto;min-height:648px}.obs-main{align-items:start}</style>
 </head>
 <body>
 <header class="bar">
@@ -17508,6 +17508,9 @@ document.getElementById('reset').addEventListener('click',()=>{window.__noSave=t
   setTimeout(() => tick(20), 40);
 })();
 document.fonts&&document.fonts.ready.then(()=>{if(S[cur]&&S[cur].html)refit()});
+
+/* onboarding: grow the page if the form is taller than the fixed screen height */
+(function(){const _s=show;show=function(k,r){const o=_s.apply(this,arguments);try{const a=stage.querySelector('.app');if(a&&S[cur]&&a.scrollHeight>S[cur].h+1)refit()}catch(e){}return o}})();
 </script>
 </body>
 </html>
