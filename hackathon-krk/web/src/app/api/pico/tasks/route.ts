@@ -92,49 +92,71 @@ export async function GET(req: Request) {
   }
 }
 
+const OPEN = ["finding", "draft"];
+
+// Once a task leaves finding, only its worker_wallet may move it. The client may still complete or cancel it.
+// The row lock makes two simultaneous claims resolve one after the other.
+async function merge(client: Client, patch: Partial<TaskRow>) {
+  const prevQ = await client.query<TaskRow>("select * from pico_tasks where id = $1 for update", [patch.id]);
+  const prev: Partial<TaskRow> = prevQ.rows[0] || {};
+  const held = !!prev.status && !OPEN.includes(prev.status) && !!prev.worker_wallet;
+  const other = !!patch.worker_wallet && patch.worker_wallet !== prev.worker_wallet;
+  if (held && other && patch.status !== "completed" && patch.status !== "cancelled") {
+    return { taken: true, row: shape(prev as TaskRow) };
+  }
+  const prevBody = prev.body && typeof prev.body === "object" ? prev.body : {};
+  const patchBody = patch.body && typeof patch.body === "object" ? patch.body : {};
+  let status = patch.status ?? prev.status ?? "finding";
+  const late = ["review", "verification", "revision", "dispute", "completed", "cancelled"];
+  const early = ["finding", "draft", "assigned", "progress"];
+  if (prev.status && late.includes(prev.status) && early.includes(status)) status = prev.status;
+  if ((prev.status === "completed" || prev.status === "cancelled") && status !== prev.status) status = prev.status;
+  const next = shape({
+    id: patch.id as string,
+    title: patch.title ?? prev.title ?? "",
+    cat: patch.cat ?? prev.cat ?? "",
+    reward: patch.reward ?? prev.reward ?? 0,
+    status,
+    client_wallet: patch.client_wallet || prev.client_wallet || null,
+    worker_wallet: patch.worker_wallet || prev.worker_wallet || null,
+    body: { ...prevBody, ...patchBody },
+  });
+  await client.query(
+    `insert into pico_tasks (id, title, cat, reward, status, client_wallet, worker_wallet, body, updated_at)
+     values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, now())
+     on conflict (id) do update set
+       title = excluded.title,
+       cat = excluded.cat,
+       reward = excluded.reward,
+       status = excluded.status,
+       client_wallet = excluded.client_wallet,
+       worker_wallet = excluded.worker_wallet,
+       body = excluded.body,
+       updated_at = now()`,
+    [next.id, next.title, next.cat, next.reward, next.status, next.client_wallet, next.worker_wallet, JSON.stringify(next.body)]
+  );
+  return { taken: false, row: next };
+}
+
 export async function POST(req: Request) {
   try {
     const patch = (await req.json()) as Partial<TaskRow>;
     if (!patch.id || typeof patch.id !== "string") {
       return NextResponse.json({ error: "id is required" }, { status: 400 });
     }
-    const row = await withDb(async (client) => {
-      const prevQ = await client.query<TaskRow>("select * from pico_tasks where id = $1", [patch.id]);
-      const prev = prevQ.rows[0] || {};
-      const prevBody = prev.body && typeof prev.body === "object" ? prev.body : {};
-      const patchBody = patch.body && typeof patch.body === "object" ? patch.body : {};
-      let status = patch.status ?? prev.status ?? "finding";
-      const late = ["review", "verification", "revision", "dispute", "completed", "cancelled"];
-      const early = ["finding", "draft", "assigned", "progress"];
-      if (prev.status && late.includes(prev.status) && early.includes(status)) status = prev.status;
-      if ((prev.status === "completed" || prev.status === "cancelled") && status !== prev.status) status = prev.status;
-      const next = shape({
-        id: patch.id as string,
-        title: patch.title ?? prev.title ?? "",
-        cat: patch.cat ?? prev.cat ?? "",
-        reward: patch.reward ?? prev.reward ?? 0,
-        status,
-        client_wallet: patch.client_wallet || prev.client_wallet || null,
-        worker_wallet: patch.worker_wallet || prev.worker_wallet || null,
-        body: { ...prevBody, ...patchBody },
-      });
-      await client.query(
-        `insert into pico_tasks (id, title, cat, reward, status, client_wallet, worker_wallet, body, updated_at)
-         values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, now())
-         on conflict (id) do update set
-           title = excluded.title,
-           cat = excluded.cat,
-           reward = excluded.reward,
-           status = excluded.status,
-           client_wallet = excluded.client_wallet,
-           worker_wallet = excluded.worker_wallet,
-           body = excluded.body,
-           updated_at = now()`,
-        [next.id, next.title, next.cat, next.reward, next.status, next.client_wallet, next.worker_wallet, JSON.stringify(next.body)]
-      );
-      return next;
+    const out = await withDb(async (client) => {
+      await client.query("begin");
+      try {
+        const res = await merge(client, patch);
+        await client.query("commit");
+        return res;
+      } catch (e) {
+        await client.query("rollback").catch(() => {});
+        throw e;
+      }
     });
-    return NextResponse.json(row);
+    if (out.taken) return NextResponse.json({ error: "taken", row: out.row }, { status: 409 });
+    return NextResponse.json(out.row);
   } catch (e) {
     return NextResponse.json({ error: safeErr(e) }, { status: 500 });
   }
