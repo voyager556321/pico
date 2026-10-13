@@ -14670,6 +14670,45 @@ function phantomNow(){
   try { if (live && live.publicKey) return live.publicKey.toString(); } catch (e) {}
   return '';
 }
+// Wallet-ownership proof for POST /api/pico/*: Phantom signs "pico:<wallet>:<unix-ms>" once,
+// the signature is cached for this tab session and reused until it is close to the server's 5-minute limit.
+const PICO_AUTH_KEY = 'pico:auth:';
+const PICO_AUTH_REUSE_MS = 4.5 * 60 * 1000;
+const picoAuthPending = {};
+let picoAuthDeclinedAt = 0;
+function picoB64(bytes){ let s = ''; for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]); return btoa(s); }
+function picoAuthHeaders(wallet){
+  if (!wallet || wallet.length < 32) return Promise.resolve(null);
+  try {
+    const c = JSON.parse(sessionStorage.getItem(PICO_AUTH_KEY + wallet) || 'null');
+    if (c && c.sig && Date.now() - Number(c.ts) < PICO_AUTH_REUSE_MS) return Promise.resolve({'x-pico-wallet': wallet, 'x-pico-ts': String(c.ts), 'x-pico-sig': c.sig});
+  } catch (e) {}
+  if (picoAuthPending[wallet]) return picoAuthPending[wallet];
+  if (Date.now() - picoAuthDeclinedAt < 60000) return Promise.resolve(null);
+  const provider = phantomProvider();
+  if (!provider || !provider.signMessage || phantomNow() !== wallet) return Promise.resolve(null);
+  const ts = Date.now();
+  const msg = new TextEncoder().encode('pico:' + wallet + ':' + ts);
+  const p = Promise.resolve().then(() => provider.signMessage(msg, 'utf8')).then(res => {
+    const raw = res && (res.signature || res);
+    const sig = picoB64(new Uint8Array(raw));
+    try { sessionStorage.setItem(PICO_AUTH_KEY + wallet, JSON.stringify({ts: ts, sig: sig})); } catch (e) {}
+    return {'x-pico-wallet': wallet, 'x-pico-ts': String(ts), 'x-pico-sig': sig};
+  }).catch(() => { picoAuthDeclinedAt = Date.now(); return null; }).finally(() => { delete picoAuthPending[wallet]; });
+  picoAuthPending[wallet] = p;
+  return p;
+}
+function picoAuthClear(wallet){ try { sessionStorage.removeItem(PICO_AUTH_KEY + wallet); } catch (e) {} }
+// POST JSON with the wallet proof; on 401 drop the cached signature and retry once with a fresh one.
+function picoPost(url, bodyStr, wallet, retried){
+  return picoAuthHeaders(wallet).then(auth => {
+    if (!auth) return null;
+    return fetch(url, { method:'POST', headers: Object.assign({'content-type':'application/json'}, auth), body: bodyStr }).then(r => {
+      if (r.status === 401 && !retried) { picoAuthClear(wallet); return picoPost(url, bodyStr, wallet, true); }
+      return r;
+    });
+  });
+}
 function hiringLinked(){
   const now = phantomNow();
   return GS.connected !== false && !!GS.clientFull && (!now || now === GS.clientFull);
@@ -14792,7 +14831,7 @@ function shareTask(t, patch){
   const worker = extra.worker_wallet || t.workerWallet || '';
   if (client) row.client_wallet = client;
   if (worker) row.worker_wallet = worker;
-  return fetch('/api/pico/tasks', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(row) }).then(r => r.ok ? r.json() : null).catch(() => null);
+  return picoPost('/api/pico/tasks', JSON.stringify(row), phantomNow()).then(r => r && r.ok ? r.json() : null).catch(() => null);
 }
 const pushedAt = {};
 function pushLiveTask(t){
@@ -15012,7 +15051,7 @@ function persistAccount(){
   const snap = JSON.stringify(payload);
   if (snap === accountSnap) return;
   accountSnap = snap;
-  fetch('/api/pico/account', { method:'POST', headers:{'content-type':'application/json'}, body: snap }).then(r => { if (!r.ok) accountSnap = ''; }).catch(() => { accountSnap = ''; });
+  picoPost('/api/pico/account', snap, wallet).then(r => { if (!r || !r.ok) accountSnap = ''; }).catch(() => { accountSnap = ''; });
 }
 window.persistAccount = persistAccount;
 let importAt = 0;

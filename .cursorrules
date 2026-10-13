@@ -1,0 +1,42 @@
+# Pico: project rules for Cursor
+
+## What Pico is
+A marketplace for short jobs. A worker proves one skill (verified score + level), a client posts a task with a minimum level and a reward, Pico assigns the closest verified worker, and the reward is held until the client releases it.
+Payments today run on Solana devnet with USDC. The payment rail is under review (a card/bank payment provider may replace or sit next to crypto), so keep payment logic behind the domain layer and never hard-wire it into UI.
+
+## Stack (current versions)
+- Web app: `hackathon-krk/web`, Next.js 15 (App Router), React 19, TypeScript 5.9, Tailwind CSS 4.
+- Data: Postgres on Supabase via `pg` 8.16, from Next.js route handlers only (`src/app/api/**`).
+- Chain: Solana devnet, `@solana/web3.js` 1.98, `@solana/spl-token` 0.4, `@coral-xyz/anchor` 0.29, Phantom wallet adapter.
+- On-chain program: Anchor/Rust in `hackathon-krk/programs/pico` (built and deployed via Solana Playground). IDL copy lives in `web/src/idl/pico.json`.
+- AI: `@google/genai` (Gemini) in `web/src/lib/gemini.ts`.
+- Hosting: Vercel (project root is `hackathon-krk/web`).
+
+## Code style
+- TypeScript only. No `any`; use `unknown` and narrow. Explicit return types on exported functions.
+- Functional React components and hooks. No class components.
+- Server secrets (`OPERATOR_SECRET_KEY`, `GEMINI_API_KEY`, `POSTGRES_*`) are read only in server code. Never import them into client components, never log them.
+- Never return raw DB errors to the client; strip connection strings (see `safeErr`).
+- Small modules; one responsibility per file. Prefer editing an existing module over adding a parallel one.
+
+## Architecture (layers, see `docs/architecture.md`)
+- `src/platform/`: product rules (flow, roles, protections, capabilities). No I/O.
+- `src/domain/`: how actions execute (API calls, Solana txs, storage). Must assert platform protections.
+- `src/ui/` and `src/components/app/*View`: presentation only; read capabilities, call domain actions.
+- `src/components/app/*Page.tsx`: controllers wiring hooks + capabilities + actions.
+- `src/lib/`: infra (IDL, PDAs, constants, Solana helpers).
+- UI never talks to the DB or chain directly.
+
+## Domain terms
+- Client (role `hire`): posts and pays for tasks. Worker (role `work`): claims and delivers.
+- Account = wallet address (one role per wallet).
+- Task statuses: `draft`, `finding`, `assigned`, `progress`, `review`, `verification`, `revision`, `dispute`, `completed`, `cancelled`. Late statuses never move back to early ones.
+- Claim: a worker takes a `finding` task; a second wallet gets HTTP 409 `taken`.
+- Lock: funds reserved for a task. Release: payout to the worker, with an on-chain proof (tx signature).
+- Reviewer fee: 10% of reward, locked when the reward changes.
+- Skill: verified domain with `level` (Mid/Senior) and `score` (pass mark 75).
+
+## Working rules
+- Before changing API shapes, update `docs/api_contracts.md` in the same change.
+- Before changing tables or integrations, update `docs/architecture.md`.
+- Product scope and user flows live in `docs/product_requirements.md`; ask before building features not described there.

@@ -1,5 +1,7 @@
-import { Client } from "pg";
+import type { Client } from "pg";
 import { NextResponse } from "next/server";
+import { TASKS_SCHEMA, inTx, isoOrNull, safeErr, withDb } from "@/lib/db";
+import { requireWallet, taskWriteDenied } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,26 +17,6 @@ type TaskRow = {
   updated_at?: string | Date;
 };
 
-function dbUrl() {
-  const all = [process.env.POSTGRES_URL, process.env.POSTGRES_PRISMA_URL, process.env.POSTGRES_URL_NON_POOLING].filter(
-    (v): v is string => !!v
-  );
-  // The direct db.* host is IPv6-only. Vercel reaches the pooler.
-  const raw = all.find((u) => u.includes("pooler.")) || all[0] || "";
-  if (!raw) return "";
-  const q = raw.indexOf("?");
-  if (q < 0) return raw;
-  const params = new URLSearchParams(raw.slice(q + 1));
-  for (const key of ["pgbouncer", "connection_limit", "sslmode"]) params.delete(key);
-  const rest = params.toString();
-  return rest ? raw.slice(0, q) + "?" + rest : raw.slice(0, q);
-}
-
-function safeErr(e: unknown) {
-  const msg = e instanceof Error ? e.message : "Database error";
-  return msg.replace(/postgres(?:ql)?:\/\/\S+/gi, "postgres://…").slice(0, 300);
-}
-
 function shape(row: TaskRow) {
   return {
     id: row.id,
@@ -45,41 +27,14 @@ function shape(row: TaskRow) {
     client_wallet: row.client_wallet ?? null,
     worker_wallet: row.worker_wallet ?? null,
     body: row.body || {},
-    updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at || null,
+    updated_at: isoOrNull(row.updated_at),
   };
-}
-
-async function withDb<T>(fn: (client: Client) => Promise<T>) {
-  const url = dbUrl();
-  if (!url) throw new Error("Database is not configured.");
-  const client = new Client({
-    connectionString: url,
-    ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 8000,
-  });
-  await client.connect();
-  try {
-    await client.query(`create table if not exists pico_tasks (
-      id text primary key,
-      title text not null default '',
-      cat text not null default '',
-      reward numeric not null default 0,
-      status text not null default 'finding',
-      client_wallet text,
-      worker_wallet text,
-      body jsonb not null default '{}'::jsonb,
-      updated_at timestamptz not null default now()
-    )`);
-    return await fn(client);
-  } finally {
-    await client.end().catch(() => {});
-  }
 }
 
 export async function GET(req: Request) {
   try {
     const id = new URL(req.url).searchParams.get("id");
-    const rows = await withDb(async (client) => {
+    const rows = await withDb(TASKS_SCHEMA, async (client) => {
       const q = id
         ? await client.query<TaskRow>("select * from pico_tasks where id = $1", [id])
         : await client.query<TaskRow>("select * from pico_tasks order by updated_at desc");
@@ -96,13 +51,15 @@ const OPEN = ["finding", "draft"];
 
 // Once a task leaves finding, only its worker_wallet may move it. The client may still complete or cancel it.
 // The row lock makes two simultaneous claims resolve one after the other.
-async function merge(client: Client, patch: Partial<TaskRow>) {
+async function merge(client: Client, patch: Partial<TaskRow>, signer: string) {
   const prevQ = await client.query<TaskRow>("select * from pico_tasks where id = $1 for update", [patch.id]);
+  const denied = taskWriteDenied(prevQ.rows[0] || null, patch, signer);
+  if (denied) return { denied, taken: false, row: null };
   const prev: Partial<TaskRow> = prevQ.rows[0] || {};
   const held = !!prev.status && !OPEN.includes(prev.status) && !!prev.worker_wallet;
   const other = !!patch.worker_wallet && patch.worker_wallet !== prev.worker_wallet;
   if (held && other && patch.status !== "completed" && patch.status !== "cancelled") {
-    return { taken: true, row: shape(prev as TaskRow) };
+    return { denied: null, taken: true, row: shape(prev as TaskRow) };
   }
   const prevBody = prev.body && typeof prev.body === "object" ? prev.body : {};
   const patchBody = patch.body && typeof patch.body === "object" ? patch.body : {};
@@ -117,7 +74,7 @@ async function merge(client: Client, patch: Partial<TaskRow>) {
     cat: patch.cat ?? prev.cat ?? "",
     reward: patch.reward ?? prev.reward ?? 0,
     status,
-    client_wallet: patch.client_wallet || prev.client_wallet || null,
+    client_wallet: prev.client_wallet || patch.client_wallet || signer,
     worker_wallet: patch.worker_wallet || prev.worker_wallet || null,
     body: { ...prevBody, ...patchBody },
   });
@@ -135,7 +92,7 @@ async function merge(client: Client, patch: Partial<TaskRow>) {
        updated_at = now()`,
     [next.id, next.title, next.cat, next.reward, next.status, next.client_wallet, next.worker_wallet, JSON.stringify(next.body)]
   );
-  return { taken: false, row: next };
+  return { denied: null, taken: false, row: next };
 }
 
 export async function POST(req: Request) {
@@ -144,17 +101,10 @@ export async function POST(req: Request) {
     if (!patch.id || typeof patch.id !== "string") {
       return NextResponse.json({ error: "id is required" }, { status: 400 });
     }
-    const out = await withDb(async (client) => {
-      await client.query("begin");
-      try {
-        const res = await merge(client, patch);
-        await client.query("commit");
-        return res;
-      } catch (e) {
-        await client.query("rollback").catch(() => {});
-        throw e;
-      }
-    });
+    const auth = requireWallet(req);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: 401 });
+    const out = await withDb(TASKS_SCHEMA, (client) => inTx(client, () => merge(client, patch, auth.wallet)));
+    if (out.denied) return NextResponse.json({ error: out.denied }, { status: 403 });
     if (out.taken) return NextResponse.json({ error: "taken", row: out.row }, { status: 409 });
     return NextResponse.json(out.row);
   } catch (e) {
