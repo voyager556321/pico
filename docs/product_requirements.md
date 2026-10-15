@@ -82,3 +82,16 @@
 5. Яку мінімальну перевірку особи (KYC) проходить виконавець?
 6. Чи є (або чи готовий засновник відкрити) компанію в США? Stripe Connect для виплат у Пакистан і на Філіппіни її вимагає.
 7. Чи потрібна Pico ліцензія в ЄС для утримання коштів — питання до юриста.
+
+## 5b. Positioning update (2026-10-15)
+- Pico is a hiring platform. The first paid task works as a check of the worker before longer work. Client and worker decide themselves whether to continue.
+- First task: fixed price, minimum $30 including the 10% fee. A larger task from the client uses the client's budget.
+- Fee: 10% on tasks created and paid through Pico. No fee on work paid outside the platform; do not mention first, answer honestly if asked.
+- Key metric: share of clients who create the next task in Pico after the first accepted task.
+- First segment: VAs (research, data entry, inbox) alongside developers. Workers need Payoneer for the first task.
+
+## 5c. Entry test for the worker (Phase 1)
+- A short paid task (1-2 hours) taken from a real client request. It is the same as the trial task in the sales script.
+- Scored by the client on four criteria: correctness 50, quality 25, explanation 15, time 10. Pass threshold starts at 70 of 100.
+- Done by hand. No automatic admission system until 10-20 tests show whether scores match client decisions.
+- Identity check (IdentityVerifier) stays separate from skill score.
