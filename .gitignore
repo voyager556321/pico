@@ -19,3 +19,5 @@
 
 # design prototype screenshots (kept locally, not in repo)
 design-prototype/**/*.jpg
+.vercel
+.env*
