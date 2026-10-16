@@ -2,119 +2,81 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { SKILLS } from "@/lib/constants";
+import {
+  LANDING_COPY,
+  LANDING_LANGUAGES,
+  type LandingLanguage,
+} from "@/components/landingTranslations";
 
 type TaskType = "All" | "Code review" | "Debugging" | "QA" | "Design";
 type SortKey = "recent" | "reward";
 
 const TASK_TYPES: TaskType[] = ["All", "Code review", "Debugging", "QA", "Design"];
 
-const FLOW = [
-  { n: "01", title: "Fund", body: "Lock USDC + set N & %" },
-  { n: "02", title: "3 tests", body: "Timed qualify race" },
-  { n: "03", title: "Slots", body: "Exec · Primary · Audit" },
-  { n: "04", title: "Chain", body: "Each reviews the last" },
-  { n: "05", title: "Pay", body: "Escrow splits by bps" },
-];
-
-const PAINS = [
-  {
-    who: "Clients",
-    pain: "Hire theatre for a 2–4 hour job",
-    fix: "Post + fund once. First qualified podium fills seats — no CV browse.",
-  },
-  {
-    who: "Clients",
-    pain: "“I can do it” with no proof",
-    fix: "Three timed tests. Visible T3 times. Execution = fastest finisher.",
-  },
-  {
-    who: "Experts",
-    pain: "Reject / non-pay after you start",
-    fix: "USDC already in escrow. Client can’t unilaterally reclaim after assign.",
-  },
-  {
-    who: "Clients",
-    pain: "One unchecked delivery",
-    fix: "Primary reviews Execution; Audit reviews Primary — then you see it.",
-  },
-  {
-    who: "Both",
-    pain: "Slow cross-border micropayouts",
-    fix: "Per-task Solana USDC vault. Split by the % you set at create.",
-  },
-];
-
 const DEMO_TASKS = [
   {
     id: "t1",
-    title: "Review Anchor escrow PDA seeds",
+    translationIndex: 0,
     skill: "Code review",
     reviews: 2,
     reward: 85,
     interested: 6,
     posted: "2h ago",
-    blurb: "Seed collisions & signer constraints before qualification assigns slots.",
     mark: "AN",
     markBg: "#155e75",
   },
   {
     id: "t2",
-    title: "Reproduce flaky wallet connect",
+    translationIndex: 1,
     skill: "Debugging",
     reviews: 1,
     reward: 60,
     interested: 9,
     posted: "5h ago",
-    blurb: "Phantom drops after soft nav — root cause + minimal patch + write-up.",
     mark: "NX",
     markBg: "#0c1222",
   },
   {
     id: "t3",
-    title: "QA the qualify → work → verify chain",
+    translationIndex: 2,
     skill: "QA",
     reviews: 2,
     reward: 40,
     interested: 11,
     posted: "1d ago",
-    blurb: "Checklist on Devnet statuses: Qualifying → Working → InReview → Paid.",
     mark: "QA",
     markBg: "#065f46",
   },
   {
     id: "t4",
-    title: "Polish slot table hierarchy",
+    translationIndex: 3,
     skill: "Design",
     reviews: 1,
     reward: 55,
     interested: 4,
     posted: "1d ago",
-    blurb: "Make T3 times and active slot read first on mobile.",
     mark: "UI",
     markBg: "#7c2d12",
   },
   {
     id: "t5",
-    title: "Audit finalize_and_pay fee math",
+    translationIndex: 4,
     skill: "Code review",
     reviews: 2,
     reward: 120,
     interested: 3,
     posted: "2d ago",
-    blurb: "Platform fee + slot_bps dust to Execution — independent Audit slot.",
     mark: "SC",
     markBg: "#0e7490",
   },
   {
     id: "t6",
-    title: "Debug ATA on fill_slot winner",
+    translationIndex: 5,
     skill: "Debugging",
     reviews: 2,
     reward: 95,
     interested: 5,
     posted: "3d ago",
-    blurb: "Single-seat replacement fails when winner ATA is missing.",
     mark: "AT",
     markBg: "#134e4a",
   },
@@ -124,20 +86,20 @@ export function LandingPage() {
   const [query, setQuery] = useState("");
   const [stack, setStack] = useState("");
   const [navOpen, setNavOpen] = useState(false);
+  const [language, setLanguage] = useState<LandingLanguage>("en");
   const [taskTypes, setTaskTypes] = useState<TaskType[]>(["All"]);
   const [rewardMin, setRewardMin] = useState(25);
   const [rewardMax, setRewardMax] = useState(150);
   const [sort, setSort] = useState<SortKey>("recent");
   const [saved, setSaved] = useState<Record<string, boolean>>({});
-
-  const appHref = useMemo(() => {
-    const params = new URLSearchParams();
-    const q = query.trim();
-    if (q) params.set("q", q);
-    if (stack.trim()) params.set("stack", stack.trim());
-    const qs = params.toString();
-    return qs ? `/app?${qs}` : "/app";
-  }, [query, stack]);
+  const copy = LANDING_COPY[language];
+  const categoryLabels: Record<TaskType, string> = {
+    All: copy.board.all,
+    "Code review": copy.board.codeReview,
+    Debugging: copy.board.debugging,
+    QA: copy.board.qa,
+    Design: copy.board.design,
+  };
 
   const filtered = useMemo(() => {
     let rows = DEMO_TASKS.filter((t) => {
@@ -148,16 +110,24 @@ export function LandingPage() {
       const s = stack.trim().toLowerCase();
       const textOk =
         !q ||
-        t.title.toLowerCase().includes(q) ||
-        t.blurb.toLowerCase().includes(q) ||
-        t.skill.toLowerCase().includes(q);
+        LANDING_COPY[language].taskTitles[t.translationIndex]
+          .toLowerCase()
+          .includes(q) ||
+        LANDING_COPY[language].taskDescriptions[t.translationIndex]
+          .toLowerCase()
+          .includes(q) ||
+        categoryLabels[t.skill as TaskType].toLowerCase().includes(q);
       const stackOk =
-        !s || t.skill.toLowerCase().includes(s) || t.blurb.toLowerCase().includes(s);
+        !s ||
+        categoryLabels[t.skill as TaskType].toLowerCase().includes(s) ||
+        LANDING_COPY[language].taskDescriptions[t.translationIndex]
+          .toLowerCase()
+          .includes(s);
       return typeOk && rewardOk && textOk && stackOk;
     });
     if (sort === "reward") rows = [...rows].sort((a, b) => b.reward - a.reward);
     return rows;
-  }, [taskTypes, rewardMin, rewardMax, query, stack, sort]);
+  }, [taskTypes, rewardMin, rewardMax, query, stack, sort, language]);
 
   function toggleType(t: TaskType) {
     if (t === "All") {
@@ -173,167 +143,145 @@ export function LandingPage() {
     });
   }
 
+  function changeLanguage(value: string) {
+    const selectedLanguage = LANDING_LANGUAGES.find(
+      (item) => item.code === value,
+    );
+    if (selectedLanguage) setLanguage(selectedLanguage.code);
+  }
+
   return (
-    <div className="min-h-screen bg-[var(--board)] text-[var(--text)]">
-      <section className="landing-hero-dark relative pb-12 sm:pb-14">
+    <div
+      className="pico-landing min-h-screen bg-[var(--board)] text-[var(--text)]"
+      lang={LANDING_LANGUAGES.find((item) => item.code === language)?.locale}
+    >
+      <section className="landing-hero-dark relative">
         <header className="relative z-20">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5 sm:px-6">
-            <Link href="/" className="flex items-center gap-2.5 text-white">
-              <span className="pico-mark" aria-hidden>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 3v18M5 8.5c2.5-3 11.5-3 14 0M5 15.5c2.5 3 11.5 3 14 0"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
-              <span className="display text-xl font-bold tracking-tight">pico</span>
+          <div className="landing-header mx-auto flex items-center justify-between gap-4 px-4">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="landing-mark" aria-hidden>P</span>
+              <span className="display text-[17px] font-bold tracking-tight">PICO</span>
             </Link>
 
-            <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
-              <a href="#board" className="nav-link nav-link-active">
-                Find tasks
-              </a>
-              <Link href="/app" className="nav-link">
-                My tasks
-              </Link>
-              <Link href="/app/tasks/new" className="nav-link">
-                Post a task
-              </Link>
-              <a href="#pains" className="nav-link">
-                Why Pico
-              </a>
-              <a href="#flow" className="nav-link">
-                How it works
-              </a>
+            <nav className="landing-nav hidden items-center gap-8 text-sm font-medium md:flex">
+              <a href="#flow" className="nav-link">{copy.nav.how}</a>
+              <a href="#clients" className="nav-link">{copy.nav.clients}</a>
+              <a href="#workers" className="nav-link">{copy.nav.workers}</a>
             </nav>
 
             <div className="flex items-center gap-3">
-              <Link
-                href="/app"
-                className="hidden rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 sm:inline-flex"
-              >
-                Open app
-              </Link>
+              <label className="landing-language-picker">
+                <span className="sr-only">{copy.languageLabel}</span>
+                <select
+                  value={language}
+                  onChange={(event) => changeLanguage(event.currentTarget.value)}
+                  aria-label={copy.languageLabel}
+                >
+                  {LANDING_LANGUAGES.map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Link href="/app" className="landing-header-link hidden sm:inline-flex">{copy.nav.signIn}</Link>
+              <Link href="/app/tasks/new" className="app-cta hidden sm:inline-flex">{copy.nav.hire}</Link>
               <button
                 type="button"
-                className="grid h-10 w-10 place-items-center rounded-full border border-white/20 text-white md:hidden"
+                className="landing-menu-button grid h-10 w-10 place-items-center rounded-full md:hidden"
                 aria-expanded={navOpen}
+                aria-label={navOpen ? copy.nav.closeMenu : copy.nav.openMenu}
                 onClick={() => setNavOpen((v) => !v)}
               >
-                ☰
+                <span aria-hidden>{navOpen ? "×" : "☰"}</span>
               </button>
             </div>
           </div>
           {navOpen ? (
-            <div className="border-t border-white/10 px-4 py-4 md:hidden">
-              <div className="flex flex-col gap-3 text-sm font-medium text-white">
-                <a href="#board" onClick={() => setNavOpen(false)}>
-                  Find tasks
-                </a>
-                <Link href="/app/tasks/new" onClick={() => setNavOpen(false)}>
-                  Post a task
-                </Link>
-                <a href="#pains" onClick={() => setNavOpen(false)}>
-                  Why Pico
-                </a>
-                <a href="#flow" onClick={() => setNavOpen(false)}>
-                  How it works
-                </a>
+            <div className="landing-mobile-nav px-4 py-4 md:hidden">
+              <div className="mx-auto flex max-w-6xl flex-col gap-3 text-sm font-medium">
+                <a href="#flow" onClick={() => setNavOpen(false)}>{copy.nav.how}</a>
+                <a href="#clients" onClick={() => setNavOpen(false)}>{copy.nav.clients}</a>
+                <a href="#workers" onClick={() => setNavOpen(false)}>{copy.nav.workers}</a>
+                <Link href="/app" onClick={() => setNavOpen(false)}>{copy.nav.findWork}</Link>
+                <Link href="/app/tasks/new" onClick={() => setNavOpen(false)}>{copy.nav.hire}</Link>
               </div>
             </div>
           ) : null}
         </header>
 
-        <div className="relative z-10 mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pb-20 sm:pt-14">
-          <div className="max-w-2xl">
-            <p className="hero-sub text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-              Verified outcomes · Solana USDC
-            </p>
-            <h1 className="hero-title display mt-4 text-4xl font-extrabold leading-[1.05] text-white sm:text-5xl md:text-[3.5rem]">
-              pico
-            </h1>
-            <p className="hero-sub mt-3 text-xl font-medium text-white/90 sm:text-2xl">
-              Get verified work without hiring the expert.
-            </p>
-            <p className="hero-sub mt-4 max-w-md text-base text-white/55 sm:text-lg">
-              Fund escrow → race three timed tests → Execution + verification slots
-              → chain review → auto-pay.
-            </p>
-            <div className="hero-sub mt-8 flex flex-wrap gap-3">
-              <Link href="/app/tasks/new" className="btn-primary btn-lg">
-                Post a task
-              </Link>
-              <a
-                href="#board"
-                className="btn-secondary btn-lg !border-white/20 !bg-white/5 !text-white hover:!bg-white/10"
-              >
-                Browse board
-              </a>
+        <div className="landing-promo mx-auto flex items-center justify-between gap-4 px-5">
+          <p><span>{copy.promo.title}</span> {copy.promo.body}</p>
+          <a href="#flow">{copy.promo.link} <span aria-hidden>→</span></a>
+        </div>
+
+        <div className="landing-hero-content mx-auto grid items-center gap-10 px-4">
+          <div className="landing-hero-copy">
+            <p className="landing-hero-pill"><span />{copy.hero.badge}</p>
+            <h1>{copy.hero.headline[0]}<br />{copy.hero.headline[1]}<br /><span>{copy.hero.headline[2]}</span></h1>
+            <p className="landing-hero-description">{copy.hero.description}</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/app/tasks/new" className="app-cta landing-hero-button">{copy.hero.postTask} <span aria-hidden>→</span></Link>
+              <Link href="/app" className="app-cta-ghost landing-hero-button">{copy.hero.exploreWork}</Link>
+            </div>
+            <div className="landing-proof-points">
+              {copy.hero.proof.map((point) => (
+                <span key={point}><i aria-hidden>✓</i> {point}</span>
+              ))}
+            </div>
+          </div>
+          <div className="landing-product-preview" aria-label={copy.preview.kicker}>
+            <div className="landing-preview-art">
+              <div className="landing-preview-art-orbit" aria-hidden />
+              <div className="landing-preview-kicker"><span /> {copy.preview.kicker} <span>01 — 03</span></div>
+              <div className="landing-preview-headline">{copy.preview.headline[0]}<br /><strong>{copy.preview.headline[1]}</strong></div>
+              <div className="landing-preview-caption">{copy.preview.caption}</div>
+              <div className="landing-preview-people" aria-hidden>
+                <span>{copy.preview.people[0]}</span><i>→</i><span>{copy.preview.people[1]}</span><i>→</i><span>{copy.preview.people[2]}</span>
+              </div>
+            </div>
+            <div className="landing-preview-balance">
+              <div><small>{copy.preview.budget}</small><b>$120</b></div>
+              <div><small>{copy.preview.payment}</small><b><i>{copy.preview.held}</i></b></div>
+              <div><small>{copy.preview.review}</small><b><i>{copy.preview.steps}</i></b></div>
+            </div>
+            <div className="landing-preview-task">
+              <div className="flex items-center justify-between gap-3">
+                <span className="landing-preview-label">{copy.preview.example}</span>
+                <span className="landing-preview-status"><span /> {copy.preview.inReview}</span>
+              </div>
+              <h2>{copy.preview.taskTitle}</h2>
+              <p>{copy.preview.taskDescription}</p>
+              <div className="landing-preview-progress"><span /></div>
+              <div className="flex justify-between text-xs text-[var(--text-muted)]"><span>{copy.preview.submitted}</span><span>{copy.preview.review} 2/2</span></div>
+              <div className="landing-preview-slots">
+                <div><span>01</span><b>{copy.board.execution}</b><small>{copy.preview.submitted}</small></div>
+                <div><span>02</span><b>{copy.preview.primaryReview}</b><small>{copy.preview.passed}</small></div>
+                <div><span>03</span><b>{copy.preview.auditReview}</b><small>{copy.preview.inProgress}</small></div>
+              </div>
+              <div className="landing-preview-payout"><span>{copy.preview.payout}</span><b>$120</b></div>
             </div>
           </div>
         </div>
-
-        <div className="relative z-30 mx-auto -mb-8 max-w-5xl px-4 sm:-mb-10 sm:px-6">
-          <form
-            className="search-pill flex flex-col gap-2 p-2 sm:flex-row sm:items-center sm:gap-0"
-            onSubmit={(e) => {
-              e.preventDefault();
-              window.location.href = appHref;
-            }}
-          >
-            <label className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 sm:px-4">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[var(--muted)]" aria-hidden>
-                <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
-                <path d="M16 16l4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Task title or keyword"
-                className="min-w-0 flex-1 bg-transparent text-sm text-[var(--text)] outline-none placeholder:text-[var(--muted)]"
-              />
-            </label>
-            <div className="hidden h-8 w-px bg-[var(--border)] sm:block" aria-hidden />
-            <label className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 sm:px-4">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[var(--muted)]" aria-hidden>
-                <path d="M4 7h16M7 12h10M10 17h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
-              <input
-                value={stack}
-                onChange={(e) => setStack(e.target.value)}
-                placeholder="Skill lane"
-                className="min-w-0 flex-1 bg-transparent text-sm text-[var(--text)] outline-none placeholder:text-[var(--muted)]"
-              />
-            </label>
-            <button type="submit" className="btn-search shrink-0">
-              Search
-            </button>
-          </form>
-        </div>
       </section>
 
-      {/* Pains */}
-      <section id="pains" className="border-b border-[var(--border)] bg-[var(--board)] pt-16 sm:pt-20">
+      <section id="clients" className="border-b border-[var(--border-default)] bg-[var(--bg-page)] pt-16 sm:pt-20">
         <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-            Why Pico
+            {copy.problem.eyebrow}
           </p>
           <h2 className="display mt-2 max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
-            The pains we actually solve
+            {copy.problem.title}
           </h2>
           <p className="mt-3 max-w-xl text-[var(--muted)]">
-            Not “replace Upwork.” A fulfillment layer for short expert work — escrow,
-            timed seats, chain verify.
+            {copy.problem.description}
           </p>
 
           <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PAINS.map((p) => (
+            {copy.problem.cards.map((p) => (
               <li
                 key={p.pain}
-                className="rounded-[var(--radius)] border border-[var(--border)] bg-white p-5 shadow-[var(--shadow)]"
+                className="rounded-[var(--radius)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5"
               >
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--accent)]">
                   {p.who}
@@ -341,8 +289,8 @@ export function LandingPage() {
                 <h3 className="mt-2 text-base font-bold leading-snug tracking-tight">
                   {p.pain}
                 </h3>
-                <p className="mt-3 border-t border-[var(--border)] pt-3 text-sm leading-relaxed text-[var(--muted)]">
-                  <span className="font-semibold text-[var(--text)]">Pico: </span>
+                <p className="mt-3 border-t border-[var(--border-default)] pt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+                  <span className="font-semibold text-[var(--text)]">{copy.problem.pico} </span>
                   {p.fix}
                 </p>
               </li>
@@ -351,43 +299,60 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Flow */}
-      <section id="flow" className="border-b border-[var(--border)] bg-white pt-16 sm:pt-20">        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <section id="flow" className="border-b border-[var(--border-default)] bg-[var(--bg-page)] pt-16 sm:pt-20">
+        <span id="verification" />
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-            The loop
+            {copy.flow.eyebrow}
           </p>
           <h2 className="display mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            From escrow to verified payout
+            {copy.flow.title}
           </h2>
-          <div className="flow-rail mt-8 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--board)]">
-            {FLOW.map((s) => (
-              <div key={s.n} className="flow-step">
-                <p className="flow-step-n">{s.n}</p>
+          <div className="flow-rail mt-8 rounded-[var(--radius)] border border-[var(--border-default)] bg-[var(--surface-primary)]">
+            {copy.flow.steps.map((s, index) => (
+              <div key={s.title} className="flow-step">
+                <p className="flow-step-n">{String(index + 1).padStart(2, "0")}</p>
                 <h3 className="mt-2 text-base font-bold">{s.title}</h3>
                 <p className="mt-1 text-sm text-[var(--muted)]">{s.body}</p>
               </div>
             ))}
           </div>
           <p className="mt-4 pb-10 text-sm text-[var(--muted)]">
-            Places 2…N+1 from the same Test-3 podium become verification slots — not a
-            separate reviewer hunt. Decline → single-seat refill only.
+            {copy.flow.note}
           </p>
         </div>
       </section>
 
-      {/* Board */}
-      <section id="board" className="mx-auto max-w-6xl px-4 pb-20 pt-12 sm:px-6">
+      <section id="workers" className="mx-auto max-w-6xl px-4 pb-20 pt-12 sm:px-6">
+        <form
+          className="landing-task-search mb-8 flex flex-col gap-2 sm:flex-row"
+          onSubmit={(e) => e.preventDefault()}
+        >
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={copy.board.titleSearch}
+            aria-label={copy.board.titleSearch}
+          />
+          <input
+            value={stack}
+            onChange={(e) => setStack(e.target.value)}
+            placeholder={copy.board.skillSearch}
+            aria-label={copy.board.skillSearch}
+          />
+          <button type="submit">{copy.board.search}</button>
+        </form>
         <div className="grid gap-10 lg:grid-cols-[220px_1fr]">
           <aside className="space-y-8">
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-bold">Skill lane</h2>
+                <h2 className="text-sm font-bold">{copy.board.skillLane}</h2>
                 <button
                   type="button"
                   className="text-xs font-semibold text-[var(--danger)] hover:underline"
                   onClick={() => setTaskTypes(["All"])}
                 >
-                  Clear
+                  {copy.board.clear}
                 </button>
               </div>
               <ul className="space-y-2.5">
@@ -401,7 +366,7 @@ export function LandingPage() {
                         onChange={() => toggleType(t)}
                       />
                       <span className={taskTypes.includes(t) ? "font-medium text-[var(--text)]" : ""}>
-                        {t}
+                        {categoryLabels[t]}
                       </span>
                     </label>
                   </li>
@@ -410,7 +375,7 @@ export function LandingPage() {
             </div>
 
             <div>
-              <h2 className="mb-3 text-sm font-bold">Escrow (USDC)</h2>
+              <h2 className="mb-3 text-sm font-bold">{copy.board.securedBudget}</h2>
               <input
                 type="range"
                 min={10}
@@ -420,7 +385,7 @@ export function LandingPage() {
                   setRewardMin(Math.min(Number(e.target.value), rewardMax - 5))
                 }
                 className="range-input"
-                aria-label="Minimum escrow"
+                aria-label={copy.board.minimumBudget}
               />
               <input
                 type="range"
@@ -431,7 +396,7 @@ export function LandingPage() {
                   setRewardMax(Math.max(Number(e.target.value), rewardMin + 5))
                 }
                 className="range-input -mt-2"
-                aria-label="Maximum escrow"
+                aria-label={copy.board.maximumBudget}
               />
               <div className="mt-2 flex justify-between text-xs font-semibold">
                 <span>${rewardMin}</span>
@@ -439,17 +404,15 @@ export function LandingPage() {
               </div>
             </div>
 
-            <div className="rounded-[var(--radius)] border border-[var(--border)] bg-white p-4 shadow-[var(--shadow)]">
+            <div className="rounded-[var(--radius)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4">
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                Slots
+                {copy.board.slots}
               </p>
               <p className="mt-2 text-sm leading-relaxed">
-                <strong>Execution</strong> does the work.{" "}
-                <strong>Primary</strong> reviews it.{" "}
-                <strong>Audit</strong> reviews Primary → client.
+                {copy.board.slotDescription}
               </p>
               <Link href="/app/tasks/new" className="btn-primary btn-sm mt-4 w-full">
-                Post a task
+                {copy.board.postTask}
               </Link>
             </div>
           </aside>
@@ -457,22 +420,23 @@ export function LandingPage() {
           <div>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <h2 className="display text-2xl font-extrabold tracking-tight">
-                Open tasks
+                {copy.board.openTasks}
               </h2>
               <select
                 id="sort"
                 value={sort}
+                aria-label={copy.board.sortBy}
                 onChange={(e) => setSort(e.target.value as SortKey)}
                 className="sort-select"
               >
-                <option value="recent">Most recent</option>
-                <option value="reward">Highest escrow</option>
+                <option value="recent">{copy.board.recent}</option>
+                <option value="reward">{copy.board.highestBudget}</option>
               </select>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {filtered.map((t) => (
-                <article key={t.id} className="task-card flex flex-col">
+                <article key={t.id} className="landing-task-card flex flex-col">
                   <div className="flex items-start justify-between gap-2">
                     <div
                       className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-xs font-bold text-white"
@@ -484,7 +448,7 @@ export function LandingPage() {
                     <button
                       type="button"
                       className={`heart-btn ${saved[t.id] ? "heart-on" : ""}`}
-                      aria-label="Save"
+                      aria-label={copy.board.saveTask}
                       onClick={() => setSaved((s) => ({ ...s, [t.id]: !s[t.id] }))}
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill={saved[t.id] ? "currentColor" : "none"}>
@@ -499,41 +463,41 @@ export function LandingPage() {
                   </div>
 
                   <h3 className="mt-3 text-[15px] font-bold leading-snug tracking-tight">
-                    {t.title}
+                    {copy.taskTitles[t.translationIndex]}
                   </h3>
                   <p className="mt-1 text-xs text-[var(--muted)]">
-                    {t.skill} · {t.interested} in qualify
+                    {categoryLabels[t.skill as TaskType]} · {t.interested} {copy.board.lookingToQualify}
                   </p>
 
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    <span className="tag tag-slot">N={t.reviews} reviews</span>
-                    <span className="tag tag-mode">USDC escrow</span>
-                    <span className="tag tag-remote">Fixed</span>
+                    <span className="tag tag-slot">N={t.reviews} {copy.board.reviewCount}</span>
+                    <span className="tag tag-mode">{copy.board.securedPayment}</span>
+                    <span className="tag tag-remote">{copy.board.fixed}</span>
                   </div>
 
-                  <p className="mt-3 line-clamp-2 flex-1 text-xs leading-relaxed text-[var(--muted)]">
-                    {t.blurb}
+                  <p className="mt-3 line-clamp-2 flex-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+                    {copy.taskDescriptions[t.translationIndex]}
                   </p>
 
                   <div className="mt-4 flex items-end justify-between gap-2 border-t border-[var(--border)] pt-3">
                     <p className="display text-xl font-extrabold tracking-tight">
                       ${t.reward}
                     </p>
-                    <p className="text-[11px] text-[var(--muted)]">{t.posted}</p>
+                    <p className="text-[11px] text-[var(--muted)]">{copy.board.taskAges[t.translationIndex]}</p>
                   </div>
 
                   <Link href="/app" className="btn-primary btn-sm mt-3 w-full">
-                    Enter board
+                    {copy.board.enterBoard}
                   </Link>
                 </article>
               ))}
             </div>
 
             {filtered.length === 0 ? (
-              <p className="rounded-[var(--radius)] border border-dashed border-[var(--border)] bg-white px-6 py-12 text-center text-sm text-[var(--muted)]">
-                No demos match.{" "}
+              <p className="rounded-[var(--radius)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] px-6 py-12 text-center text-sm text-[var(--text-secondary)]">
+                {copy.board.noMatches}{" "}
                 <Link href="/app/tasks/new" className="font-semibold text-[var(--accent)]">
-                  Post a real task
+                  {copy.board.postRealTask}
                 </Link>
                 .
               </p>
@@ -542,36 +506,36 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-[var(--border)] bg-[var(--hero)] text-white/65">
+      <footer className="border-t border-[var(--border-default)] bg-[var(--bg-page)] text-[var(--text-secondary)]">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
-            <p className="display text-xl font-bold text-white">pico</p>
+            <p className="display text-xl font-bold text-[var(--text-primary)]">pico</p>
             <p className="mt-1 max-w-sm text-sm">
-              Verified work without hiring — escrow, timed slots, chain verify.
+              {copy.footer.description}
             </p>
           </div>
           <div className="flex flex-wrap gap-5 text-sm">
-            <Link href="/app" className="hover:text-white">
-              App
+            <Link href="/app" className="hover:text-[var(--text-primary)]">
+              {copy.footer.app}
             </Link>
-            <Link href="/app/tasks/new" className="hover:text-white">
-              Post
+            <Link href="/app/tasks/new" className="hover:text-[var(--text-primary)]">
+              {copy.footer.post}
             </Link>
-            <a href="#pains" className="hover:text-white">
-              Why Pico
+            <a href="#clients" className="hover:text-[var(--text-primary)]">
+              {copy.footer.clients}
             </a>
-            <a href="#flow" className="hover:text-white">
-              Flow
+            <a href="#flow" className="hover:text-[var(--text-primary)]">
+              {copy.footer.flow}
             </a>
-            {SKILLS.slice(0, 2).map((s) => (
-              <Link key={s.id} href="/app" className="hover:text-white">
-                {s.label}
+            {[copy.board.codeReview, copy.board.debugging].map((skill) => (
+              <Link key={skill} href="/app" className="hover:text-[var(--text-primary)]">
+                {skill}
               </Link>
             ))}
           </div>
         </div>
-        <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-white/35">
-          Hackathon MVP · Solana Devnet
+        <div className="landing-footer-note px-4 py-4 text-center text-xs">
+          Pico · {copy.footer.tagline}
         </div>
       </footer>
     </div>
