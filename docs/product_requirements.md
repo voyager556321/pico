@@ -95,3 +95,15 @@
 - Scored by the client on four criteria: correctness 50, quality 25, explanation 15, time 10. Pass threshold starts at 70 of 100.
 - Done by hand. No automatic admission system until 10-20 tests show whether scores match client decisions.
 - Identity check (IdentityVerifier) stays separate from skill score.
+
+## 5d. Entry test generated from the task description (founder idea, 2026-10-15)
+Replaces the "scored by the client" and "taken from a real client request" parts of 5c. The client is usually not technical (for example, they need a camera driver and know nothing about Linux), so the client does not build or score the test.
+- The client only describes the task in plain words.
+- From that description the platform generates a separate test task in the same domain. Example: for a camera driver, find and fix a bug in a provided I2C driver, or add a sensor register read. The test checks the worker knows the topic; the client's real task starts after admission.
+- Correctness is checked automatically where possible (unit tests, an I2C bus simulator, a known-good answer). Quality and explanation are scored separately (reviewer or model; by hand for the first 10-20 tests).
+- Admission is by threshold (start at 70 of 100), not by ranking. Time is only a deadline condition and is worth at most 10 points, so the fastest worker does not automatically win.
+- Do not hand every worker the same test, since answers get shared. Variants must have the same difficulty.
+- Phase 1: no automatic generation yet. Prepare 3-5 test templates by hand for the first real requests, then automate once we see what clients ask for.
+- Non-technical tasks (VA, data entry) can still be judged by the client, because the result is understandable to them.
+- Open risk: every task type needs a way to check correctness automatically or by eye. Phase 1 should only take tasks where that is possible.
+- Identity check (IdentityVerifier) stays separate from the skill score.
