@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { SolanaProvider } from "@/components/SolanaProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Pico — Verified work without hiring",
   description:
-    "Fund a short expert task in USDC escrow. Timed qualification fills Execution + verification slots. Chain verify, auto-pay on Solana.",
+    "A marketplace for focused short-term work, with verified outcomes and clear delivery criteria.",
 };
 
 export default function RootLayout({
@@ -27,9 +26,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>
-        <SolanaProvider>{children}</SolanaProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

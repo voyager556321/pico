@@ -1,4 +1,8 @@
 import { PublicKey } from "@solana/web3.js";
+import { SKILLS } from "@/catalog/skills";
+
+export { SKILLS } from "@/catalog/skills";
+export type { SkillId } from "@/catalog/skills";
 
 export const PROGRAM_ID = new PublicKey(
   "6irGnLScTsE7i5C1Ai74rdhD1iKG3rdxJnZWNnWthV7j"
@@ -19,16 +23,6 @@ export const RPC_ENDPOINT =
 export const USDC_DECIMALS = 6;
 export const MAX_SLOTS = 4;
 export const BPS_DENOM = 10_000;
-
-/** skill_id = matching only (not budget envelopes) */
-export const SKILLS = [
-  { id: 1, label: "Code review" },
-  { id: 2, label: "Debugging" },
-  { id: 3, label: "QA" },
-  { id: 4, label: "Design" },
-] as const;
-
-export type SkillId = (typeof SKILLS)[number]["id"];
 
 export const TASK_STATUS = [
   "Qualifying",

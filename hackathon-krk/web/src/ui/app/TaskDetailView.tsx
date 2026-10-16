@@ -112,6 +112,34 @@ export function TaskDetailView({
         </Panel>
       ) : null}
 
+      {meta?.criteria?.length || meta?.deliverables?.length ? (
+        <Panel className="space-y-4">
+          {meta.criteria?.length ? (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                Acceptance criteria
+              </p>
+              <ol className="mt-2 list-inside list-decimal space-y-2 text-sm">
+                {meta.criteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+              </ol>
+            </div>
+          ) : null}
+          {meta.deliverables?.length ? (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                Deliverables
+              </p>
+              <ul className="mt-2 list-inside list-disc space-y-2 text-sm">
+                {meta.deliverables.map((deliverable) => <li key={deliverable}>{deliverable}</li>)}
+              </ul>
+            </div>
+          ) : null}
+          {meta.independentVerification ? (
+            <p className="text-xs text-[var(--muted)]">Independent verification was selected in the create-task preview.</p>
+          ) : null}
+        </Panel>
+      ) : null}
+
       <div>
         <h2 className="mb-3 text-lg font-bold">Slots</h2>
         <SlotTable task={task} highlightWallet={wallet} />

@@ -1,5 +1,5 @@
-import { DashboardPage } from "@/components/app/DashboardPage";
+import { PrototypeHomePage } from "@/components/app/PrototypePages";
 
-export default function AppPage() {
-  return <DashboardPage />;
+export default function HomePage() {
+  return <PrototypeHomePage />;
 }

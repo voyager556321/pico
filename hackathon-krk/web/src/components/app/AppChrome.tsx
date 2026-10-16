@@ -1,59 +1,74 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { getAssociatedTokenAddressSync, getAccount } from "@solana/spl-token";
-import { USDC_MINT, shortPk } from "@/lib/constants";
+import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { useEffect, useState } from "react";
+import { IconSearch } from "@/components/icons";
+import { ICONS, type IconName } from "@/components/icons";
 import { PicoMark } from "@/components/app/ui";
+import { USDC_MINT, shortPk } from "@/lib/constants";
 
 export type AppMode = "hiring" | "working";
 
 const MODE_KEY = "pico:appMode";
 
-export function useAppMode(): [AppMode, (m: AppMode) => void] {
+const NAV: [string, { label: string; icon: IconName; href: string }[]][] = [
+  ["WORKSPACE", [
+    { label: "Home", icon: "home", href: "/app" },
+    { label: "My tasks", icon: "tasks", href: "/app/tasks" },
+    { label: "Chats", icon: "chat", href: "/app/tasks/signup/room/conversation" },
+    { label: "Balance", icon: "wallet", href: "/app/balance" },
+    { label: "History", icon: "activity", href: "/app/activity" },
+  ]],
+  ["ACCOUNT", [
+    { label: "Company profile", icon: "user", href: "/app/profile" },
+    { label: "Settings", icon: "settings", href: "/app/settings" },
+    { label: "Help & disputes", icon: "help", href: "/app/help" },
+  ]],
+  ["PICO", [
+    { label: "About Pico", icon: "info", href: "/app/about" },
+    { label: "How it works", icon: "arrow", href: "/app/how" },
+  ]],
+];
+
+const PAGE_NAMES: [string, string][] = [
+  ["/app/tasks/new", "Create task"],
+  ["/app/tasks", "My tasks"],
+  ["/app/activity", "History"],
+  ["/app/balance", "Balance"],
+  ["/app/profile", "Company profile"],
+  ["/app/settings", "Settings"],
+  ["/app/help", "Help & disputes"],
+  ["/app/about", "About Pico"],
+  ["/app/how", "How it works"],
+  ["/app/operator", "Operator"],
+];
+
+export function useAppMode(): [AppMode, (mode: AppMode) => void] {
   const [mode, setModeState] = useState<AppMode>("hiring");
 
   useEffect(() => {
     try {
-      const v = localStorage.getItem(MODE_KEY);
-      if (v === "working" || v === "hiring") setModeState(v);
+      const stored = localStorage.getItem(MODE_KEY);
+      if (stored === "working" || stored === "hiring") setModeState(stored);
     } catch {
-      /* ignore */
+      return;
     }
   }, []);
 
-  function setMode(m: AppMode) {
-    setModeState(m);
+  function setMode(nextMode: AppMode) {
+    setModeState(nextMode);
     try {
-      localStorage.setItem(MODE_KEY, m);
+      localStorage.setItem(MODE_KEY, nextMode);
     } catch {
-      /* ignore */
+      return;
     }
   }
 
   return [mode, setMode];
-}
-
-function NavItem({
-  href,
-  label,
-  active,
-}: {
-  href: string;
-  label: string;
-  active?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className={active ? "app-nav-item app-nav-item-active" : "app-nav-item"}
-    >
-      {label}
-    </Link>
-  );
 }
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
@@ -64,9 +79,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const { connection } = useConnection();
   const [usdc, setUsdc] = useState<number | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!publicKey) {
@@ -77,8 +90,8 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         const ata = getAssociatedTokenAddressSync(USDC_MINT, publicKey);
-        const acc = await getAccount(connection, ata);
-        if (!cancelled) setUsdc(Number(acc.amount) / 1e6);
+        const account = await getAccount(connection, ata);
+        if (!cancelled) setUsdc(Number(account.amount) / 1e6);
       } catch {
         if (!cancelled) setUsdc(0);
       }
@@ -88,163 +101,79 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     };
   }, [publicKey, connection]);
 
-  const isDash = pathname === "/app";
-  const isNew = pathname.startsWith("/app/tasks/new");
-  const isOp = pathname.startsWith("/app/operator");
-  const isTask = pathname.startsWith("/app/tasks/") && !isNew;
+  const pageName = pathname === "/app"
+    ? "Home"
+    : PAGE_NAMES.find(([href]) => pathname === href || (href !== "/app/tasks" && pathname.startsWith(`${href}/`)))?.[1]
+      ?? (pathname.includes("/room/") ? "Workroom" : "Task details");
 
   return (
-    <div className="app-dark min-h-screen text-[var(--app-text)]">
-      <div className="mx-auto flex min-h-screen max-w-[1440px]">
-        {/* Sidebar */}
-        <aside className="sticky top-0 flex h-screen w-[232px] shrink-0 flex-col border-r border-[var(--app-border)] bg-[var(--app-sidebar)] px-3.5 py-6 max-lg:hidden">
-          <Link href="/" className="mb-8 flex items-center gap-2.5 px-2">
-            <PicoMark size={30} />
-            <span className="text-[1.05rem] font-bold tracking-tight">pico</span>
+    <div className="app">
+      <aside className="sb">
+        <div className="brandrow">
+          <Link href="/app" className="logo" aria-label="Pico home">
+            <i>P</i>Pico
           </Link>
-
-          <div className="app-mode-toggle mx-0.5 mb-6">
-            <button
-              type="button"
-              data-active={mode === "working"}
-              onClick={() => setMode("working")}
-            >
-              Working
-            </button>
-            <button
-              type="button"
-              data-active={mode === "hiring"}
-              onClick={() => setMode("hiring")}
-            >
-              Hiring
-            </button>
-          </div>
-
-          <nav className="flex flex-1 flex-col gap-0.5">
-            <NavItem
-              href="/app"
-              label={mode === "hiring" ? "Hiring" : "Working"}
-              active={isDash}
-            />
-            <NavItem href="/" label="Find tasks" />
-            <NavItem href="/app/tasks/new" label="Post a task" active={isNew} />
-            <NavItem href="/app/operator" label="Operator" active={isOp} />
-            {isTask ? (
-              <p className="mt-4 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--app-muted)]">
-                Task open
-              </p>
-            ) : null}
-          </nav>
-
-          <div className="mt-auto space-y-1 border-t border-[var(--app-border)] pt-4">
-            <NavItem href="/#pains" label="Why Pico" />
-            <NavItem href="/#flow" label="How it works" />
-            <div className="mt-3 rounded-[12px] border border-[var(--app-border)] bg-black/30 px-3 py-2.5">
-              {publicKey ? (
-                <>
-                  <p className="text-[13px] font-semibold tracking-tight text-[var(--app-text)]">
-                    {shortPk(publicKey.toBase58(), 4)}
-                  </p>
-                  <p className="mono mt-0.5 text-[10px] text-[var(--app-muted)]">
-                    Devnet wallet
-                  </p>
-                </>
-              ) : (
-                <p className="text-[13px] text-[var(--app-muted)]">
-                  Connect wallet →
-                </p>
-              )}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main + right */}
-        <div className="flex min-w-0 flex-1 flex-col lg:flex-row">
-          <div className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-9 lg:py-8">
-            {/* mobile top bar */}
-            <div className="mb-6 flex items-center justify-between gap-3 lg:hidden">
-              <Link href="/" className="flex items-center gap-2">
-                <PicoMark size={26} />
-                <span className="text-[15px] font-bold tracking-tight">pico</span>
-              </Link>
-              <div className="app-mode-toggle min-w-[140px]">
-                <button
-                  type="button"
-                  data-active={mode === "working"}
-                  onClick={() => setMode("working")}
-                >
-                  Work
-                </button>
-                <button
-                  type="button"
-                  data-active={mode === "hiring"}
-                  onClick={() => setMode("hiring")}
-                >
-                  Hire
-                </button>
-              </div>
-            </div>
-            {children}
-          </div>
-
-          {/* Right rail */}
-          <aside className="hidden w-[272px] shrink-0 flex-col gap-3.5 border-l border-[var(--app-border)] bg-[var(--app-sidebar)]/80 p-4 xl:flex">
-            <div className="app-rail-block">
-              <p className="app-rail-label">Needs your action</p>
-              <p className="mt-3 text-[13px] leading-relaxed text-[var(--app-muted)]">
-                <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[var(--ok)] align-middle" />
-                Open a task hub for next steps
-              </p>
-            </div>
-
-            <div className="app-rail-block">
-              <p className="app-rail-label">Wallet</p>
-              <div className="mt-3 space-y-2.5 text-[13px]">
-                <div className="flex justify-between gap-3">
-                  <span className="text-[var(--app-muted)]">USDC</span>
-                  <span className="font-semibold tabular-nums tracking-tight">
-                    {usdc === null ? "—" : usdc.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-[var(--app-muted)]">Network</span>
-                  <span className="font-medium text-[var(--app-muted)]">
-                    Devnet
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4">
-                {mounted ? (
-                  <div className="[&_.wallet-adapter-button]:!w-full [&_.wallet-adapter-button]:!rounded-full [&_.wallet-adapter-button]:!h-[42px]">
-                    <WalletMultiButton />
-                  </div>
-                ) : (
-                  <div
-                    className="app-cta w-full justify-center opacity-60"
-                    aria-hidden
-                  >
-                    Connect wallet
-                  </div>
-                )}
-              </div>
-              <p className="mt-3 text-[11px] leading-relaxed text-[var(--app-muted)]">
-                Per-task escrow only — no prepaid client vault.
-              </p>
-            </div>
-
-            <div className="app-rail-block">
-              <p className="app-rail-label">Platform fee</p>
-              <p className="mt-2.5 text-[13px] leading-relaxed text-[var(--app-text)]/90">
-                Taken from escrow on payout (
-                <code className="mono text-[11px] text-[var(--app-accent)]">
-                  fee_bps
-                </code>
-                ). Slot % splits the net between Execution and verifiers.
-              </p>
-            </div>
-          </aside>
+          <span className="icb" aria-hidden>{ICONS.side && <ICONS.side size={16} />}</span>
         </div>
-      </div>
+
+        <Link className="srch" href="/app/tasks" aria-label="Search tasks">
+          <IconSearch size={16} />
+          <span>Search…</span>
+          <kbd>⌘</kbd>
+          <kbd>K</kbd>
+        </Link>
+
+        {NAV.map(([group, items], groupIndex) => (
+          <div key={group}>
+            {groupIndex > 0 && <hr />}
+            <div className="lbl">{group}</div>
+            <div className="nv">
+              {items.map(({ label, icon, href }) => {
+                const Icon = ICONS[icon];
+                const active = pathname === href
+                  || (href === "/app/tasks" && pathname.startsWith("/app/tasks/") && !pathname.startsWith("/app/tasks/new") && !pathname.includes("/room/"))
+                  || (href !== "/app" && href !== "/app/tasks" && pathname.startsWith(`${href}/`));
+                return (
+                  <Link key={href} href={href} className={`ni${active ? " on" : ""}`} aria-current={active ? "page" : undefined}>
+                    {Icon && <Icon size={18} />}
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        {pathname.startsWith("/app/operator") && (
+          <div><hr /><div className="lbl">TOOLS</div><div className="nv"><Link href="/app/operator" className="ni on">Operator</Link></div></div>
+        )}
+        <div className="grow" />
+        <Link className="ni sout" href="/#flow">{ICONS.arrow && <ICONS.arrow size={18} />}How it works</Link>
+        <div className="acct">
+          <span className="avs">{publicKey ? shortPk(publicKey.toBase58(), 1).slice(0, 2).toUpperCase() : "NS"}</span>
+          <span><b>{publicKey ? shortPk(publicKey.toBase58(), 4) : "Northwind Studio"}</b><small>{publicKey ? "Devnet wallet" : mode === "working" ? "Worker account" : "Company account"}</small></span>
+          {ICONS.updown && <ICONS.updown size={16} />}
+        </div>
+      </aside>
+
+      <main className="mn">
+        <header className="tb">
+          <div className="crumb"><Link href="/app">Workspace</Link><span>/</span><b>{pageName}</b></div>
+          <div className="tbr">
+            <div className="mode" role="group" aria-label="Mode">
+              <button type="button" className={mode === "hiring" ? "on" : ""} aria-pressed={mode === "hiring"} onClick={() => setMode("hiring")}>{ICONS.brief && <ICONS.brief size={16} />}Hiring</button>
+              <button type="button" className={mode === "working" ? "on" : ""} aria-pressed={mode === "working"} onClick={() => setMode("working")}>{ICONS.tool && <ICONS.tool size={16} />}Working</button>
+            </div>
+            <button className="bell" aria-label="Notifications" type="button">{ICONS.bell && <ICONS.bell size={18} />}</button>
+            {mounted ? (
+              <div className="chrome-wallet"><WalletMultiButton /></div>
+            ) : (
+              <button className="wchip" type="button" disabled><span className="wi">◈</span><span><b>Phantom<span>Devnet</span></b><small>{usdc === null ? "Connect wallet" : `${usdc.toFixed(2)} USDC`}</small></span><span className="dotg" /></button>
+            )}
+          </div>
+        </header>
+        {children}
+      </main>
     </div>
   );
 }

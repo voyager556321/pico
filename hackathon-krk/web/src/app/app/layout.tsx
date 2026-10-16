@@ -1,9 +1,14 @@
 import { AppChrome } from "@/components/app/AppChrome";
+import { SolanaProvider } from "@/adapters/solana/SolanaProvider";
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AppChrome>{children}</AppChrome>;
+  return (
+    <SolanaProvider>
+      <AppChrome>{children}</AppChrome>
+    </SolanaProvider>
+  );
 }

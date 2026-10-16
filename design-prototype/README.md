@@ -4,6 +4,8 @@ Clickable MVP of Pico (short tasks on Solana) for all three modes: **Hiring (Cli
 One self-contained `index.html`. Real HTML/CSS, no screenshots. Mock data and local demo state only: no backend, no wallet, no Solana, nothing is paid.
 Follows `user-flows-final.md`, `screen-map-final.md` and product decisions 1–45. Figma is the visual reference (dark UI, indigo accent, Manrope, sidebar pattern).
 
+This is a standalone prototype, not the production web app. The production UI source is the React app in `hackathon-krk/web/src`; the newer Figma-exported HTML is archived in `figma-reference/` and is not a runtime route.
+
 ## Open
 Double-click `index.html` (or open the artifact link). Top bar of the prototype:
 - **Screen** menu — every screen, grouped: Shared, Client, Client · task pages, Worker, Reviewer, Archive (old logic, not linked).

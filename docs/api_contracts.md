@@ -9,7 +9,7 @@ Headers:
 - `x-pico-ts`: the unix-ms timestamp inside the message
 - `x-pico-sig`: base64 of the 64-byte signature
 
-The server (`src/lib/auth.ts`) rejects signatures older than 5 minutes (or more than 1 minute in the future). The client (`public/design/index.html`, `picoAuthHeaders`) caches the signature in `sessionStorage` per wallet and reuses it for ~4.5 minutes, so the user signs once per 5-minute window, not per request. On a 401 it drops the cache and re-signs once.
+The server (`src/lib/auth.ts`) rejects signatures older than 5 minutes (or more than 1 minute in the future). The archived HTML design prototype contains the previous `picoAuthHeaders` client implementation, which cached signatures in `sessionStorage`; it is not part of the React runtime. Ensure a current React client implements and tests this signing flow before relying on these POST routes in production.
 Auth errors:
 - 401: `{ "error": "signature required" | "bad timestamp" | "signature expired" | "timestamp in the future" | "bad wallet" | "bad signature" }`
 - 403: signature is valid but the signer may not make this change (see each route)

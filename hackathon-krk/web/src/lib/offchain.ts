@@ -9,6 +9,9 @@ export const QUALIFY_PREFIX = "pico:qualify:";
 
 export type TaskMeta = {
   brief: string;
+  criteria?: string[];
+  deliverables?: string[];
+  independentVerification?: boolean;
   result?: string;
   explanation?: string;
   reviews?: Record<string, string>;

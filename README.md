@@ -63,7 +63,7 @@ Anchor one-worker escrow         →  hackathon-krk/programs/pico  (source)
 Live program at the id below     →  earlier budget program on devnet
 ```
 
-Next.js 15, React 19, `@solana/web3.js`, Anchor 0.29 in the web app. The homepage is a static page served by a rewrite to `hackathon-krk/web/public/design/index.html`.
+Next.js 15 and React 19. The homepage is rendered by React at `hackathon-krk/web/src/app/page.tsx`. Solana wallet context is mounted only for `/app`; the landing page and API routes do not require it. Existing task actions still use Solana directly, so the adapter boundary is an ongoing migration rather than a chain-independent production payment layer.
 
 ## Program
 
@@ -99,7 +99,10 @@ Open http://127.0.0.1:3456/. That process serves the page and `POST /api/benchma
 
 | Path | Contents |
 | --- | --- |
-| `hackathon-krk/web` | Next.js app. Homepage rewrite, `/app`, API routes |
-| `hackathon-krk/web/public/design` | The page the demo serves |
+| `hackathon-krk/web/src/app` | Next.js route entry points and layouts |
+| `hackathon-krk/web/src/catalog` | Chain-independent product catalog data |
+| `hackathon-krk/web/src/adapters/solana` | Solana provider integration |
+| `hackathon-krk/web/src/domain`, `src/platform`, `src/ui` | Product rules, actions, and views |
+| `design-prototype/figma-reference` | Archived HTML design reference; not served by the web app |
 | `hackathon-krk/programs/pico` | Anchor source and the devnet notes for the live budget program |
 | `design-prototype` | The same product page, plus the I2C harness |
