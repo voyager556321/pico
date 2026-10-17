@@ -2586,15 +2586,6 @@ button {
 .landing-preview-slots small { margin-top: 4px; color: var(--text-muted); font-size: 9px; }
 .landing-preview-payout { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-default); color: var(--text-muted); font-size: 10px; }
 .landing-preview-payout b { color: var(--text-primary); font-size: 11px; }
-.landing-task-search { padding: 8px; border: 1px solid var(--border-default); border-radius: 14px; background: var(--surface-primary); }
-.landing-task-search input { min-width: 0; flex: 1; padding: 11px 13px; border: 0; border-radius: 8px; outline: 0; background: transparent; color: var(--text-primary); font-size: 13px; }
-.landing-task-search input::placeholder { color: var(--text-muted); }
-.landing-task-search button { min-height: 40px; padding: 0 20px; border: 0; border-radius: 9px; background: var(--ai-gradient-button); color: #fff; font-size: 12px; font-weight: 700; }
-.landing-task-card { min-width: 0; padding: 18px; border: 1px solid var(--border-default); border-radius: 14px; background: var(--surface-primary); color: var(--text-primary); }
-.landing-task-card .tag { padding: 4px 7px; border: 1px solid var(--border-default); border-radius: 999px; color: var(--text-secondary); font-size: 9px; }
-.landing-task-card .heart-btn { border: 0; background: transparent; color: var(--text-muted); }
-.landing-task-card .heart-on { color: var(--status-error); }
-.landing-task-card .btn-primary { display: flex; align-items: center; justify-content: center; min-height: 36px; border-radius: 8px; background: var(--ai-gradient-button); color: #fff; font-size: 11px; font-weight: 700; }
 .flow-rail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: hidden; }
 .flow-step { padding: 20px; border-right: 1px solid var(--border-default); }
 .flow-step:last-child { border-right: 0; }
@@ -2722,8 +2713,6 @@ button {
 
 .pico-landing .landing-header .app-cta,
 .pico-landing .app-cta,
-.pico-landing .landing-task-search button,
-.pico-landing .landing-task-card .btn-primary,
 .pico-landing .btn-primary {
   border-color: transparent;
   background: var(--ai-gradient-button);
@@ -2731,8 +2720,6 @@ button {
 }
 
 .pico-landing .app-cta:hover,
-.pico-landing .landing-task-search button:hover,
-.pico-landing .landing-task-card .btn-primary:hover,
 .pico-landing .btn-primary:hover {
   filter: brightness(1.04);
 }
@@ -3093,31 +3080,249 @@ button {
   font-size: 10px;
 }
 
-.pico-landing .landing-task-search {
-  border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(38, 54, 36, .04);
-}
-
-.pico-landing .landing-task-search input {
-  color-scheme: light;
-}
-
-.pico-landing .landing-task-card {
-  border-radius: 13px;
+.pico-landing .flow-rail {
   box-shadow: 0 4px 16px rgba(38, 54, 36, .04);
-  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
 }
 
-.pico-landing .landing-task-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--tint-accent-border);
-  box-shadow: 0 12px 24px rgba(38, 54, 36, .08);
+.pico-landing .landing-urgent-section {
+  background: #f3f7f0;
 }
 
-.pico-landing .flow-rail,
-.pico-landing .landing-task-card,
-.pico-landing .landing-task-search {
-  box-shadow: 0 4px 16px rgba(38, 54, 36, .04);
+.pico-landing .landing-urgent-card {
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+  padding: clamp(28px, 5vw, 64px);
+  border: 1px solid #e3eadf;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(36, 61, 34, .08);
+}
+
+.pico-landing .landing-urgent-copy {
+  max-width: 560px;
+}
+
+.pico-landing .landing-urgent-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #347b3d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.pico-landing .landing-urgent-eyebrow span,
+.pico-landing .landing-urgent-live i {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: #54b45f;
+}
+
+.pico-landing .landing-urgent-copy h2 {
+  max-width: 540px;
+  margin-top: 17px;
+  color: var(--text-primary);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 750;
+  letter-spacing: -.055em;
+  line-height: 1.08;
+}
+
+.pico-landing .landing-urgent-description {
+  max-width: 480px;
+  margin-top: 16px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.pico-landing .landing-urgent-benefits {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.pico-landing .landing-urgent-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.pico-landing .landing-urgent-benefits li span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: #eaf5e7;
+  color: #347b3d;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pico-landing .landing-urgent-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  margin-top: 30px;
+}
+
+.pico-landing .landing-urgent-cta {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 19px;
+  border-radius: 10px;
+  background: #347b3d;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.pico-landing .landing-urgent-cta:hover {
+  transform: translateY(-1px);
+  background: #286632;
+}
+
+.pico-landing .landing-urgent-cta span {
+  font-size: 17px;
+}
+
+.pico-landing .landing-urgent-note {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.pico-landing .landing-urgent-visual {
+  padding: clamp(20px, 3vw, 30px);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #183f2a, #245b37);
+  box-shadow: 0 20px 44px rgba(27, 73, 40, .2);
+  color: #fff;
+}
+
+.pico-landing .landing-urgent-visual-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #c1d9c3;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pico-landing .landing-urgent-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #d9f2d8;
+  letter-spacing: 0;
+}
+
+.pico-landing .landing-urgent-live i {
+  width: 6px;
+  height: 6px;
+}
+
+.pico-landing .landing-urgent-visual-title {
+  margin-top: 28px;
+  font-size: clamp(19px, 2.4vw, 25px);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.25;
+}
+
+.pico-landing .landing-urgent-visual-subtitle {
+  margin-top: 7px;
+  color: #c1d9c3;
+  font-size: 12px;
+}
+
+.pico-landing .landing-urgent-task {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px 10px;
+  margin-top: 15px;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .07);
+}
+
+.pico-landing .landing-urgent-task > span {
+  grid-row: span 2;
+  color: #a9d28f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pico-landing .landing-urgent-task p {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.pico-landing .landing-urgent-task b {
+  color: #b9d8b7;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.pico-landing .landing-urgent-match {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 18px;
+  padding: 13px;
+  border-radius: 11px;
+  background: #fff;
+  color: var(--text-primary);
+}
+
+.pico-landing .landing-urgent-avatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: #eaf5e7;
+  color: #347b3d;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.pico-landing .landing-urgent-match > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.pico-landing .landing-urgent-match b {
+  font-size: 11px;
+}
+
+.pico-landing .landing-urgent-match small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.pico-landing .landing-urgent-arrow {
+  margin-left: auto;
+  color: #347b3d;
+  font-size: 17px;
 }
 
 .pico-landing .landing-footer-note {
@@ -3147,6 +3352,11 @@ button {
 
   .pico-landing .landing-preview-art {
     min-height: 270px;
+  }
+
+  .pico-landing .landing-urgent-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 34px;
   }
 }
 
@@ -3190,6 +3400,19 @@ button {
     gap: 34px;
     padding-top: 40px;
     padding-bottom: 48px;
+  }
+
+  .pico-landing .landing-urgent-card {
+    padding: 25px 20px;
+    border-radius: 18px;
+  }
+
+  .pico-landing .landing-urgent-copy h2 {
+    font-size: clamp(32px, 9vw, 42px);
+  }
+
+  .pico-landing .landing-urgent-visual {
+    padding: 19px;
   }
 
   .pico-landing .landing-hero-copy h1 {
@@ -3269,13 +3492,6 @@ button {
     font-size: 8px;
   }
 
-  .pico-landing .landing-task-search {
-    padding: 7px;
-  }
-
-  .pico-landing .landing-task-search input {
-    min-height: 38px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -49,6 +49,7 @@ type LandingCopy = {
     passed: string;
     inProgress: string;
     payout: string;
+    execution: string;
   };
   problem: {
     eyebrow: string;
@@ -62,6 +63,25 @@ type LandingCopy = {
     title: string;
     steps: { title: string; body: string }[];
     note: string;
+  };
+  urgent: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    benefits: [string, string, string];
+    cta: string;
+    note: string;
+    visualLabel: string;
+    briefLabel: string;
+    status: string;
+    briefTitle: string;
+    briefSubtitle: string;
+    taskOne: string;
+    skillOne: string;
+    taskTwo: string;
+    skillTwo: string;
+    verifiedLabel: string;
+    verifiedDescription: string;
   };
   board: {
     titleSearch: string;
@@ -158,6 +178,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       passed: "Passed",
       inProgress: "In progress",
       payout: "Payment released after review",
+      execution: "Execution",
     },
     problem: {
       eyebrow: "WHY PICO",
@@ -204,6 +225,30 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         { title: "Pay", body: "Release payment after review" },
       ],
       note: "The same timed qualification identifies the specialist and the reviewers. If someone declines, only that seat is refilled.",
+    },
+    urgent: {
+      eyebrow: "WHEN THE DEADLINE IS CLOSING IN",
+      title: "Don’t let one stuck task hold the whole project back.",
+      description:
+        "Bring the one or two things blocking progress to Pico. Find a qualified specialist for focused work—without the long hiring cycle.",
+      benefits: [
+        "Post a clear task with your budget",
+        "Review demonstrated skills before choosing",
+        "Approve the work before payment is released",
+      ],
+      cta: "Get help with a task",
+      note: "Focused work, without another long hiring process.",
+      visualLabel: "Example of a focused task brief",
+      briefLabel: "PRIORITY BRIEF",
+      status: "2 focused tasks",
+      briefTitle: "What needs to get done?",
+      briefSubtitle: "A clear scope helps the right specialist get started.",
+      taskOne: "Fix checkout errors before launch",
+      skillOne: "Development",
+      taskTwo: "Test checkout on mobile and desktop",
+      skillTwo: "QA & testing",
+      verifiedLabel: "Skills shown before selection",
+      verifiedDescription: "Choose based on demonstrated ability.",
     },
     board: {
       titleSearch: "Task title or keyword",
@@ -313,6 +358,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       passed: "Aprobada",
       inProgress: "En curso",
       payout: "El pago se libera tras la revisión",
+      execution: "Ejecución",
     },
     problem: {
       eyebrow: "POR QUÉ PICO",
@@ -359,6 +405,30 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         { title: "Paga", body: "Libera el pago tras la revisión" },
       ],
       note: "La misma prueba cronometrada selecciona al especialista y a quienes revisan. Si alguien renuncia, solo se vuelve a cubrir ese puesto.",
+    },
+    urgent: {
+      eyebrow: "SI SE ACERCA LA FECHA LÍMITE",
+      title: "Que una tarea atascada no frene todo el proyecto.",
+      description:
+        "Trae a Pico una o dos tareas que bloquean el avance. Encuentra a un especialista cualificado para un trabajo concreto, sin un largo proceso de selección.",
+      benefits: [
+        "Publica una tarea clara con su presupuesto",
+        "Revisa las habilidades demostradas antes de elegir",
+        "Aprueba el trabajo antes de liberar el pago",
+      ],
+      cta: "Encuentra ayuda para una tarea",
+      note: "Trabajo concreto, sin otro largo proceso de selección.",
+      visualLabel: "Ejemplo de una tarea concreta",
+      briefLabel: "TAREA PRIORITARIA",
+      status: "2 tareas concretas",
+      briefTitle: "¿Qué hay que resolver?",
+      briefSubtitle: "Un alcance claro ayuda al especialista adecuado a empezar.",
+      taskOne: "Corregir errores del pago antes del lanzamiento",
+      skillOne: "Desarrollo",
+      taskTwo: "Probar el pago en móvil y escritorio",
+      skillTwo: "QA y pruebas",
+      verifiedLabel: "Habilidades demostradas antes de elegir",
+      verifiedDescription: "Elige según la capacidad demostrada.",
     },
     board: {
       titleSearch: "Título o palabra clave",
@@ -468,6 +538,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       passed: "Zaliczona",
       inProgress: "W toku",
       payout: "Wypłata po zatwierdzeniu weryfikacji",
+      execution: "Realizacja",
     },
     problem: {
       eyebrow: "DLACZEGO PICO",
@@ -514,6 +585,30 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         { title: "Wypłać", body: "Zwolnij płatność po weryfikacji" },
       ],
       note: "Ten sam test na czas wybiera specjalistę i osoby weryfikujące. Jeśli ktoś zrezygnuje, ponownie obsadzane jest tylko jego miejsce.",
+    },
+    urgent: {
+      eyebrow: "GDY ZBLIŻA SIĘ TERMIN",
+      title: "Nie pozwól, by jedno zadanie zatrzymało cały projekt.",
+      description:
+        "Przekaż Pico jedno lub dwa zadania, które blokują postęp. Znajdź sprawdzonego specjalistę do konkretnej pracy — bez długiej rekrutacji.",
+      benefits: [
+        "Opisz zadanie i podaj budżet",
+        "Sprawdź potwierdzone umiejętności przed wyborem",
+        "Zatwierdź pracę przed wypłatą",
+      ],
+      cta: "Znajdź pomoc do zadania",
+      note: "Konkretna praca bez kolejnej długiej rekrutacji.",
+      visualLabel: "Przykład konkretnego zlecenia",
+      briefLabel: "PILNE ZLECENIE",
+      status: "2 konkretne zadania",
+      briefTitle: "Co trzeba zrobić?",
+      briefSubtitle: "Jasny zakres ułatwia start właściwemu specjaliście.",
+      taskOne: "Napraw błędy płatności przed premierą",
+      skillOne: "Programowanie",
+      taskTwo: "Przetestuj płatność na telefonie i komputerze",
+      skillTwo: "Testowanie",
+      verifiedLabel: "Umiejętności potwierdzone przed wyborem",
+      verifiedDescription: "Wybierz na podstawie sprawdzonych umiejętności.",
     },
     board: {
       titleSearch: "Tytuł zadania lub słowo kluczowe",
@@ -623,6 +718,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       passed: "Bestanden",
       inProgress: "In Bearbeitung",
       payout: "Zahlung nach erfolgreicher Prüfung",
+      execution: "Umsetzung",
     },
     problem: {
       eyebrow: "WARUM PICO",
@@ -669,6 +765,30 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         { title: "Auszahlen", body: "Zahlung nach der Prüfung freigeben" },
       ],
       note: "Derselbe zeitbegrenzte Test wählt die Fachkraft und die Prüfenden aus. Lehnt jemand ab, wird nur dieser Platz neu vergeben.",
+    },
+    urgent: {
+      eyebrow: "WENN DER TERMIN NÄHER RÜCKT",
+      title: "Lass nicht zu, dass eine offene Aufgabe das ganze Projekt aufhält.",
+      description:
+        "Bring die ein oder zwei Aufgaben zu Pico, die den Fortschritt blockieren. Finde eine qualifizierte Fachkraft für gezielte Arbeit – ohne lange Personalsuche.",
+      benefits: [
+        "Stelle eine klare Aufgabe mit Budget ein",
+        "Prüfe nachgewiesene Fähigkeiten vor der Auswahl",
+        "Gib die Arbeit frei, bevor die Zahlung erfolgt",
+      ],
+      cta: "Hilfe für eine Aufgabe finden",
+      note: "Gezielte Arbeit statt einer weiteren langen Personalsuche.",
+      visualLabel: "Beispiel für einen konkreten Auftrag",
+      briefLabel: "PRIORITÄTSAUFTRAG",
+      status: "2 konkrete Aufgaben",
+      briefTitle: "Was muss erledigt werden?",
+      briefSubtitle: "Ein klarer Umfang hilft der passenden Fachkraft beim Start.",
+      taskOne: "Fehler im Checkout vor dem Start beheben",
+      skillOne: "Entwicklung",
+      taskTwo: "Checkout auf Smartphone und Desktop testen",
+      skillTwo: "Qualitätssicherung",
+      verifiedLabel: "Fähigkeiten vor der Auswahl belegt",
+      verifiedDescription: "Wähle anhand nachgewiesener Fähigkeiten.",
     },
     board: {
       titleSearch: "Auftragstitel oder Stichwort",
@@ -778,6 +898,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       passed: "Пройдено",
       inProgress: "У процесі",
       payout: "Оплата надійде після перевірки",
+      execution: "Виконавець",
     },
     problem: {
       eyebrow: "ЧОМУ PICO",
@@ -824,6 +945,30 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         { title: "Виплатити", body: "Підтвердити оплату після перевірки" },
       ],
       note: "Той самий тест на час відбирає виконавця й рецензентів. Якщо хтось відмовиться, повторно заповнюється лише його місце.",
+    },
+    urgent: {
+      eyebrow: "КОЛИ ДЕДЛАЙН НАБЛИЖАЄТЬСЯ",
+      title: "Не дозволь одному завданню загальмувати весь проєкт.",
+      description:
+        "Передай Pico одне чи два завдання, що блокують роботу. Знайди кваліфікованого фахівця для конкретної задачі — без тривалого найму.",
+      benefits: [
+        "Опиши завдання та вкажи бюджет",
+        "Перевір підтверджені навички перед вибором",
+        "Підтвердь роботу до того, як буде здійснено оплату",
+      ],
+      cta: "Знайти фахівця для завдання",
+      note: "Конкретна робота без тривалого процесу найму.",
+      visualLabel: "Приклад конкретного завдання",
+      briefLabel: "ТЕРМІНОВЕ ЗАВДАННЯ",
+      status: "2 конкретні завдання",
+      briefTitle: "Що потрібно зробити?",
+      briefSubtitle: "Чіткий опис допоможе потрібному фахівцю швидко розпочати.",
+      taskOne: "Виправити помилки оплати до запуску",
+      skillOne: "Розробка",
+      taskTwo: "Перевірити оплату на телефоні й комп’ютері",
+      skillTwo: "Тестування",
+      verifiedLabel: "Навички підтверджено до вибору",
+      verifiedDescription: "Обирай за підтвердженими навичками.",
     },
     board: {
       titleSearch: "Назва завдання або ключове слово",

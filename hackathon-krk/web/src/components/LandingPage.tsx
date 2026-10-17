@@ -1,147 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   LANDING_COPY,
   LANDING_LANGUAGES,
   type LandingLanguage,
 } from "@/components/landingTranslations";
 
-type TaskType = "All" | "Code review" | "Debugging" | "QA" | "Design";
-type SortKey = "recent" | "reward";
-
-const TASK_TYPES: TaskType[] = ["All", "Code review", "Debugging", "QA", "Design"];
-
-const DEMO_TASKS = [
-  {
-    id: "t1",
-    translationIndex: 0,
-    skill: "Code review",
-    reviews: 2,
-    reward: 85,
-    interested: 6,
-    posted: "2h ago",
-    mark: "AN",
-    markBg: "#155e75",
-  },
-  {
-    id: "t2",
-    translationIndex: 1,
-    skill: "Debugging",
-    reviews: 1,
-    reward: 60,
-    interested: 9,
-    posted: "5h ago",
-    mark: "NX",
-    markBg: "#0c1222",
-  },
-  {
-    id: "t3",
-    translationIndex: 2,
-    skill: "QA",
-    reviews: 2,
-    reward: 40,
-    interested: 11,
-    posted: "1d ago",
-    mark: "QA",
-    markBg: "#065f46",
-  },
-  {
-    id: "t4",
-    translationIndex: 3,
-    skill: "Design",
-    reviews: 1,
-    reward: 55,
-    interested: 4,
-    posted: "1d ago",
-    mark: "UI",
-    markBg: "#7c2d12",
-  },
-  {
-    id: "t5",
-    translationIndex: 4,
-    skill: "Code review",
-    reviews: 2,
-    reward: 120,
-    interested: 3,
-    posted: "2d ago",
-    mark: "SC",
-    markBg: "#0e7490",
-  },
-  {
-    id: "t6",
-    translationIndex: 5,
-    skill: "Debugging",
-    reviews: 2,
-    reward: 95,
-    interested: 5,
-    posted: "3d ago",
-    mark: "AT",
-    markBg: "#134e4a",
-  },
-];
-
 export function LandingPage() {
-  const [query, setQuery] = useState("");
-  const [stack, setStack] = useState("");
   const [navOpen, setNavOpen] = useState(false);
   const [language, setLanguage] = useState<LandingLanguage>("en");
-  const [taskTypes, setTaskTypes] = useState<TaskType[]>(["All"]);
-  const [rewardMin, setRewardMin] = useState(25);
-  const [rewardMax, setRewardMax] = useState(150);
-  const [sort, setSort] = useState<SortKey>("recent");
-  const [saved, setSaved] = useState<Record<string, boolean>>({});
   const copy = LANDING_COPY[language];
-  const categoryLabels: Record<TaskType, string> = {
-    All: copy.board.all,
-    "Code review": copy.board.codeReview,
-    Debugging: copy.board.debugging,
-    QA: copy.board.qa,
-    Design: copy.board.design,
-  };
-
-  const filtered = useMemo(() => {
-    let rows = DEMO_TASKS.filter((t) => {
-      const typeOk =
-        taskTypes.includes("All") || taskTypes.includes(t.skill as TaskType);
-      const rewardOk = t.reward >= rewardMin && t.reward <= rewardMax;
-      const q = query.trim().toLowerCase();
-      const s = stack.trim().toLowerCase();
-      const textOk =
-        !q ||
-        LANDING_COPY[language].taskTitles[t.translationIndex]
-          .toLowerCase()
-          .includes(q) ||
-        LANDING_COPY[language].taskDescriptions[t.translationIndex]
-          .toLowerCase()
-          .includes(q) ||
-        categoryLabels[t.skill as TaskType].toLowerCase().includes(q);
-      const stackOk =
-        !s ||
-        categoryLabels[t.skill as TaskType].toLowerCase().includes(s) ||
-        LANDING_COPY[language].taskDescriptions[t.translationIndex]
-          .toLowerCase()
-          .includes(s);
-      return typeOk && rewardOk && textOk && stackOk;
-    });
-    if (sort === "reward") rows = [...rows].sort((a, b) => b.reward - a.reward);
-    return rows;
-  }, [taskTypes, rewardMin, rewardMax, query, stack, sort, language]);
-
-  function toggleType(t: TaskType) {
-    if (t === "All") {
-      setTaskTypes(["All"]);
-      return;
-    }
-    setTaskTypes((prev) => {
-      const withoutAll = prev.filter((x) => x !== "All");
-      const next = withoutAll.includes(t)
-        ? withoutAll.filter((x) => x !== t)
-        : [...withoutAll, t];
-      return next.length === 0 ? ["All"] : next;
-    });
-  }
 
   function changeLanguage(value: string) {
     const selectedLanguage = LANDING_LANGUAGES.find(
@@ -166,7 +36,7 @@ export function LandingPage() {
             <nav className="landing-nav hidden items-center gap-8 text-sm font-medium md:flex">
               <a href="#flow" className="nav-link">{copy.nav.how}</a>
               <a href="#clients" className="nav-link">{copy.nav.clients}</a>
-              <a href="#workers" className="nav-link">{copy.nav.workers}</a>
+              <Link href="/app" className="nav-link">{copy.nav.findWork}</Link>
             </nav>
 
             <div className="flex items-center gap-3">
@@ -202,7 +72,6 @@ export function LandingPage() {
               <div className="mx-auto flex max-w-6xl flex-col gap-3 text-sm font-medium">
                 <a href="#flow" onClick={() => setNavOpen(false)}>{copy.nav.how}</a>
                 <a href="#clients" onClick={() => setNavOpen(false)}>{copy.nav.clients}</a>
-                <a href="#workers" onClick={() => setNavOpen(false)}>{copy.nav.workers}</a>
                 <Link href="/app" onClick={() => setNavOpen(false)}>{copy.nav.findWork}</Link>
                 <Link href="/app/tasks/new" onClick={() => setNavOpen(false)}>{copy.nav.hire}</Link>
               </div>
@@ -255,7 +124,7 @@ export function LandingPage() {
               <div className="landing-preview-progress"><span /></div>
               <div className="flex justify-between text-xs text-[var(--text-muted)]"><span>{copy.preview.submitted}</span><span>{copy.preview.review} 2/2</span></div>
               <div className="landing-preview-slots">
-                <div><span>01</span><b>{copy.board.execution}</b><small>{copy.preview.submitted}</small></div>
+                <div><span>01</span><b>{copy.preview.execution}</b><small>{copy.preview.submitted}</small></div>
                 <div><span>02</span><b>{copy.preview.primaryReview}</b><small>{copy.preview.passed}</small></div>
                 <div><span>03</span><b>{copy.preview.auditReview}</b><small>{copy.preview.inProgress}</small></div>
               </div>
@@ -323,185 +192,43 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="workers" className="mx-auto max-w-6xl px-4 pb-20 pt-12 sm:px-6">
-        <form
-          className="landing-task-search mb-8 flex flex-col gap-2 sm:flex-row"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={copy.board.titleSearch}
-            aria-label={copy.board.titleSearch}
-          />
-          <input
-            value={stack}
-            onChange={(e) => setStack(e.target.value)}
-            placeholder={copy.board.skillSearch}
-            aria-label={copy.board.skillSearch}
-          />
-          <button type="submit">{copy.board.search}</button>
-        </form>
-        <div className="grid gap-10 lg:grid-cols-[220px_1fr]">
-          <aside className="space-y-8">
-            <div>
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-bold">{copy.board.skillLane}</h2>
-                <button
-                  type="button"
-                  className="text-xs font-semibold text-[var(--danger)] hover:underline"
-                  onClick={() => setTaskTypes(["All"])}
-                >
-                  {copy.board.clear}
-                </button>
-              </div>
-              <ul className="space-y-2.5">
-                {TASK_TYPES.map((t) => (
-                  <li key={t}>
-                    <label className="flex cursor-pointer items-center gap-2.5 text-sm text-[var(--muted)]">
-                      <input
-                        type="checkbox"
-                        className="filter-check"
-                        checked={taskTypes.includes(t)}
-                        onChange={() => toggleType(t)}
-                      />
-                      <span className={taskTypes.includes(t) ? "font-medium text-[var(--text)]" : ""}>
-                        {categoryLabels[t]}
-                      </span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h2 className="mb-3 text-sm font-bold">{copy.board.securedBudget}</h2>
-              <input
-                type="range"
-                min={10}
-                max={200}
-                value={rewardMin}
-                onChange={(e) =>
-                  setRewardMin(Math.min(Number(e.target.value), rewardMax - 5))
-                }
-                className="range-input"
-                aria-label={copy.board.minimumBudget}
-              />
-              <input
-                type="range"
-                min={10}
-                max={200}
-                value={rewardMax}
-                onChange={(e) =>
-                  setRewardMax(Math.max(Number(e.target.value), rewardMin + 5))
-                }
-                className="range-input -mt-2"
-                aria-label={copy.board.maximumBudget}
-              />
-              <div className="mt-2 flex justify-between text-xs font-semibold">
-                <span>${rewardMin}</span>
-                <span>${rewardMax}</span>
-              </div>
-            </div>
-
-            <div className="rounded-[var(--radius)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                {copy.board.slots}
-              </p>
-              <p className="mt-2 text-sm leading-relaxed">
-                {copy.board.slotDescription}
-              </p>
-              <Link href="/app/tasks/new" className="btn-primary btn-sm mt-4 w-full">
-                {copy.board.postTask}
-              </Link>
-            </div>
-          </aside>
-
-          <div>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="display text-2xl font-extrabold tracking-tight">
-                {copy.board.openTasks}
-              </h2>
-              <select
-                id="sort"
-                value={sort}
-                aria-label={copy.board.sortBy}
-                onChange={(e) => setSort(e.target.value as SortKey)}
-                className="sort-select"
-              >
-                <option value="recent">{copy.board.recent}</option>
-                <option value="reward">{copy.board.highestBudget}</option>
-              </select>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {filtered.map((t) => (
-                <article key={t.id} className="landing-task-card flex flex-col">
-                  <div className="flex items-start justify-between gap-2">
-                    <div
-                      className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-xs font-bold text-white"
-                      style={{ background: t.markBg }}
-                      aria-hidden
-                    >
-                      {t.mark}
-                    </div>
-                    <button
-                      type="button"
-                      className={`heart-btn ${saved[t.id] ? "heart-on" : ""}`}
-                      aria-label={copy.board.saveTask}
-                      onClick={() => setSaved((s) => ({ ...s, [t.id]: !s[t.id] }))}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill={saved[t.id] ? "currentColor" : "none"}>
-                        <path
-                          d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <h3 className="mt-3 text-[15px] font-bold leading-snug tracking-tight">
-                    {copy.taskTitles[t.translationIndex]}
-                  </h3>
-                  <p className="mt-1 text-xs text-[var(--muted)]">
-                    {categoryLabels[t.skill as TaskType]} · {t.interested} {copy.board.lookingToQualify}
-                  </p>
-
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    <span className="tag tag-slot">N={t.reviews} {copy.board.reviewCount}</span>
-                    <span className="tag tag-mode">{copy.board.securedPayment}</span>
-                    <span className="tag tag-remote">{copy.board.fixed}</span>
-                  </div>
-
-                  <p className="mt-3 line-clamp-2 flex-1 text-xs leading-relaxed text-[var(--text-secondary)]">
-                    {copy.taskDescriptions[t.translationIndex]}
-                  </p>
-
-                  <div className="mt-4 flex items-end justify-between gap-2 border-t border-[var(--border)] pt-3">
-                    <p className="display text-xl font-extrabold tracking-tight">
-                      ${t.reward}
-                    </p>
-                    <p className="text-[11px] text-[var(--muted)]">{copy.board.taskAges[t.translationIndex]}</p>
-                  </div>
-
-                  <Link href="/app" className="btn-primary btn-sm mt-3 w-full">
-                    {copy.board.enterBoard}
-                  </Link>
-                </article>
+      <section className="landing-urgent-section px-4 py-16 sm:px-6 sm:py-20">
+        <div className="landing-urgent-card mx-auto grid max-w-6xl items-center gap-10 overflow-hidden">
+          <div className="landing-urgent-copy">
+            <p className="landing-urgent-eyebrow"><span />{copy.urgent.eyebrow}</p>
+            <h2>{copy.urgent.title}</h2>
+            <p className="landing-urgent-description">{copy.urgent.description}</p>
+            <ul className="landing-urgent-benefits">
+              {copy.urgent.benefits.map((benefit) => (
+                <li key={benefit}><span aria-hidden>✓</span>{benefit}</li>
               ))}
+            </ul>
+            <div className="landing-urgent-actions">
+              <Link href="/app/tasks/new" className="landing-urgent-cta">
+                {copy.urgent.cta}<span aria-hidden>→</span>
+              </Link>
+              <span className="landing-urgent-note">{copy.urgent.note}</span>
             </div>
+          </div>
 
-            {filtered.length === 0 ? (
-              <p className="rounded-[var(--radius)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] px-6 py-12 text-center text-sm text-[var(--text-secondary)]">
-                {copy.board.noMatches}{" "}
-                <Link href="/app/tasks/new" className="font-semibold text-[var(--accent)]">
-                  {copy.board.postRealTask}
-                </Link>
-                .
-              </p>
-            ) : null}
+          <div className="landing-urgent-visual" aria-label={copy.urgent.visualLabel}>
+            <div className="landing-urgent-visual-top">
+              <span>{copy.urgent.briefLabel}</span>
+              <span className="landing-urgent-live"><i />{copy.urgent.status}</span>
+            </div>
+            <p className="landing-urgent-visual-title">{copy.urgent.briefTitle}</p>
+            <p className="landing-urgent-visual-subtitle">{copy.urgent.briefSubtitle}</p>
+            <div className="landing-urgent-task">
+              <span>01</span><p>{copy.urgent.taskOne}</p><b>{copy.urgent.skillOne}</b>
+            </div>
+            <div className="landing-urgent-task">
+              <span>02</span><p>{copy.urgent.taskTwo}</p><b>{copy.urgent.skillTwo}</b>
+            </div>
+            <div className="landing-urgent-match">
+              <span className="landing-urgent-avatar" aria-hidden>✓</span>
+              <span><b>{copy.urgent.verifiedLabel}</b><small>{copy.urgent.verifiedDescription}</small></span>
+              <span className="landing-urgent-arrow" aria-hidden>↗</span>
+            </div>
           </div>
         </div>
       </section>
@@ -527,11 +254,6 @@ export function LandingPage() {
             <a href="#flow" className="hover:text-[var(--text-primary)]">
               {copy.footer.flow}
             </a>
-            {[copy.board.codeReview, copy.board.debugging].map((skill) => (
-              <Link key={skill} href="/app" className="hover:text-[var(--text-primary)]">
-                {skill}
-              </Link>
-            ))}
           </div>
         </div>
         <div className="landing-footer-note px-4 py-4 text-center text-xs">
