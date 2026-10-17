@@ -1031,3 +1031,146 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     ],
   },
 };
+
+export type HeroMode = "hire" | "work";
+
+type HeroModeCopy = {
+  /** [before accent, accent word, after accent] — keep both modes about the same length */
+  headline: [string, string, string];
+  subtitle: string;
+  placeholder: string;
+  inputLabel: string;
+  cta: string;
+  suggestions: [string, string, string, string];
+};
+
+type HeroCopy = {
+  modeLabel: string;
+  hire: string;
+  work: string;
+  popular: string;
+  modes: Record<HeroMode, HeroModeCopy>;
+};
+
+export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
+  en: {
+    modeLabel: "What do you want to do?",
+    hire: "Hire",
+    work: "Work",
+    popular: "Popular:",
+    modes: {
+      hire: {
+        headline: ["", "Hire", " fast. Get it done."],
+        subtitle: "Post a short task. A verified specialist picks it up.",
+        placeholder: "What do you need done?",
+        inputLabel: "Describe your task",
+        cta: "Post a task",
+        suggestions: ["Landing page design", "Fix a bug", "Code review", "QA testing"],
+      },
+      work: {
+        headline: ["", "Work", " smart. Earn faster."],
+        subtitle: "Take short paid tasks that match your verified skills.",
+        placeholder: "What can you do? Figma, React, QA…",
+        inputLabel: "Your skills",
+        cta: "Find work",
+        suggestions: ["Figma", "React", "QA testing", "Code review"],
+      },
+    },
+  },
+  es: {
+    modeLabel: "¿Qué quieres hacer?",
+    hire: "Contratar",
+    work: "Trabajar",
+    popular: "Populares:",
+    modes: {
+      hire: {
+        headline: ["", "Contrata", " ya. Hecho hoy."],
+        subtitle: "Publica una tarea corta. La toma un especialista verificado.",
+        placeholder: "¿Qué necesitas resolver?",
+        inputLabel: "Describe tu tarea",
+        cta: "Publicar tarea",
+        suggestions: ["Diseño de landing", "Corregir un error", "Revisión de código", "Pruebas QA"],
+      },
+      work: {
+        headline: ["", "Trabaja", " mejor. Cobra ya."],
+        subtitle: "Toma tareas cortas y pagadas según tus habilidades verificadas.",
+        placeholder: "¿Qué sabes hacer? Figma, React, QA…",
+        inputLabel: "Tus habilidades",
+        cta: "Buscar trabajo",
+        suggestions: ["Figma", "React", "Pruebas QA", "Revisión de código"],
+      },
+    },
+  },
+  pl: {
+    modeLabel: "Co chcesz zrobić?",
+    hire: "Zlecaj",
+    work: "Pracuj",
+    popular: "Popularne:",
+    modes: {
+      hire: {
+        headline: ["", "Zlecaj", " szybko. Gotowe."],
+        subtitle: "Opublikuj krótkie zadanie. Weźmie je zweryfikowany specjalista.",
+        placeholder: "Co trzeba zrobić?",
+        inputLabel: "Opisz zadanie",
+        cta: "Opublikuj zadanie",
+        suggestions: ["Projekt landing page", "Naprawa błędu", "Code review", "Testy QA"],
+      },
+      work: {
+        headline: ["", "Pracuj", " mądrze. Zarabiaj."],
+        subtitle: "Bierz krótkie płatne zadania pasujące do Twoich umiejętności.",
+        placeholder: "Co potrafisz? Figma, React, QA…",
+        inputLabel: "Twoje umiejętności",
+        cta: "Znajdź pracę",
+        suggestions: ["Figma", "React", "Testy QA", "Code review"],
+      },
+    },
+  },
+  de: {
+    modeLabel: "Was möchtest du tun?",
+    hire: "Beauftragen",
+    work: "Arbeiten",
+    popular: "Beliebt:",
+    modes: {
+      hire: {
+        headline: ["", "Beauftragen.", " Erledigt."],
+        subtitle: "Poste eine kurze Aufgabe. Ein verifizierter Profi übernimmt sie.",
+        placeholder: "Was soll erledigt werden?",
+        inputLabel: "Beschreibe deine Aufgabe",
+        cta: "Aufgabe posten",
+        suggestions: ["Landingpage-Design", "Bug beheben", "Code-Review", "QA-Tests"],
+      },
+      work: {
+        headline: ["", "Arbeiten.", " Gut verdienen."],
+        subtitle: "Übernimm kurze bezahlte Aufgaben passend zu deinen Skills.",
+        placeholder: "Was kannst du? Figma, React, QA…",
+        inputLabel: "Deine Fähigkeiten",
+        cta: "Arbeit finden",
+        suggestions: ["Figma", "React", "QA-Tests", "Code-Review"],
+      },
+    },
+  },
+  uk: {
+    modeLabel: "Що ви хочете зробити?",
+    hire: "Найняти",
+    work: "Працювати",
+    popular: "Популярне:",
+    modes: {
+      hire: {
+        headline: ["", "Наймай", " швидко. Готово."],
+        subtitle: "Опублікуйте коротку задачу. Її візьме перевірений спеціаліст.",
+        placeholder: "Що потрібно зробити?",
+        inputLabel: "Опишіть задачу",
+        cta: "Опублікувати задачу",
+        suggestions: ["Дизайн лендингу", "Виправити баг", "Код-рев'ю", "QA-тестування"],
+      },
+      work: {
+        headline: ["", "Працюй", " розумно. Заробляй."],
+        subtitle: "Беріть короткі оплачувані задачі під свої перевірені навички.",
+        placeholder: "Що ви вмієте? Figma, React, QA…",
+        inputLabel: "Ваші навички",
+        cta: "Знайти роботу",
+        suggestions: ["Figma", "React", "QA-тестування", "Код-рев'ю"],
+      },
+    },
+  },
+};

@@ -2768,7 +2768,7 @@ button {
 }
 
 .pico-landing .landing-header {
-  width: min(1320px, 100%);
+  width: min(1440px, 100%);
   height: 78px;
   border-bottom: 1px solid var(--border-default);
 }
@@ -3617,4 +3617,683 @@ button {
     scroll-behavior: auto !important;
     transition-duration: .01ms !important;
   }
+}
+
+/* ===================================================================
+   Landing hero · "Hire fast. Work smart." (design-landing)
+   Fits one laptop screen: every vertical size scales with the
+   viewport height, so the whole section stays above the fold.
+   =================================================================== */
+.pico-landing .ph-hero {
+  --ph-font: "Inter Tight", "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ph-bg: #fbfcfa;
+  --ph-ink: #111a14;
+  --ph-ink-soft: #3a463e;
+  --ph-muted: #8d968f;
+  --ph-green-deep: #1f3f24;
+  --ph-chip: #f2f4f1;
+  --ph-line: #e6eae4;
+  --ph-backdrop: #eef2ec;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  min-height: 600px;
+  max-height: 1000px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ph-bg);
+  color: var(--ph-ink);
+  font-family: var(--ph-font);
+}
+
+/* header: logo · centered nav · actions */
+.pico-landing .ph-header { position: relative; z-index: 5; flex: none; }
+.pico-landing .ph-header-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: clamp(14px, 2.6vh, 28px) clamp(16px, 5vw, 72px) 0;
+}
+.pico-landing .ph-logo {
+  justify-self: start;
+  font-size: clamp(26px, 3.6vh, 32px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--ph-ink);
+}
+.pico-landing .ph-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 3vw, 44px);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ph-ink-soft);
+}
+.pico-landing .ph-nav a { transition: color .2s; }
+.pico-landing .ph-nav a:hover { color: var(--ph-ink); }
+.pico-landing .ph-header-actions { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.pico-landing .ph-language select {
+  appearance: none;
+  height: 40px;
+  padding: 0 13px;
+  border: 1px solid var(--ph-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ph-ink-soft);
+  font: 500 13px/1 var(--ph-font);
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.pico-landing .ph-language select:hover { border-color: #cfd6cc; color: var(--ph-ink); }
+.pico-landing .ph-signin {
+  display: inline-flex;
+  align-items: center;
+  height: clamp(40px, 5.6vh, 48px);
+  padding: 0 26px;
+  border: 1px solid var(--ph-line);
+  border-radius: 999px;
+  background: #f3f5f2;
+  color: var(--ph-ink);
+  font-size: 15px;
+  font-weight: 500;
+  transition: background .2s, border-color .2s;
+}
+.pico-landing .ph-signin:hover { background: #ebefe9; border-color: #d9dfd6; }
+.pico-landing .ph-menu-button {
+  display: none;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--ph-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ph-ink);
+  font-size: 18px;
+}
+.pico-landing .ph-mobile-nav {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 16px 0;
+  padding: 10px;
+  border: 1px solid var(--ph-line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(17, 26, 20, .08);
+}
+.pico-landing .ph-mobile-nav a { padding: 12px 14px; border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--ph-ink); }
+.pico-landing .ph-mobile-nav a:hover { background: var(--ph-chip); }
+
+/* content */
+.pico-landing .ph-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: clamp(18px, 5vh, 56px) 16px 0;
+  text-align: center;
+}
+.pico-landing .ph-mode {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #edf0ec;
+}
+.pico-landing .ph-mode button {
+  min-width: 96px;
+  height: clamp(36px, 5.2vh, 44px);
+  padding: 0 24px;
+  border-radius: 999px;
+  color: var(--ph-ink-soft);
+  font: 500 15px/1 var(--ph-font);
+  transition: background .25s, color .25s, box-shadow .25s;
+}
+.pico-landing .ph-mode button:hover { color: var(--ph-ink); }
+.pico-landing .ph-mode button.is-active {
+  background: #fff;
+  color: var(--ph-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(17, 26, 20, .06), 0 4px 12px rgba(17, 26, 20, .08);
+}
+.pico-landing .ph-title {
+  margin: clamp(16px, 4.2vh, 44px) 0 0;
+  font-size: clamp(44px, min(7.4vw, 12.4vh), 104px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  color: var(--ph-ink);
+  text-wrap: balance;
+}
+.pico-landing .ph-title span { color: #3b7a33; }
+.pico-landing .ph-subtitle {
+  margin: clamp(8px, 1.6vh, 16px) 0 0;
+  font-size: clamp(17px, min(1.75vw, 3.1vh), 26px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: #8a938c;
+}
+.pico-landing .ph-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(800px, 100%);
+  margin-top: clamp(18px, 4.4vh, 44px);
+  padding: 6px 6px 6px 22px;
+  border: 1px solid var(--ph-line);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 22px 56px rgba(17, 26, 20, .08), 0 2px 6px rgba(17, 26, 20, .04);
+  transition: box-shadow .25s, border-color .25s;
+}
+.pico-landing .ph-search:focus-within {
+  border-color: #bcd3b6;
+  box-shadow: 0 22px 56px rgba(17, 26, 20, .10), 0 0 0 4px rgba(59, 122, 51, .12);
+}
+.pico-landing .ph-search-icon { flex: none; width: 24px; height: 24px; color: var(--ph-muted); }
+.pico-landing .ph-search input {
+  flex: 1;
+  min-width: 0;
+  height: clamp(44px, 7vh, 60px);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ph-ink);
+  font: 400 18px/1.2 var(--ph-font);
+}
+.pico-landing .ph-search input::placeholder { color: #9aa29c; }
+.pico-landing .ph-cta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  height: clamp(44px, 7vh, 58px);
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--ph-green-deep);
+  color: #fff;
+  font: 500 17px/1 var(--ph-font);
+  transition: background .2s;
+}
+.pico-landing .ph-cta:hover { background: #17321b; }
+.pico-landing .ph-cta svg { transition: transform .2s; }
+.pico-landing .ph-cta:hover svg { transform: translateX(3px); }
+.pico-landing .ph-mode button:focus-visible,
+.pico-landing .ph-cta:focus-visible,
+.pico-landing .ph-signin:focus-visible,
+.pico-landing .ph-nav a:focus-visible,
+.pico-landing .ph-language select:focus-visible {
+  outline: 3px solid rgba(59, 122, 51, .35);
+  outline-offset: 2px;
+}
+.pico-landing .ph-popular {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: clamp(12px, 2.6vh, 24px);
+}
+.pico-landing .ph-popular-label {
+  margin-right: 4px;
+  color: var(--ph-muted);
+  font-size: 14px;
+}
+.pico-landing .ph-popular button {
+  height: clamp(32px, 4.6vh, 38px);
+  padding: 0 16px;
+  border: 1px solid var(--ph-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .7);
+  color: var(--ph-ink-soft);
+  font: 400 14px/1 var(--ph-font);
+  transition: background .2s, border-color .2s, color .2s;
+}
+.pico-landing .ph-popular button:hover { background: #fff; border-color: #cfd8cb; color: var(--ph-ink); }
+.pico-landing .ph-popular button.is-picked { background: #eaf2e7; border-color: #c4d9bd; color: var(--ph-green-deep); }
+.pico-landing .ph-popular button:focus-visible { outline: 3px solid rgba(59, 122, 51, .35); outline-offset: 2px; }
+
+/* headline swap when Hire / Work changes */
+.pico-landing .ph-title,
+.pico-landing .ph-subtitle { animation: ph-swap .35s ease both; }
+@keyframes ph-swap {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pico-landing .ph-title,
+  .pico-landing .ph-subtitle { animation: none; }
+}
+
+/* decoration */
+.pico-landing .ph-backdrop {
+  /* lives in the flex flow under the content: it only takes the
+     free space left below the chips, so text never overlaps it */
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: clamp(16px, 3vh, 32px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.pico-landing .ph-backdrop span {
+  display: block;
+  margin: 0 0 -0.16em -0.03em;
+  font-size: min(25vw, 44vh);
+  font-weight: 800;
+  line-height: .9;
+  letter-spacing: -0.035em;
+  color: var(--ph-backdrop);
+  white-space: nowrap;
+}
+.pico-landing .ph-arrow {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: min(36vw, 66vh);
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 28px 36px rgba(46, 96, 40, .18));
+  animation: ph-arrow-in 1.1s cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes ph-arrow-in {
+  from { transform: translate(6%, 8%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pico-landing .ph-arrow { animation: none; }
+}
+
+/* tablet / phone */
+@media (max-width: 900px) {
+  .pico-landing .ph-header-row { grid-template-columns: 1fr auto; }
+  .pico-landing .ph-nav,
+  .pico-landing .ph-signin { display: none; }
+  .pico-landing .ph-menu-button { display: grid; }
+  .pico-landing .ph-mobile-nav { display: flex; }
+}
+@media (max-width: 640px) {
+  .pico-landing .ph-hero { height: auto; max-height: none; min-height: 0; padding-bottom: 200px; }
+  .pico-landing .ph-content { padding-top: 32px; }
+  .pico-landing .ph-title { font-size: clamp(38px, 11.5vw, 54px); margin-top: 26px; }
+  .pico-landing .ph-subtitle { font-size: 17px; }
+  .pico-landing .ph-search { flex-wrap: wrap; padding: 8px; border-radius: 28px; margin-top: 26px; }
+  .pico-landing .ph-search-icon { margin-left: 12px; }
+  .pico-landing .ph-search input { height: 50px; font-size: 17px; }
+  .pico-landing .ph-cta { width: 100%; justify-content: center; height: 52px; }
+  .pico-landing .ph-popular { margin-top: 18px; }
+  .pico-landing .ph-popular-label { flex-basis: 100%; margin: 0 0 2px; }
+  .pico-landing .ph-backdrop { position: absolute; left: 0; right: 0; bottom: 0; height: 36vw; margin: 0; }
+  .pico-landing .ph-backdrop span { font-size: 36vw; }
+  .pico-landing .ph-arrow { width: 62vw; }
+}
+
+/* ===================================================================
+   Landing sections 02–07 (design-landing)
+   Same language as the hero: white canvas, deep green, big type,
+   the 3D arrow. Every section fits one laptop screen; 03 and 05 are
+   tall "sticky" sections whose progress follows the scroll.
+   =================================================================== */
+.pico-landing .pk {
+  --pk-font: "Inter Tight", "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --pk-bg: #fbfcfa;
+  --pk-ink: #111a14;
+  --pk-ink-soft: #3a463e;
+  --pk-muted: #8a938c;
+  --pk-green: #3b7a33;
+  --pk-deep: #1f3f24;
+  --pk-night: #10251a;
+  --pk-line: #e6eae4;
+  --pk-soft: #f2f4f1;
+  --pk-mint: #eaf2e7;
+  background: var(--pk-bg);
+  color: var(--pk-ink);
+  font-family: var(--pk-font);
+}
+.pico-landing .pk-wrap { width: min(1240px, 100% - 2 * clamp(16px, 5vw, 72px)); margin: 0 auto; }
+.pico-landing .pk-section { padding: clamp(56px, 11vh, 120px) 0; }
+.pico-landing .pk-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.pico-landing .pk-title {
+  margin: 0;
+  font-size: clamp(40px, min(5.6vw, 9.6vh), 84px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.pico-landing .pk-title span { color: var(--pk-green); }
+.pico-landing .pk-lead { margin: clamp(10px, 1.8vh, 16px) 0 0; max-width: 520px; color: var(--pk-muted); font-size: clamp(16px, 2.4vh, 19px); line-height: 1.45; }
+.pico-landing .pk-link {
+  display: inline-flex; flex: none; align-items: center; gap: 8px;
+  padding-bottom: 4px; border-bottom: 1px solid currentColor;
+  color: var(--pk-ink); font-size: 15px; font-weight: 500;
+}
+.pico-landing .pk-link svg { transition: transform .2s; }
+.pico-landing .pk-link:hover svg { transform: translateX(3px); }
+.pico-landing .pk :is(a, button):focus-visible { outline: 3px solid rgba(59, 122, 51, .35); outline-offset: 3px; }
+
+/* shared small UI */
+.pico-landing .pk-chip { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--pk-soft); color: var(--pk-ink-soft); font-size: 13px; font-weight: 500; }
+.pico-landing .pk-status { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px; background: #f4f1e6; color: #6b5a1e; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.pico-landing .pk-status.is-paid { background: var(--pk-mint); color: var(--pk-deep); }
+.pico-landing .pk-ui-mark { display: inline-grid; flex: none; place-items: center; width: 22px; height: 22px; border: 1.5px solid #cfd6cc; border-radius: 999px; color: #fff; transition: background .3s, border-color .3s; }
+.pico-landing .pk-ui-mark.is-on,
+.pico-landing .is-done > .pk-ui-mark { border-color: var(--pk-green); background: var(--pk-green); }
+
+/* ---------- 02 · explore ---------- */
+.pico-landing .pk-explore-head { max-width: 900px; }
+.pico-landing .pk-explore-head .pk-lead { margin-top: clamp(14px, 2.4vh, 22px); max-width: 560px; color: #6b756d; font-size: clamp(17px, 2.6vh, 21px); line-height: 1.4; letter-spacing: -0.01em; }
+.pico-landing .pk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: clamp(28px, 5.4vh, 52px) 0 14px; padding-top: 16px; border-top: 1px solid var(--pk-line); }
+.pico-landing .pk-toolbar-label { display: inline-flex; align-items: center; gap: 10px; margin: 0; color: var(--pk-ink-soft); font-size: 14px; font-weight: 500; }
+.pico-landing .pk-toolbar-label b { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 999px; background: var(--pk-soft); color: var(--pk-ink); font-size: 12px; font-weight: 600; }
+.pico-landing .pk-tasks { display: flex; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.pico-landing .pk-task {
+  --pk-pad: clamp(22px, 3.4vh, 32px);
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  height: clamp(320px, 52vh, 430px);
+  padding: var(--pk-pad);
+  overflow: hidden;
+  border: 1px solid var(--pk-line);
+  border-radius: 28px;
+  background: #fff;
+  transition: flex-grow .5s cubic-bezier(.2, .8, .2, 1), background .35s, color .35s, border-color .35s;
+}
+.pico-landing .pk-task.is-open { flex-grow: 2; border-color: var(--pk-deep); background: var(--pk-deep); color: #fff; }
+.pico-landing .pk-task-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.pico-landing .pk-task.is-open .pk-chip { background: rgba(255, 255, 255, .12); color: #fff; }
+.pico-landing .pk-task-cta {
+  display: grid; flex: none; place-items: center; width: 44px; height: 44px;
+  border-radius: 999px; background: #fff; color: var(--pk-deep);
+  opacity: 0; transform: translateX(-6px); transition: opacity .3s, transform .3s, background .2s;
+}
+.pico-landing .pk-task.is-open .pk-task-cta { opacity: 1; transform: none; }
+.pico-landing .pk-task-cta:hover { background: #e3eedd; }
+.pico-landing .pk-task-body { margin-top: clamp(20px, 3.6vh, 32px); }
+.pico-landing .pk-task h3 {
+  margin: 0;
+  max-width: 520px;
+  font-size: clamp(20px, min(1.9vw, 3.6vh), 30px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pico-landing .pk-task:not(.is-open) .pk-task-more { display: none; }
+.pico-landing .pk-task-more { max-width: 460px; animation: pk-in .4s .1s ease both; }
+.pico-landing .pk-task-more p { margin: clamp(10px, 1.8vh, 14px) 0 0; color: #c9d8c5; font-size: 15px; line-height: 1.5; }
+.pico-landing .pk-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: clamp(14px, 2.4vh, 20px); }
+.pico-landing .pk-skills span { padding: 6px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 999px; font-size: 13px; color: #e3ece0; }
+.pico-landing .pk-task-bottom {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 16px;
+  margin-top: auto; padding-top: clamp(14px, 2.4vh, 20px); border-top: 1px solid var(--pk-line);
+}
+.pico-landing .pk-task.is-open .pk-task-bottom { border-top-color: rgba(255, 255, 255, .14); }
+.pico-landing .pk-task-budget { min-width: 0; }
+.pico-landing .pk-task-budget small { display: block; margin-bottom: 6px; color: var(--pk-muted); font-size: 12px; font-weight: 500; letter-spacing: .02em; }
+.pico-landing .pk-task.is-open .pk-task-budget small { color: #a9c3a2; }
+.pico-landing .pk-task-budget strong { display: flex; align-items: baseline; gap: 6px; font-size: clamp(30px, 5vh, 44px); font-weight: 700; line-height: 1; letter-spacing: -0.04em; white-space: nowrap; }
+.pico-landing .pk-task-budget em { font-size: 14px; font-style: normal; font-weight: 600; letter-spacing: .02em; opacity: .55; }
+.pico-landing .pk-due { display: grid; justify-items: end; gap: 6px; text-align: right; }
+.pico-landing .pk-due b { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.pico-landing .pk-secured { display: inline-flex; align-items: center; gap: 7px; color: #a9c3a2; font-size: 12px; white-space: nowrap; }
+.pico-landing .pk-secured i { width: 7px; height: 7px; border-radius: 99px; background: #7cc06e; }
+.pico-landing .pk-task:not(.is-open) .pk-secured { display: none; }
+.pico-landing .pk-task:not(.is-open) .pk-due b { color: var(--pk-ink-soft); font-weight: 500; }
+.pico-landing .pk-task:not(.is-open) .pk-task-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
+.pico-landing .pk-task:not(.is-open) .pk-due { justify-items: start; text-align: left; }
+
+/* ---------- 03 · how it works ---------- */
+.pico-landing .pk-how { position: relative; height: 340vh; }
+.pico-landing .pk-sticky { position: sticky; top: 0; display: flex; align-items: center; height: 100svh; min-height: 600px; overflow: hidden; }
+.pico-landing .pk-how-inner { display: flex; flex-direction: column; gap: clamp(20px, 4.6vh, 48px); }
+.pico-landing .pk-toggle { display: inline-flex; flex: none; gap: 4px; padding: 4px; border-radius: 999px; background: #edf0ec; }
+.pico-landing .pk-toggle button { height: 40px; padding: 0 22px; border-radius: 999px; color: var(--pk-ink-soft); font: 500 15px/1 var(--pk-font); transition: background .25s, box-shadow .25s; }
+.pico-landing .pk-toggle button.is-active { background: #fff; color: var(--pk-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(17, 26, 20, .06), 0 4px 12px rgba(17, 26, 20, .08); }
+.pico-landing .pk-line { --pk-f: 0; position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+.pico-landing .pk-line::before,
+.pico-landing .pk-line::after { content: ""; position: absolute; top: 21px; left: calc(100% / 12); height: 6px; border-radius: 6px; }
+.pico-landing .pk-line::before { right: calc(100% / 12); background: #e7ece5; }
+.pico-landing .pk-line::after { width: calc((100% - 100% / 6) * var(--pk-f)); background: var(--pk-green); box-shadow: 0 6px 18px rgba(59, 122, 51, .3); transition: width .5s cubic-bezier(.2, .8, .2, 1); }
+.pico-landing .pk-line li { position: relative; z-index: 1; display: flex; justify-content: center; }
+.pico-landing .pk-line button { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--pk-muted); }
+.pico-landing .pk-dot {
+  display: grid; place-items: center; width: 48px; height: 48px;
+  border: 1.5px solid #dfe5dc; border-radius: 999px; background: #fff;
+  font-size: 13px; font-weight: 600; transition: background .35s, border-color .35s, color .35s, transform .35s;
+}
+.pico-landing .pk-step-name { font-size: 15px; font-weight: 500; transition: color .3s; }
+.pico-landing .pk-line li.is-done .pk-dot { border-color: var(--pk-green); background: var(--pk-green); color: #fff; }
+.pico-landing .pk-line li.is-current .pk-dot { transform: scale(1.12); border-color: var(--pk-deep); background: var(--pk-deep); color: #fff; box-shadow: 0 0 0 8px rgba(59, 122, 51, .12); }
+.pico-landing .pk-line li:is(.is-done, .is-current) .pk-step-name { color: var(--pk-ink); }
+.pico-landing .pk-stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); align-items: center; gap: clamp(24px, 5vw, 80px); }
+.pico-landing .pk-stage-copy { animation: pk-in .45s ease both; }
+.pico-landing .pk-stage-n { margin: 0; color: var(--pk-green); font-size: 13px; font-weight: 600; letter-spacing: .08em; }
+.pico-landing .pk-stage-copy h3 { margin: 10px 0 0; font-size: clamp(36px, min(4.6vw, 8vh), 68px); font-weight: 700; line-height: 1; letter-spacing: -0.045em; }
+.pico-landing .pk-stage-copy p:last-child { max-width: 440px; margin: 14px 0 0; color: var(--pk-ink-soft); font-size: clamp(16px, 2.5vh, 20px); line-height: 1.45; }
+@keyframes pk-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.pico-landing .pk-ui {
+  padding: clamp(16px, 2.8vh, 24px);
+  border: 1px solid var(--pk-line);
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 30px 70px rgba(17, 26, 20, .09), 0 2px 6px rgba(17, 26, 20, .04);
+}
+.pico-landing .pk-ui-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.pico-landing .pk-ui-head small { color: var(--pk-muted); font-size: 12px; }
+.pico-landing .pk-ui-head p { margin: 4px 0 0; font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
+.pico-landing .pk-ui-budget { display: flex; align-items: baseline; justify-content: space-between; margin: clamp(12px, 2.2vh, 18px) 0; padding: clamp(10px, 1.8vh, 14px) 16px; border-radius: 16px; background: var(--pk-soft); }
+.pico-landing .pk-ui-budget span { color: var(--pk-muted); font-size: 13px; }
+.pico-landing .pk-ui-budget strong { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
+.pico-landing .pk-ui-budget em { font-size: 13px; font-style: normal; color: var(--pk-muted); }
+.pico-landing .pk-ui-rows { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.pico-landing .pk-ui-rows li { display: flex; align-items: center; gap: 12px; padding: clamp(7px, 1.3vh, 10px) 4px; color: var(--pk-muted); font-size: 15px; transition: color .3s; }
+.pico-landing .pk-ui-rows li.is-done { color: var(--pk-ink); }
+.pico-landing .pk-ui-rows li.is-active { color: var(--pk-ink); font-weight: 600; }
+.pico-landing .pk-ui-rows li.is-active .pk-ui-mark { border-color: var(--pk-green); border-top-color: transparent; animation: pk-spin 1s linear infinite; }
+@keyframes pk-spin { to { transform: rotate(360deg); } }
+
+/* ---------- 04 · why pico ---------- */
+.pico-landing .pk-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: clamp(24px, 5vh, 48px); }
+.pico-landing .pk-old,
+.pico-landing .pk-new { position: relative; min-height: clamp(320px, 50vh, 440px); padding: clamp(20px, 3.6vh, 36px); overflow: hidden; border-radius: 32px; }
+.pico-landing .pk-old { background: #f1f3f0; }
+.pico-landing .pk-new { background: var(--pk-mint); }
+.pico-landing .pk-side-label { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--pk-muted); }
+.pico-landing .pk-new .pk-side-label { color: var(--pk-green); }
+.pico-landing .pk-pile { position: relative; height: clamp(150px, 23vh, 200px); margin-top: clamp(14px, 2.6vh, 24px); }
+.pico-landing .pk-pile-card {
+  position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 12px;
+  width: min(78%, 340px); padding: 14px 16px; border-radius: 16px; background: #fff;
+  box-shadow: 0 10px 26px rgba(17, 26, 20, .06); opacity: .9;
+}
+.pico-landing .pk-pile-card:nth-child(1) { transform: rotate(-4deg); }
+.pico-landing .pk-pile-card:nth-child(2) { left: 16%; top: 34%; transform: rotate(3deg); }
+.pico-landing .pk-pile-card:nth-child(3) { left: 5%; top: 64%; transform: rotate(-1.5deg); }
+.pico-landing .pk-avatar { flex: none; width: 34px; height: 34px; border-radius: 999px; background: #dfe3dd; }
+.pico-landing .pk-pile-card div { display: grid; flex: 1; gap: 6px; }
+.pico-landing .pk-pile-card b { color: var(--pk-muted); font-size: 13px; font-weight: 600; }
+.pico-landing .pk-pile-card i { display: block; height: 6px; border-radius: 6px; background: #eceeea; }
+.pico-landing .pk-pile-card i:last-child { width: 60%; }
+.pico-landing .pk-waiting { position: absolute; right: 0; top: 8px; padding: 7px 12px; border-radius: 999px; background: #fff; color: var(--pk-muted); font-size: 13px; box-shadow: 0 6px 16px rgba(17, 26, 20, .06); }
+.pico-landing .pk-old-list { display: grid; gap: 8px; margin: clamp(18px, 3.4vh, 32px) 0 0; padding: 0; list-style: none; }
+.pico-landing .pk-old-list li { color: var(--pk-muted); font-size: clamp(15px, 2.3vh, 18px); text-decoration: line-through; text-decoration-color: #c4cbc1; }
+.pico-landing .pk-new-card { margin-top: clamp(14px, 2.6vh, 24px); padding: clamp(16px, 2.8vh, 24px); border-radius: 22px; background: #fff; box-shadow: 0 24px 56px rgba(31, 63, 36, .12); }
+.pico-landing .pk-new-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: clamp(10px, 2vh, 16px); border-bottom: 1px solid var(--pk-line); }
+.pico-landing .pk-new-top p { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
+.pico-landing .pk-new-card ul { display: grid; gap: clamp(8px, 1.7vh, 14px); margin: clamp(12px, 2.2vh, 18px) 0 0; padding: 0; list-style: none; }
+.pico-landing .pk-new-card li { display: flex; align-items: center; gap: 12px; font-size: clamp(15px, 2.3vh, 18px); font-weight: 500; }
+
+/* ---------- 05 · secure payments ---------- */
+.pico-landing .pk-pay { position: relative; height: 260vh; background: var(--pk-night); color: #fff; }
+.pico-landing .pk-pay-sticky { background: radial-gradient(60% 70% at 72% 50%, #1d3f27 0%, var(--pk-night) 70%); }
+.pico-landing .pk-pay-inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(24px, 5vw, 80px); }
+.pico-landing .pk-pay .pk-title span { color: #9fd88f; }
+.pico-landing .pk-pay-states { display: grid; gap: 4px; margin: clamp(24px, 5vh, 48px) 0 0; padding: 0; list-style: none; }
+.pico-landing .pk-pay-states button { display: flex; align-items: flex-start; gap: 16px; width: 100%; padding: clamp(10px, 1.8vh, 14px) 0; color: rgba(255, 255, 255, .45); text-align: left; transition: color .3s; }
+.pico-landing .pk-pay-states b { display: block; font-size: clamp(20px, 3.4vh, 26px); font-weight: 600; letter-spacing: -0.02em; }
+.pico-landing .pk-pay-states small { display: block; max-width: 420px; margin-top: 6px; color: #b7c8b2; font-size: 15px; line-height: 1.45; animation: pk-in .4s ease both; }
+.pico-landing .pk-pay-states li:is(.is-current, .is-done) button { color: #fff; }
+.pico-landing .pk-pay-dot { display: grid; flex: none; place-items: center; width: 26px; height: 26px; margin-top: 2px; border: 1.5px solid rgba(255, 255, 255, .25); border-radius: 999px; color: var(--pk-night); transition: background .3s, border-color .3s; }
+.pico-landing .pk-pay-states li.is-done .pk-pay-dot { border-color: #9fd88f; background: #9fd88f; }
+.pico-landing .pk-pay-states li.is-current .pk-pay-dot { border-color: #9fd88f; box-shadow: inset 0 0 0 5px var(--pk-night), inset 0 0 0 13px #9fd88f; }
+.pico-landing .pk-vault { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.pico-landing .pk-lock { width: clamp(88px, 16vh, 140px); height: auto; overflow: visible; filter: drop-shadow(0 24px 40px rgba(0, 0, 0, .35)); }
+.pico-landing .pk-lock-shackle { stroke: #cfe3c8; transform-origin: 86px 62px; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+.pico-landing .pk-lock-body { fill: #e9f3e5; transition: fill .4s; }
+.pico-landing .pk-lock-key { fill: var(--pk-deep); transition: fill .4s; }
+.pico-landing .pk-vault.is-stage-1 .pk-lock-body { fill: #b8e3ab; }
+.pico-landing .pk-vault.is-stage-2 .pk-lock-shackle { transform: translateY(-12px) rotate(-28deg); }
+.pico-landing .pk-vault.is-stage-2 .pk-lock-body { fill: #9fd88f; }
+.pico-landing .pk-vault-label { margin: clamp(18px, 3.4vh, 32px) 0 0; color: #9fb39a; font-size: 14px; }
+.pico-landing .pk-vault-amount { margin: 6px 0 0; font-size: clamp(56px, min(7.4vw, 12vh), 112px); font-weight: 700; line-height: 1; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.pico-landing .pk-vault-amount span { font-size: .3em; font-weight: 600; letter-spacing: 0; color: #9fb39a; }
+.pico-landing .pk-vault-state { display: inline-flex; align-items: center; gap: 8px; margin: clamp(14px, 2.6vh, 22px) 0 0; padding: 8px 16px; border: 1px solid rgba(159, 216, 143, .35); border-radius: 999px; color: #d9f0d1; font-size: 14px; font-weight: 600; }
+.pico-landing .pk-vault-state i { width: 8px; height: 8px; border-radius: 99px; background: #9fd88f; box-shadow: 0 0 0 4px rgba(159, 216, 143, .18); }
+.pico-landing .pk-vault-network { margin: 12px 0 0; color: rgba(255, 255, 255, .4); font-size: 13px; }
+
+/* ---------- 06 · faq ---------- */
+.pico-landing .pk-faq-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(28px, 6vw, 96px); align-items: start; }
+.pico-landing .pk-faq-side { position: sticky; top: clamp(24px, 8vh, 80px); }
+.pico-landing .pk-faq-side .pk-title { font-size: clamp(48px, min(7vw, 12vh), 108px); }
+.pico-landing .pk-help {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+  max-width: 360px; margin-top: clamp(24px, 5vh, 48px); padding: clamp(20px, 3.4vh, 28px);
+  border-radius: 24px; background: var(--pk-mint);
+}
+.pico-landing .pk-help p { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+.pico-landing .pk-help-link { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 999px; background: #fff; color: var(--pk-deep); font-size: 15px; font-weight: 600; transition: background .2s; }
+.pico-landing .pk-help-link:hover { background: #f6faf4; }
+.pico-landing .pk-faq-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pico-landing .pk-faq-list li { border: 1px solid transparent; border-bottom-color: var(--pk-line); border-radius: 0; transition: background .3s, border-color .3s, border-radius .3s, box-shadow .3s; }
+.pico-landing .pk-faq-list li.is-open { border-color: var(--pk-line); border-radius: 24px; background: #fff; box-shadow: 0 24px 56px rgba(17, 26, 20, .07); }
+.pico-landing .pk-faq-list button {
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) 40px; align-items: center; gap: 16px; width: 100%;
+  padding: clamp(18px, 3vh, 26px) clamp(16px, 2vw, 24px); color: var(--pk-ink); text-align: left;
+}
+.pico-landing .pk-faq-n { color: #b3bbb4; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; transition: color .25s; }
+.pico-landing .pk-faq-q { font-size: clamp(18px, 2.8vh, 24px); font-weight: 500; line-height: 1.25; letter-spacing: -0.02em; }
+.pico-landing .pk-faq-list button:hover .pk-faq-n,
+.pico-landing .pk-faq-list li.is-open .pk-faq-n { color: var(--pk-green); }
+.pico-landing .pk-plus { position: relative; justify-self: end; width: 40px; height: 40px; border: 1px solid var(--pk-line); border-radius: 999px; background: #fff; transition: background .25s, border-color .25s, transform .3s; }
+.pico-landing .pk-plus::before,
+.pico-landing .pk-plus::after { content: ""; position: absolute; left: 50%; top: 50%; width: 13px; height: 1.6px; border-radius: 2px; background: var(--pk-ink); transform: translate(-50%, -50%); transition: transform .3s, background .25s; }
+.pico-landing .pk-plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+.pico-landing .pk-faq-list button:hover .pk-plus { border-color: #c9d2c6; }
+.pico-landing .pk-faq-list li.is-open .pk-plus { border-color: var(--pk-deep); background: var(--pk-deep); }
+.pico-landing .pk-faq-list li.is-open .pk-plus::before,
+.pico-landing .pk-faq-list li.is-open .pk-plus::after { background: #fff; transform: translate(-50%, -50%) rotate(0); }
+.pico-landing .pk-faq-answer p { max-width: 560px; margin: 0; padding: 0 clamp(16px, 2vw, 24px) clamp(20px, 3.2vh, 28px) calc(clamp(16px, 2vw, 24px) + 60px); color: var(--pk-ink-soft); font-size: 17px; line-height: 1.55; animation: pk-in .3s ease both; }
+
+/* ---------- 07 · final cta ---------- */
+.pico-landing .pk-final { position: relative; display: flex; align-items: center; min-height: min(100svh, 820px); padding: clamp(64px, 12vh, 120px) 0; overflow: hidden; border-top: 1px solid var(--pk-line); }
+.pico-landing .pk-final-inner { position: relative; z-index: 2; }
+.pico-landing .pk-final-title { max-width: min(62%, 860px); margin: 0; font-size: clamp(48px, min(8vw, 13vh), 128px); font-weight: 700; line-height: .96; letter-spacing: -0.05em; }
+.pico-landing .pk-final-title span { color: var(--pk-green); }
+.pico-landing .pk-final-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 5vh, 48px); }
+.pico-landing .pk-btn { display: inline-flex; align-items: center; gap: 10px; height: clamp(48px, 7vh, 58px); padding: 0 28px; border-radius: 999px; font-size: 17px; font-weight: 500; transition: background .2s, border-color .2s; }
+.pico-landing .pk-btn-primary { background: var(--pk-deep); color: #fff; }
+.pico-landing .pk-btn-primary:hover { background: #17321b; }
+.pico-landing .pk-btn-primary svg { transition: transform .2s; }
+.pico-landing .pk-btn-primary:hover svg { transform: translateX(3px); }
+.pico-landing .pk-btn-ghost { border: 1px solid #d5dcd2; background: #fff; color: var(--pk-ink); }
+.pico-landing .pk-btn-ghost:hover { border-color: #b9c3b5; }
+.pico-landing .pk-final-note { margin: 18px 0 0; color: var(--pk-muted); font-size: 14px; }
+.pico-landing .pk-final-arrow { position: absolute; right: -2%; bottom: -4%; z-index: 1; width: min(46vw, 78vh); height: auto; pointer-events: none; filter: drop-shadow(0 28px 36px rgba(46, 96, 40, .18)); }
+
+/* ---------- footer ---------- */
+.pico-landing .pk-footer { position: relative; overflow: hidden; background: var(--pk-night); color: #fff; }
+.pico-landing .pk-footer-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: clamp(32px, 6vw, 96px); padding: clamp(56px, 10vh, 96px) 0 clamp(40px, 7vh, 64px); }
+.pico-landing .pk-footer-logo { font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -0.05em; color: #fff; }
+.pico-landing .pk-footer-brand p { max-width: 380px; margin: 18px 0 0; color: #a9bba5; font-size: 15px; line-height: 1.55; }
+.pico-landing .pk-footer-network { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 8px 14px; border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; color: #d9e6d5; font-size: 13px; }
+.pico-landing .pk-footer-network i { width: 7px; height: 7px; border-radius: 99px; background: #9fd88f; box-shadow: 0 0 0 4px rgba(159, 216, 143, .16); }
+.pico-landing .pk-footer-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.pico-landing .pk-footer-cols div { display: grid; align-content: start; gap: 12px; }
+.pico-landing .pk-footer-cols p { margin: 0 0 6px; color: #7f957b; font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.pico-landing .pk-footer-cols a { width: fit-content; color: #e8f0e5; font-size: 15px; transition: color .2s; }
+.pico-landing .pk-footer-cols a:hover { color: #9fd88f; }
+.pico-landing .pk-footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-top: 1px solid rgba(255, 255, 255, .1); color: #7f957b; font-size: 13px; }
+.pico-landing .pk-footer-mark {
+  margin: 0 0 -0.2em -0.04em;
+  color: #142c1d;
+  font-size: min(24vw, 320px);
+  font-weight: 800;
+  line-height: .8;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.pico-landing .pk-footer :is(a):focus-visible { outline-color: rgba(159, 216, 143, .5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pico-landing .pk *,
+  .pico-landing .pk *::before,
+  .pico-landing .pk *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- tablet / phone ---------- */
+@media (max-width: 1023px) {
+  .pico-landing .pk-tasks { overflow-x: auto; scroll-snap-type: x mandatory; margin-right: calc(-1 * clamp(16px, 5vw, 72px)); padding-right: clamp(16px, 5vw, 72px); scrollbar-width: none; }
+  .pico-landing .pk-task,
+  .pico-landing .pk-task.is-open { flex: 0 0 min(80vw, 380px); height: auto; min-height: 360px; scroll-snap-align: start; border-color: var(--pk-line); background: #fff; color: var(--pk-ink); }
+  .pico-landing .pk-task:not(.is-open) .pk-task-more { display: block; }
+  .pico-landing .pk-task-more { margin-bottom: 20px; animation: none; }
+  .pico-landing .pk-task-more p { color: var(--pk-ink-soft); }
+  .pico-landing .pk-skills span { border-color: var(--pk-line); color: var(--pk-ink-soft); }
+  .pico-landing .pk-task.is-open .pk-chip { background: var(--pk-soft); color: var(--pk-ink-soft); }
+  .pico-landing .pk-task-cta,
+  .pico-landing .pk-task.is-open .pk-task-cta { opacity: 1; transform: none; border: 1px solid var(--pk-line); }
+  .pico-landing .pk-task.is-open .pk-task-bottom { border-top-color: var(--pk-line); }
+  .pico-landing .pk-task.is-open .pk-task-budget small,
+  .pico-landing .pk-secured { color: var(--pk-muted); }
+  .pico-landing .pk-task:not(.is-open) .pk-secured { display: inline-flex; }
+  .pico-landing .pk-footer-top { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .pico-landing .pk-footer-cols { grid-template-columns: 1fr 1fr; }
+  .pico-landing .pk-faq-list button { grid-template-columns: 30px minmax(0, 1fr) 36px; gap: 10px; }
+  .pico-landing .pk-plus { width: 36px; height: 36px; }
+  .pico-landing .pk-faq-answer p { padding-left: calc(clamp(16px, 2vw, 24px) + 40px); font-size: 16px; }
+}
+@media (max-width: 900px) {
+  .pico-landing .pk-how,
+  .pico-landing .pk-pay { height: auto; }
+  .pico-landing .pk-sticky { position: static; height: auto; min-height: 0; padding: clamp(64px, 12vh, 100px) 0; }
+  .pico-landing .pk-head { flex-direction: column; align-items: flex-start; }
+  .pico-landing .pk-line { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .pico-landing .pk-line::before,
+  .pico-landing .pk-line::after { display: none; }
+  .pico-landing .pk-line button { flex-direction: row; gap: 8px; height: 44px; padding: 0 14px 0 6px; border: 1px solid var(--pk-line); border-radius: 999px; background: #fff; white-space: nowrap; }
+  .pico-landing .pk-dot { width: 32px; height: 32px; font-size: 12px; }
+  .pico-landing .pk-line li.is-current .pk-dot { transform: none; box-shadow: none; }
+  .pico-landing .pk-faq-side { position: static; }
+  .pico-landing .pk-final-title { max-width: none; }
+  .pico-landing .pk-stage,
+  .pico-landing .pk-pay-inner,
+  .pico-landing .pk-split,
+  .pico-landing .pk-faq-grid { grid-template-columns: 1fr; }
+  .pico-landing .pk-vault { padding-top: 12px; }
+  .pico-landing .pk-final { min-height: 0; padding-bottom: 62vw; }
+  .pico-landing .pk-final-arrow { width: 70vw; }
 }
