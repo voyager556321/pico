@@ -123,15 +123,15 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       closeMenu: "Close navigation menu",
     },
     promo: {
-      title: "For the work between the big projects.",
-      body: "Short tasks, qualified people, secure payments.",
+      title: "A deadline coming up?",
+      body: "Get qualified help for the one or two tasks holding up your project.",
       link: "See how it works",
     },
     hero: {
       badge: "A faster lane for expert work",
       headline: ["Great work,", "without the", "long wait."],
       description:
-        "Post a short task, match with specialists who prove they’re ready, and release payment only after the work is reviewed.",
+        "When a deadline is close, post the one or two tasks holding up your project. Pico helps you find a qualified specialist quickly, with work reviewed before payment is released.",
       postTask: "Post a task",
       exploreWork: "Explore open work",
       proof: ["Payments secured up front", "Skills proven up front", "Independent review"],
@@ -278,15 +278,15 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       closeMenu: "Cerrar menú de navegación",
     },
     promo: {
-      title: "Para el trabajo entre grandes proyectos.",
-      body: "Tareas breves, profesionales cualificados y pagos seguros.",
+      title: "¿Se acerca la fecha límite?",
+      body: "Encuentra ayuda cualificada para las una o dos tareas que frenan tu proyecto.",
       link: "Descubre cómo funciona",
     },
     hero: {
       badge: "Una vía más rápida para el trabajo especializado",
       headline: ["Buen trabajo,", "sin tanta", "espera."],
       description:
-        "Publica una tarea breve, encuentra especialistas que demuestran que están preparados y libera el pago solo cuando el trabajo se haya revisado.",
+        "Cuando se acerca la fecha límite, publica las una o dos tareas que están frenando tu proyecto. Pico te ayuda a encontrar rápidamente a un especialista cualificado; el pago se libera tras revisar el trabajo.",
       postTask: "Publicar una tarea",
       exploreWork: "Ver tareas disponibles",
       proof: ["Pagos protegidos desde el inicio", "Habilidades demostradas", "Revisión independiente"],
@@ -433,15 +433,15 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       closeMenu: "Zamknij menu nawigacji",
     },
     promo: {
-      title: "Do zadań pomiędzy dużymi projektami.",
-      body: "Krótkie zadania, sprawdzeni specjaliści, bezpieczne płatności.",
+      title: "Goni Cię termin?",
+      body: "Znajdź sprawdzonego specjalistę do jednego lub dwóch zadań, które blokują projekt.",
       link: "Zobacz, jak to działa",
     },
     hero: {
       badge: "Szybsza droga do specjalistycznej pracy",
       headline: ["Świetna praca,", "bez długiego", "czekania."],
       description:
-        "Dodaj krótkie zadanie, znajdź specjalistów, którzy potwierdzą swoje umiejętności, i wypłać środki dopiero po sprawdzeniu pracy.",
+        "Gdy zbliża się termin, dodaj jedno lub dwa zadania, które blokują projekt. Pico pomaga szybko znaleźć sprawdzonego specjalistę; wypłata następuje po weryfikacji pracy.",
       postTask: "Dodaj zadanie",
       exploreWork: "Przeglądaj zadania",
       proof: ["Płatność zabezpieczona od początku", "Umiejętności sprawdzone przed startem", "Niezależna weryfikacja"],
@@ -588,15 +588,15 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       closeMenu: "Navigationsmenü schließen",
     },
     promo: {
-      title: "Für Aufgaben zwischen den großen Projekten.",
-      body: "Kurze Aufgaben, qualifizierte Fachkräfte, sichere Zahlungen.",
+      title: "Steht eine Deadline bevor?",
+      body: "Finden Sie schnell qualifizierte Hilfe für die ein oder zwei Aufgaben, die Ihr Projekt aufhalten.",
       link: "So funktioniert’s",
     },
     hero: {
       badge: "Der schnellere Weg zu qualifizierter Arbeit",
       headline: ["Gute Arbeit,", "ohne langes", "Warten."],
       description:
-        "Stelle eine kurze Aufgabe ein, finde Fachkräfte, die ihre Fähigkeiten belegen, und gib die Zahlung erst frei, wenn die Arbeit geprüft wurde.",
+        "Wenn die Deadline näher rückt, stellen Sie die ein oder zwei Aufgaben ein, die Ihr Projekt aufhalten. Pico hilft Ihnen, schnell eine qualifizierte Fachkraft zu finden. Die Zahlung wird erst nach Prüfung der Arbeit freigegeben.",
       postTask: "Auftrag einstellen",
       exploreWork: "Offene Aufträge ansehen",
       proof: ["Zahlung von Anfang an abgesichert", "Fähigkeiten vorab geprüft", "Unabhängige Prüfung"],
@@ -743,15 +743,15 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       closeMenu: "Закрити меню навігації",
     },
     promo: {
-      title: "Для завдань між великими проєктами.",
-      body: "Короткі завдання, перевірені фахівці, захищені виплати.",
+      title: "Горять терміни?",
+      body: "Знайдіть перевіреного фахівця для 1–2 завдань, що затримують проєкт.",
       link: "Як це працює",
     },
     hero: {
       badge: "Швидший шлях до фахової роботи",
       headline: ["Якісна робота,", "без довгого", "очікування."],
       description:
-        "Опублікуйте коротке завдання, знайдіть фахівців, які підтвердили свої навички, і сплачуйте лише після перевірки результату.",
+        "Коли дедлайн наближається, опишіть одне-два завдання, через які стоїть проєкт. Pico допоможе швидко знайти перевіреного фахівця, а оплату буде здійснено після перевірки роботи.",
       postTask: "Створити завдання",
       exploreWork: "Переглянути завдання",
       proof: ["Оплата захищена від початку", "Навички перевірено заздалегідь", "Незалежна перевірка"],
