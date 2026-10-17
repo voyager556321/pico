@@ -1,4 +1,5 @@
 import { AppChrome } from "@/components/app/AppChrome";
+import { AppLanguageProvider } from "@/components/app/AppLanguage";
 import { SolanaProvider } from "@/adapters/solana/SolanaProvider";
 
 export default function AppLayout({
@@ -8,7 +9,9 @@ export default function AppLayout({
 }) {
   return (
     <SolanaProvider>
-      <AppChrome>{children}</AppChrome>
+      <AppLanguageProvider>
+        <AppChrome>{children}</AppChrome>
+      </AppLanguageProvider>
     </SolanaProvider>
   );
 }

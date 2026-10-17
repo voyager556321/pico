@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { TASKS, TASK_ORDER, NOTES } from "@/lib/mockdata";
+import { APP_COPY, useAppLanguage } from "@/components/app/AppLanguage";
 import {
   ACTIVE_STATUSES,
   STATUS_LABELS,
@@ -43,6 +44,8 @@ function PageTitle({
 }
 
 function TaskList({ initialFilter = "All" }: { initialFilter?: TaskFilter }) {
+  const { language } = useAppLanguage();
+  const copy = APP_COPY[language].home;
   const [filter, setFilter] = useState<TaskFilter>(initialFilter);
   const tasks = useMemo(tasksInOrder, []);
   const filtered = tasks.filter((task) => {
@@ -59,17 +62,24 @@ function TaskList({ initialFilter = "All" }: { initialFilter?: TaskFilter }) {
     Drafts: tasks.filter((task) => task.status === "draft").length,
     Cancelled: tasks.filter((task) => task.status === "cancelled").length,
   };
+  const filterLabels: Record<TaskFilter, string> = {
+    All: copy.all,
+    Active: copy.active,
+    Completed: copy.completed,
+    Drafts: copy.drafts,
+    Cancelled: copy.cancelled,
+  };
 
   return (
     <section className="proto-card">
       <div className="proto-card-head">
         <div>
-          <p className="proto-eyebrow">Workspace</p>
-          <h2>My tasks</h2>
+          <p className="proto-eyebrow">{APP_COPY[language].chrome.workspace}</p>
+          <h2>{copy.tasks}</h2>
         </div>
-        <Link className="app-cta" href="/app/tasks/new">New task</Link>
+        <Link className="app-cta" href="/app/tasks/new">{copy.newTask}</Link>
       </div>
-      <div className="proto-filter-row" role="group" aria-label="Filter tasks">
+      <div className="proto-filter-row" role="group" aria-label={copy.filterTasks}>
         {ACTIVE_FILTERS.map((item) => (
           <button
             key={item}
@@ -78,7 +88,7 @@ function TaskList({ initialFilter = "All" }: { initialFilter?: TaskFilter }) {
             aria-pressed={filter === item}
             onClick={() => setFilter(item)}
           >
-            {item}<span>{counts[item]}</span>
+            {filterLabels[item]}<span>{counts[item]}</span>
           </button>
         ))}
       </div>
@@ -94,19 +104,21 @@ function TaskList({ initialFilter = "All" }: { initialFilter?: TaskFilter }) {
               <span className={`proto-status ${tone || "neutral"}`}>{label}</span>
               <span className="proto-amount">{fmt(task.reward)} <small>USDC</small></span>
               <span className="proto-task-worker">
-                {task.worker ? `Worker #${task.worker}` : task.status === "finding" ? "Finding…" : "—"}
+                {task.worker ? `${copy.worker} #${task.worker}` : task.status === "finding" ? "…" : "—"}
               </span>
               <span className="proto-arrow" aria-hidden>↗</span>
             </Link>
           );
         })}
-        {filtered.length === 0 && <p className="proto-empty">No tasks in this filter.</p>}
+        {filtered.length === 0 && <p className="proto-empty">{copy.noTasks}</p>}
       </div>
     </section>
   );
 }
 
 export function PrototypeHomePage() {
+  const { language } = useAppLanguage();
+  const copy = APP_COPY[language].home;
   const tasks = useMemo(tasksInOrder, []);
   const activeCount = tasks.filter((task) => ACTIVE_STATUSES.includes(task.status)).length;
   const locked = tasks.reduce((sum, task) => sum + lockedOf(task), 0);
@@ -115,42 +127,42 @@ export function PrototypeHomePage() {
   return (
     <div className="proto-stack">
       <PageTitle
-        eyebrow="Workspace · Hiring"
-        title="Home"
-        description="Fund a short task in USDC escrow. Pico finds qualified specialists, then tracks delivery and payment."
-        action={<Link className="app-cta" href="/app/tasks/new">＋ Post a task</Link>}
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
+        action={<Link className="app-cta" href="/app/tasks/new">＋ {copy.postTask}</Link>}
       />
       <div className="proto-home-grid">
         <section className="proto-home-hero">
-          <p className="proto-eyebrow">Your workspace</p>
-          <h2>Ship work without hiring.</h2>
-          <p>Describe a focused task, lock its budget, and let the qualification race fill execution and review slots.</p>
+          <p className="proto-eyebrow">{copy.workspace}</p>
+          <h2>{copy.heroTitle}</h2>
+          <p>{copy.heroDescription}</p>
           <form action="/app/tasks/new">
-            <input aria-label="Task description" name="brief" placeholder="Describe the result you need…" />
-            <button className="app-cta" type="submit">Create task <span aria-hidden>→</span></button>
+            <input aria-label={copy.briefLabel} name="brief" placeholder={copy.briefPlaceholder} />
+            <button className="app-cta" type="submit">{copy.createTask} <span aria-hidden>→</span></button>
           </form>
           <div className="proto-home-stats">
-            <span><b>{activeCount}</b><small>Active tasks</small></span>
-            <span><b>{tasks.length}</b><small>Total tasks</small></span>
-            <span><b>{fmt(locked)} USDC</b><small>Locked in escrow</small></span>
+            <span><b>{activeCount}</b><small>{copy.activeTasks}</small></span>
+            <span><b>{tasks.length}</b><small>{copy.totalTasks}</small></span>
+            <span><b>{fmt(locked)} USDC</b><small>{copy.inEscrow}</small></span>
           </div>
         </section>
         <section className="proto-balance-card">
           <div className="proto-card-head">
-            <div><p className="proto-eyebrow">USDC · Devnet</p><h2>Balance</h2></div>
+            <div><p className="proto-eyebrow">{copy.devnet}</p><h2>{copy.balance}</h2></div>
             <span className="proto-balance-icon">◈</span>
           </div>
           <div className="proto-balance-total">{fmt(650)} <small>USDC</small></div>
-          <div className="proto-kv"><span>Available</span><b>{fmt(650)} USDC</b></div>
-          <div className="proto-kv"><span>Locked in tasks</span><b>{fmt(locked)} USDC</b></div>
-          <div className="proto-kv"><span>Paid out</span><b>{fmt(paid)} USDC</b></div>
-          <Link className="proto-inline-link" href="/app/balance">View balance details →</Link>
+          <div className="proto-kv"><span>{copy.available}</span><b>{fmt(650)} USDC</b></div>
+          <div className="proto-kv"><span>{copy.locked}</span><b>{fmt(locked)} USDC</b></div>
+          <div className="proto-kv"><span>{copy.paid}</span><b>{fmt(paid)} USDC</b></div>
+          <Link className="proto-inline-link" href="/app/balance">{copy.balanceDetails}</Link>
         </section>
       </div>
       <section className="proto-card">
         <div className="proto-card-head">
-          <div><p className="proto-eyebrow">Recent updates</p><h2>Notifications</h2></div>
-          <Link className="proto-inline-link" href="/app/activity">All activity →</Link>
+          <div><p className="proto-eyebrow">{copy.updates}</p><h2>{copy.notifications}</h2></div>
+          <Link className="proto-inline-link" href="/app/activity">{copy.allActivity}</Link>
         </div>
         <div className="proto-notifications">
           {NOTES.slice(0, 4).map((note, index) => (
@@ -160,7 +172,7 @@ export function PrototypeHomePage() {
               <span className="proto-arrow" aria-hidden>→</span>
             </Link>
           ))}
-          {NOTES.length === 0 && <p className="proto-empty">You’re all caught up.</p>}
+          {NOTES.length === 0 && <p className="proto-empty">{copy.caughtUp}</p>}
         </div>
       </section>
       <TaskList />

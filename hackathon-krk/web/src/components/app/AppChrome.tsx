@@ -9,42 +9,44 @@ import { useEffect, useState } from "react";
 import { IconSearch } from "@/components/icons";
 import { ICONS, type IconName } from "@/components/icons";
 import { PicoMark } from "@/components/app/ui";
+import { APP_COPY, useAppLanguage } from "@/components/app/AppLanguage";
+import { LANDING_LANGUAGES, type LandingLanguage } from "@/components/landingTranslations";
 import { USDC_MINT, shortPk } from "@/lib/constants";
 
 export type AppMode = "hiring" | "working";
 
 const MODE_KEY = "pico:appMode";
 
-const NAV: [string, { label: string; icon: IconName; href: string }[]][] = [
-  ["WORKSPACE", [
-    { label: "Home", icon: "home", href: "/app" },
-    { label: "My tasks", icon: "tasks", href: "/app/tasks" },
-    { label: "Chats", icon: "chat", href: "/app/tasks/signup/room/conversation" },
-    { label: "Balance", icon: "wallet", href: "/app/balance" },
-    { label: "History", icon: "activity", href: "/app/activity" },
+const NAV: [keyof typeof APP_COPY.en.chrome, { label: keyof typeof APP_COPY.en.chrome; icon: IconName; href: string }[]][] = [
+  ["workspace", [
+    { label: "home", icon: "home", href: "/app" },
+    { label: "tasks", icon: "tasks", href: "/app/tasks" },
+    { label: "chats", icon: "chat", href: "/app/tasks/signup/room/conversation" },
+    { label: "balance", icon: "wallet", href: "/app/balance" },
+    { label: "history", icon: "activity", href: "/app/activity" },
   ]],
-  ["ACCOUNT", [
-    { label: "Company profile", icon: "user", href: "/app/profile" },
-    { label: "Settings", icon: "settings", href: "/app/settings" },
-    { label: "Help & disputes", icon: "help", href: "/app/help" },
+  ["account", [
+    { label: "profile", icon: "user", href: "/app/profile" },
+    { label: "settings", icon: "settings", href: "/app/settings" },
+    { label: "help", icon: "help", href: "/app/help" },
   ]],
-  ["PICO", [
-    { label: "About Pico", icon: "info", href: "/app/about" },
-    { label: "How it works", icon: "arrow", href: "/app/how" },
+  ["pico", [
+    { label: "about", icon: "info", href: "/app/about" },
+    { label: "how", icon: "arrow", href: "/app/how" },
   ]],
 ];
 
-const PAGE_NAMES: [string, string][] = [
-  ["/app/tasks/new", "Create task"],
-  ["/app/tasks", "My tasks"],
-  ["/app/activity", "History"],
-  ["/app/balance", "Balance"],
-  ["/app/profile", "Company profile"],
-  ["/app/settings", "Settings"],
-  ["/app/help", "Help & disputes"],
-  ["/app/about", "About Pico"],
-  ["/app/how", "How it works"],
-  ["/app/operator", "Operator"],
+const PAGE_NAMES: [string, keyof typeof APP_COPY.en.chrome][] = [
+  ["/app/tasks/new", "createTask"],
+  ["/app/tasks", "tasks"],
+  ["/app/activity", "history"],
+  ["/app/balance", "balance"],
+  ["/app/profile", "profile"],
+  ["/app/settings", "settings"],
+  ["/app/help", "help"],
+  ["/app/about", "about"],
+  ["/app/how", "how"],
+  ["/app/operator", "operator"],
 ];
 
 export function useAppMode(): [AppMode, (mode: AppMode) => void] {
@@ -74,6 +76,8 @@ export function useAppMode(): [AppMode, (mode: AppMode) => void] {
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mode, setMode] = useAppMode();
+  const { language, setLanguage } = useAppLanguage();
+  const copy = APP_COPY[language].chrome;
   const [mounted, setMounted] = useState(false);
   const { publicKey } = useWallet();
   const { connection } = useConnection();
@@ -102,12 +106,12 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   }, [publicKey, connection]);
 
   const pageName = pathname === "/app"
-    ? "Home"
-    : PAGE_NAMES.find(([href]) => pathname === href || (href !== "/app/tasks" && pathname.startsWith(`${href}/`)))?.[1]
-      ?? (pathname.includes("/room/") ? "Workroom" : "Task details");
+    ? copy.home
+    : copy[PAGE_NAMES.find(([href]) => pathname === href || (href !== "/app/tasks" && pathname.startsWith(`${href}/`)))?.[1]
+      ?? (pathname.includes("/room/") ? "workroom" : "taskDetails")];
 
   return (
-    <div className="app">
+    <div className="app" lang={LANDING_LANGUAGES.find((item) => item.code === language)?.locale}>
       <aside className="sb">
         <div className="brandrow">
           <Link href="/app" className="logo" aria-label="Pico home">
@@ -116,9 +120,9 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           <span className="icb" aria-hidden>{ICONS.side && <ICONS.side size={16} />}</span>
         </div>
 
-        <Link className="srch" href="/app/tasks" aria-label="Search tasks">
+        <Link className="srch" href="/app/tasks" aria-label={copy.searchTasks}>
           <IconSearch size={16} />
-          <span>Search…</span>
+          <span>{copy.search}</span>
           <kbd>⌘</kbd>
           <kbd>K</kbd>
         </Link>
@@ -126,7 +130,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
         {NAV.map(([group, items], groupIndex) => (
           <div key={group}>
             {groupIndex > 0 && <hr />}
-            <div className="lbl">{group}</div>
+            <div className="lbl">{copy[group]}</div>
             <div className="nv">
               {items.map(({ label, icon, href }) => {
                 const Icon = ICONS[icon];
@@ -136,7 +140,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
                 return (
                   <Link key={href} href={href} className={`ni${active ? " on" : ""}`} aria-current={active ? "page" : undefined}>
                     {Icon && <Icon size={18} />}
-                    {label}
+                    {copy[label]}
                   </Link>
                 );
               })}
@@ -145,30 +149,40 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
         ))}
 
         {pathname.startsWith("/app/operator") && (
-          <div><hr /><div className="lbl">TOOLS</div><div className="nv"><Link href="/app/operator" className="ni on">Operator</Link></div></div>
+          <div><hr /><div className="lbl">{copy.tools}</div><div className="nv"><Link href="/app/operator" className="ni on">{copy.operator}</Link></div></div>
         )}
         <div className="grow" />
-        <Link className="ni sout" href="/#flow">{ICONS.arrow && <ICONS.arrow size={18} />}How it works</Link>
+        <Link className="ni sout" href="/#flow">{ICONS.arrow && <ICONS.arrow size={18} />}{copy.howItWorks}</Link>
         <div className="acct">
           <span className="avs">{publicKey ? shortPk(publicKey.toBase58(), 1).slice(0, 2).toUpperCase() : "NS"}</span>
-          <span><b>{publicKey ? shortPk(publicKey.toBase58(), 4) : "Northwind Studio"}</b><small>{publicKey ? "Devnet wallet" : mode === "working" ? "Worker account" : "Company account"}</small></span>
+          <span><b>{publicKey ? shortPk(publicKey.toBase58(), 4) : "Northwind Studio"}</b><small>{publicKey ? copy.devnetWallet : mode === "working" ? copy.workerAccount : copy.companyAccount}</small></span>
           {ICONS.updown && <ICONS.updown size={16} />}
         </div>
       </aside>
 
       <main className="mn">
         <header className="tb">
-          <div className="crumb"><Link href="/app">Workspace</Link><span>/</span><b>{pageName}</b></div>
+          <div className="crumb"><Link href="/app">{copy.workspace}</Link><span>/</span><b>{pageName}</b></div>
           <div className="tbr">
-            <div className="mode" role="group" aria-label="Mode">
-              <button type="button" className={mode === "hiring" ? "on" : ""} aria-pressed={mode === "hiring"} onClick={() => setMode("hiring")}>{ICONS.brief && <ICONS.brief size={16} />}Hiring</button>
-              <button type="button" className={mode === "working" ? "on" : ""} aria-pressed={mode === "working"} onClick={() => setMode("working")}>{ICONS.tool && <ICONS.tool size={16} />}Working</button>
+            <label className="app-language-picker">
+              <span className="sr-only">{APP_COPY[language].language}</span>
+              <select
+                value={language}
+                onChange={(event) => setLanguage(event.currentTarget.value as LandingLanguage)}
+                aria-label={APP_COPY[language].language}
+              >
+                {LANDING_LANGUAGES.map((item) => <option key={item.code} value={item.code}>{item.label}</option>)}
+              </select>
+            </label>
+            <div className="mode" role="group" aria-label={copy.mode}>
+              <button type="button" className={mode === "hiring" ? "on" : ""} aria-pressed={mode === "hiring"} onClick={() => setMode("hiring")}>{ICONS.brief && <ICONS.brief size={16} />}{copy.hiring}</button>
+              <button type="button" className={mode === "working" ? "on" : ""} aria-pressed={mode === "working"} onClick={() => setMode("working")}>{ICONS.tool && <ICONS.tool size={16} />}{copy.working}</button>
             </div>
-            <button className="bell" aria-label="Notifications" type="button">{ICONS.bell && <ICONS.bell size={18} />}</button>
+            <button className="bell" aria-label={copy.notifications} type="button">{ICONS.bell && <ICONS.bell size={18} />}</button>
             {mounted ? (
               <div className="chrome-wallet"><WalletMultiButton /></div>
             ) : (
-              <button className="wchip" type="button" disabled><span className="wi">◈</span><span><b>Phantom<span>Devnet</span></b><small>{usdc === null ? "Connect wallet" : `${usdc.toFixed(2)} USDC`}</small></span><span className="dotg" /></button>
+              <button className="wchip" type="button" disabled><span className="wi">◈</span><span><b>Phantom<span>Devnet</span></b><small>{usdc === null ? copy.connectWallet : `${usdc.toFixed(2)} USDC`}</small></span><span className="dotg" /></button>
             )}
           </div>
         </header>

@@ -265,9 +265,120 @@ button {
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
-  max-width: 1440px;
-  margin-inline: auto;
+  width: 100%;
+  max-width: none;
   background: var(--bg-page);
+  color: var(--text-primary);
+  color-scheme: light;
+  --bg-page: #fbfcf8;
+  --surface-primary: #fff;
+  --surface-secondary: #f2f5ef;
+  --surface-field: #fff;
+  --text-primary: #20261f;
+  --text-secondary: #555f53;
+  --text-muted: #737d70;
+  --text-disabled: #899187;
+  --text-accent: #24753c;
+  --border-default: #e3e9df;
+  --border-strong: #ccd8c9;
+  --indigo-400: #34864b;
+  --indigo-500: #27783f;
+  --white-a4: rgba(25, 50, 24, .035);
+  --white-a6: rgba(25, 50, 24, .05);
+  --white-a10: rgba(25, 50, 24, .08);
+  --tint-accent: #eff8e9;
+  --tint-accent-strong: #e4f3d9;
+  --tint-accent-border: #cfe5c4;
+  --ai-gradient-button: linear-gradient(135deg, #42a34d, #26783e);
+  --button-glow: 0 5px 14px rgba(39, 120, 63, .18);
+  --focus-ring: 0 0 0 3px rgba(39, 120, 63, .2);
+  --board: #fbfcf8;
+  --panel: #fff;
+  --text: #20261f;
+  --muted: #737d70;
+  --accent: #27783f;
+  --accent-hover: #1f6835;
+  --accent-soft: #eff8e9;
+  --accent-ink: #24753c;
+  --border: #e3e9df;
+  --shadow: 0 16px 40px rgba(36, 51, 33, .09);
+  --app-bg: #fbfcf8;
+  --app-sidebar: #fff;
+  --app-panel: #fff;
+  --app-text: #20261f;
+  --app-muted: #737d70;
+  --app-border: #e3e9df;
+  --app-accent: #34864b;
+}
+
+.app .sb {
+  background: #fff;
+}
+
+.app .sb .ni.on {
+  border-color: #cfe5c4;
+  background: #eff8e9;
+  color: #24753c;
+}
+
+.app .sb .ni.on::after {
+  background: #34864b;
+}
+
+.app .sb .acct .avs,
+.app .wchip .wi {
+  background: #eff8e9;
+  color: #24753c;
+}
+
+.app .mode button.on {
+  border-color: #cfe5c4;
+  background: #eff8e9;
+  color: #24753c;
+}
+
+.app .bell::after {
+  background: #42a34d;
+}
+
+.app .proto-home-hero {
+  border-color: #d5e8cc;
+  background: radial-gradient(ellipse at 85% 0, rgba(114, 183, 96, .15), transparent 43%), linear-gradient(120deg, #f0f7e9, #f8faf5 65%, #fff);
+}
+
+.app .proto-home-hero form {
+  border-color: #dce7d7;
+  background: rgba(255, 255, 255, .88);
+}
+
+.app .proto-home-hero form input {
+  color: #20261f;
+}
+
+.app .proto-filter.active {
+  border-color: #cfe5c4;
+  background: #eff8e9;
+  color: #24753c;
+}
+
+.app .app-tab-active {
+  border-bottom-color: #34864b;
+}
+
+.app-language-picker select {
+  min-height: 38px;
+  padding: 0 25px 0 10px;
+  border: 1px solid var(--border-default);
+  border-radius: 9px;
+  outline: none;
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font: 600 11px/1 var(--font);
+  cursor: pointer;
+}
+
+.app-language-picker select:focus-visible {
+  box-shadow: var(--focus-ring);
 }
 
 /* ---------- Sidebar ---------- */
@@ -2501,6 +2612,7 @@ button {
 .proto-wizard-footer { justify-content: space-between; padding-top: 6px; border-top: 1px solid var(--border-default); }
 .chrome-wallet .wallet-adapter-button {
   height: 44px !important;
+  min-width: 120px;
   padding: 0 12px !important;
   border: 1px solid var(--border-default) !important;
   border-radius: 12px !important;
@@ -2508,6 +2620,10 @@ button {
   box-shadow: none !important;
   color: var(--text-primary) !important;
   font-size: 12px !important;
+  white-space: nowrap;
+}
+.app .chrome-wallet {
+  flex: none;
 }
 .chrome-wallet .wallet-adapter-button:hover { background: var(--surface-secondary) !important; }
 @media (max-width: 900px) {

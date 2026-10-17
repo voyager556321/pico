@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  APP_LANGUAGE_STORAGE_KEY,
+  isLandingLanguage,
+} from "@/components/app/AppLanguage";
 import {
   LANDING_COPY,
   LANDING_LANGUAGES,
@@ -13,11 +17,27 @@ export function LandingPage() {
   const [language, setLanguage] = useState<LandingLanguage>("en");
   const copy = LANDING_COPY[language];
 
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(APP_LANGUAGE_STORAGE_KEY);
+      if (isLandingLanguage(stored)) setLanguage(stored);
+    } catch {
+      return;
+    }
+  }, []);
+
   function changeLanguage(value: string) {
     const selectedLanguage = LANDING_LANGUAGES.find(
       (item) => item.code === value,
     );
-    if (selectedLanguage) setLanguage(selectedLanguage.code);
+    if (selectedLanguage) {
+      setLanguage(selectedLanguage.code);
+      try {
+        window.localStorage.setItem(APP_LANGUAGE_STORAGE_KEY, selectedLanguage.code);
+      } catch {
+        return;
+      }
+    }
   }
 
   return (
