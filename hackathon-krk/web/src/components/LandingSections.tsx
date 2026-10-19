@@ -1,51 +1,47 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef, useState, type RefObject } from "react";
-import { LANDING_COPY, type LandingLanguage } from "@/components/landingTranslations";
-import { EXTRA_COPY, SECTIONS_COPY } from "@/components/landingSectionsCopy";
+import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
+import { createPortal } from "react-dom";
+import { HERO_COPY, LANDING_COPY, type LandingLanguage } from "@/components/landingTranslations";
+import { EXTRA_COPY, SECTIONS_COPY, WAITLIST_COPY } from "@/components/landingSectionsCopy";
 
 /* ------------------------------------------------------------------
-   Scroll progress of a tall "sticky" section: 0 at its top, 1 when its
-   bottom reaches the viewport bottom. Returns null when the section is
-   not taller than the viewport (mobile layout), so the caller falls
-   back to tap-driven state.
+   Pre-launch landing. No scroll-driven animation: sections are static,
+   "How it works" auto-advances only while visible and stops as soon as
+   the visitor clicks, "Secure payments" shows all three states at once.
+   Every CTA leads to the waitlist form at the end of the page.
    ------------------------------------------------------------------ */
-function useStickyProgress(ref: RefObject<HTMLElement | null>) {
-  const [progress, setProgress] = useState<number | null>(null);
+
+export type WaitlistRole = "client" | "worker";
+
+/** true once the element has been at least `threshold` visible; `once` keeps it true. */
+function useInView(ref: RefObject<HTMLElement | null>, { threshold = 0.35, once = false } = {}) {
+  const [inView, setInView] = useState(false);
   useEffect(() => {
-    let frame = 0;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const el = ref.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const travel = rect.height - window.innerHeight;
-        if (travel < 40) {
-          setProgress(null);
-          return;
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          if (once) observer.disconnect();
+        } else if (!once) {
+          setInView(false);
         }
-        setProgress(Math.min(1, Math.max(0, -rect.top / travel)));
-      });
-    };
-    measure();
-    window.addEventListener("scroll", measure, { passive: true });
-    window.addEventListener("resize", measure);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", measure);
-      window.removeEventListener("resize", measure);
-    };
-  }, [ref]);
-  return progress;
+      },
+      { threshold },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, threshold, once]);
+  return inView;
 }
 
-function scrollToStage(el: HTMLElement | null, index: number, count: number) {
-  if (!el) return;
-  const travel = el.offsetHeight - window.innerHeight;
-  const top = el.getBoundingClientRect().top + window.scrollY;
-  window.scrollTo({ top: top + travel * ((index + 0.5) / count), behavior: "smooth" });
+function prefersReducedMotion() {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function Title({ parts }: { parts: string[] }) {
@@ -66,16 +62,38 @@ function ArrowIcon() {
   );
 }
 
-function Check() {
+function Check({ size = 14 }: { size?: number }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
       <path d="m5 12.5 4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-/* Example tasks shown on the landing. Titles come from the existing
-   translated copy; budgets are illustrative and labelled as examples. */
+function StageIcon({ stage }: { stage: number }) {
+  if (stage === 1) {
+    return (
+      <svg viewBox="0 0 48 48" aria-hidden>
+        <path d="M24 5 9 11v11c0 9.5 6.4 17.8 15 21 8.6-3.2 15-11.5 15-21V11L24 5Z" fill="currentColor" opacity=".16" />
+        <path d="M24 5 9 11v11c0 9.5 6.4 17.8 15 21 8.6-3.2 15-11.5 15-21V11L24 5Z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+        <path d="m17 24 5 5 9-10" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  const open = stage === 2;
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden>
+      <path d={open ? "M15 21v-6a9 9 0 0 1 17.4-3.2" : "M15 21v-6a9 9 0 0 1 18 0v6"} fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+      <rect x="9" y="21" width="30" height="22" rx="7" fill="currentColor" opacity=".16" />
+      <rect x="9" y="21" width="30" height="22" rx="7" fill="none" stroke="currentColor" strokeWidth="2.4" />
+      <circle cx="24" cy="31" r="2.6" fill="currentColor" />
+      <path d="M24 33v4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* Example tasks. Titles come from the translated copy; budgets are
+   illustrative and labelled as examples on the page. */
 const EXAMPLE_TASKS = [
   { titleIndex: 1, lane: "debugging", budget: 180, skills: ["React", "Auth", "Next.js"] },
   { titleIndex: 0, lane: "codeReview", budget: 140, skills: ["Node.js", "Security"] },
@@ -85,42 +103,76 @@ const EXAMPLE_TASKS = [
 
 const CLIENT_PROGRESS = { done: [0, 1, 1, 2, 3, 5], active: [false, false, true, true, true, false] };
 const WORKER_PROGRESS = { done: [1, 1, 2, 3, 3, 5], active: [false, true, true, false, true, false] };
+const STEP_MS = 2000;
+export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+export type WaitlistResult = "success" | "duplicate" | "error";
+
+/** POST /api/waitlist — shared by the hero and the form at the end of the page. */
+export async function postWaitlist(data: {
+  email: string;
+  role: WaitlistRole;
+  interest: string;
+  language: LandingLanguage;
+  source: "hero" | "waitlist";
+}): Promise<WaitlistResult> {
+  try {
+    const response = await fetch("/api/waitlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...data, consent: true }),
+    });
+    if (response.status === 409) return "duplicate";
+    return response.ok ? "success" : "error";
+  } catch {
+    return "error";
+  }
+}
 
 export function LandingSections({ language }: { language: LandingLanguage }) {
   const copy = LANDING_COPY[language];
   const s = SECTIONS_COPY[language];
   const x = EXTRA_COPY[language];
+  const w = WAITLIST_COPY[language];
+  const laneLabel = (lane: (typeof EXAMPLE_TASKS)[number]["lane"]) => copy.board[lane];
 
   /* 02 · explore */
   const [openTask, setOpenTask] = useState(0);
 
-  /* 03 · how it works */
+  /* 03 · how it works: auto-advance while visible, stop on first click */
   const howRef = useRef<HTMLElement>(null);
-  const howProgress = useStickyProgress(howRef);
+  const howVisible = useInView(howRef, { threshold: 0.45 });
   const [howMode, setHowMode] = useState<"client" | "worker">("client");
-  const [howTap, setHowTap] = useState(0);
-  const howStep = howProgress === null ? howTap : Math.min(5, Math.floor(howProgress * 6));
+  const [howStep, setHowStep] = useState(0);
+  const howPlaying = howVisible;
+  useEffect(() => {
+    if (!howPlaying || prefersReducedMotion()) return;
+    const id = window.setTimeout(() => setHowStep((step) => (step + 1) % 6), STEP_MS);
+    return () => window.clearTimeout(id);
+  }, [howPlaying, howStep, howMode]);
   const steps = s.how.steps[howMode];
   const progressMap = howMode === "client" ? CLIENT_PROGRESS : WORKER_PROGRESS;
   const doneRows = progressMap.done[howStep];
   const activeRow = progressMap.active[howStep] ? doneRows : -1;
   const exampleTask = EXAMPLE_TASKS[0];
 
-  /* 05 · payments */
+  /* 05 · payments: one-time reveal */
   const payRef = useRef<HTMLElement>(null);
-  const payProgress = useStickyProgress(payRef);
-  const [payTap, setPayTap] = useState(0);
-  const payStage = payProgress === null ? payTap : Math.min(2, Math.floor(payProgress * 3));
+  const payVisible = useInView(payRef, { threshold: 0.3, once: true });
 
   /* 06 · faq */
   const [openFaq, setOpenFaq] = useState(0);
+  const faqItems = [s.faq.items[0], { q: w.faqPriceQ, a: w.faqPriceA }, ...s.faq.items.slice(1), { q: w.faqLaunchQ, a: w.faqLaunchA }];
 
-  const laneLabel = (lane: (typeof EXAMPLE_TASKS)[number]["lane"]) => copy.board[lane];
+  /* 04 · why: clients / specialists */
+  const [whyAud, setWhyAud] = useState<"client" | "worker">("client");
+  const whyOld = whyAud === "client" ? s.why.old : w.whyOldW;
+  const whyPico = whyAud === "client" ? s.why.pico : w.whyPicoW;
 
   return (
     <div className="pk">
       {/* ============ 02 · Explore tasks ============ */}
-      <section className="pk-section pk-explore" aria-labelledby="pk-explore-title">
+      <section id="tasks" className="pk-section pk-explore" aria-labelledby="pk-explore-title">
         <div className="pk-wrap">
           <div className="pk-explore-head">
             <h2 id="pk-explore-title" className="pk-title"><Title parts={s.explore.title} /></h2>
@@ -129,8 +181,9 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
 
           <div className="pk-toolbar">
             <p className="pk-toolbar-label">{s.explore.example}<b>{EXAMPLE_TASKS.length}</b></p>
-            <Link href="/app" className="pk-link">{s.explore.viewAll}<ArrowIcon /></Link>
+            <a href="#waitlist" className="pk-link">{w.tasksCta}<ArrowIcon /></a>
           </div>
+
           <ul className="pk-tasks">
             {EXAMPLE_TASKS.map((task, index) => (
               <li
@@ -138,12 +191,11 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
                 className={`pk-task${openTask === index ? " is-open" : ""}`}
                 onMouseEnter={() => setOpenTask(index)}
                 onFocus={() => setOpenTask(index)}
+                tabIndex={0}
               >
                 <div className="pk-task-top">
                   <span className="pk-chip">{laneLabel(task.lane)}</span>
-                  <Link href="/app" className="pk-task-cta" aria-label={`${copy.board.enterBoard}: ${copy.taskTitles[task.titleIndex]}`}>
-                    <ArrowIcon />
-                  </Link>
+                  {task.lane === "design" ? <span className="pk-soon">{w.soonTag}</span> : null}
                 </div>
                 <div className="pk-task-body">
                   <h3>{copy.taskTitles[task.titleIndex]}</h3>
@@ -157,7 +209,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
                 <div className="pk-task-bottom">
                   <div className="pk-task-budget">
                     <small>{s.explore.budget}</small>
-                    <strong>{task.budget}<em>USDC</em></strong>
+                    <strong>${task.budget}</strong>
                   </div>
                   <div className="pk-due">
                     <b>{s.explore.deadlines[index]}</b>
@@ -171,75 +223,84 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
       </section>
 
       {/* ============ 03 · How it works ============ */}
-      <section id="flow" ref={howRef} className="pk-how" aria-labelledby="pk-how-title">
-        <div className="pk-sticky">
-          <div className="pk-wrap pk-how-inner">
-            <div className="pk-head">
-              <div>
-                <h2 id="pk-how-title" className="pk-title"><Title parts={s.how.title} /></h2>
-              </div>
-              <div className="pk-toggle" role="tablist" aria-label={s.how.modeLabel}>
-                {(["client", "worker"] as const).map((mode) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    role="tab"
-                    aria-selected={howMode === mode}
-                    className={howMode === mode ? "is-active" : undefined}
-                    onClick={() => setHowMode(mode)}
-                  >
-                    {mode === "client" ? s.how.client : s.how.worker}
-                  </button>
-                ))}
-              </div>
+      <section
+        id="flow"
+        ref={howRef}
+        className="pk-section pk-how"
+        aria-labelledby="pk-how-title"
+      >
+        <div className="pk-wrap pk-how-inner">
+          <div className="pk-head">
+            <h2 id="pk-how-title" className="pk-title"><Title parts={s.how.title} /></h2>
+            <div className="pk-toggle" role="tablist" aria-label={s.how.modeLabel}>
+              {(["client", "worker"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  role="tab"
+                  aria-selected={howMode === mode}
+                  className={howMode === mode ? "is-active" : undefined}
+                  onClick={() => {
+                    setHowMode(mode);
+                    setHowStep(0);
+                  }}
+                >
+                  {mode === "client" ? s.how.client : s.how.worker}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ol className="pk-line" style={{ ["--pk-f" as string]: howStep / 5 }}>
+            {steps.map((step, index) => (
+              <li key={step.title} className={index < howStep ? "is-done" : index === howStep ? "is-current" : undefined}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHowStep(index);
+                  }}
+                  aria-current={index === howStep ? "step" : undefined}
+                >
+                  <span className="pk-dot">{index < howStep ? <Check /> : String(index + 1).padStart(2, "0")}</span>
+                  <span className="pk-step-name">{step.title}</span>
+                  {index === howStep && howPlaying ? (
+                    <span className="pk-step-timer" key={`${howMode}-${howStep}`} style={{ animationDuration: `${STEP_MS}ms` }} aria-hidden />
+                  ) : null}
+                </button>
+              </li>
+            ))}
+          </ol>
+
+          <div className="pk-stage">
+            <div className="pk-stage-copy" key={`${howMode}-${howStep}`}>
+              <p className="pk-stage-n">{s.how.step} {String(howStep + 1).padStart(2, "0")} / 06</p>
+              <h3>{steps[howStep].title}</h3>
+              <p>{steps[howStep].body}</p>
             </div>
 
-            <ol className="pk-line" style={{ ["--pk-f" as string]: howStep / 5 }}>
-              {steps.map((step, index) => (
-                <li key={step.title} className={index < howStep ? "is-done" : index === howStep ? "is-current" : undefined}>
-                  <button
-                    type="button"
-                    onClick={() => (howProgress === null ? setHowTap(index) : scrollToStage(howRef.current, index, 6))}
-                    aria-current={index === howStep ? "step" : undefined}
-                  >
-                    <span className="pk-dot">{index < howStep ? <Check /> : String(index + 1).padStart(2, "0")}</span>
-                    <span className="pk-step-name">{step.title}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-
-            <div className="pk-stage">
-              <div className="pk-stage-copy" key={`${howMode}-${howStep}`}>
-                <p className="pk-stage-n">{s.how.step} {String(howStep + 1).padStart(2, "0")} / 06</p>
-                <h3>{steps[howStep].title}</h3>
-                <p>{steps[howStep].body}</p>
-              </div>
-
-              <div className="pk-ui" aria-label={s.how.example}>
-                <div className="pk-ui-head">
-                  <div>
-                    <small>{s.how.example} · {laneLabel(exampleTask.lane)}</small>
-                    <p>{copy.taskTitles[exampleTask.titleIndex]}</p>
-                  </div>
-                  <span className={`pk-status${howStep === 5 ? " is-paid" : ""}`}>{s.how.status[howMode][howStep]}</span>
+            <div className="pk-ui" aria-label={s.how.example}>
+              <div className="pk-ui-head">
+                <div>
+                  <small>{s.how.example} · {laneLabel(exampleTask.lane)}</small>
+                  <p>{copy.taskTitles[exampleTask.titleIndex]}</p>
                 </div>
-                <div className="pk-ui-budget">
-                  <span>{s.explore.budget}</span>
-                  <strong>{exampleTask.budget}.00 <em>USDC</em></strong>
-                </div>
-                <ul className="pk-ui-rows">
-                  {s.how.rows.map((row, index) => {
-                    const state = index < doneRows ? "is-done" : index === activeRow ? "is-active" : "";
-                    return (
-                      <li key={row} className={state}>
-                        <span className="pk-ui-mark">{index < doneRows ? <Check /> : null}</span>
-                        {row}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <span className={`pk-status${howStep === 5 ? " is-paid" : ""}`}>{s.how.status[howMode][howStep]}</span>
               </div>
+              <div className="pk-ui-budget">
+                <span>{s.explore.budget}</span>
+                <strong>${exampleTask.budget}.00</strong>
+              </div>
+              <ul className="pk-ui-rows">
+                {s.how.rows.map((row, index) => {
+                  const state = index < doneRows ? "is-done" : index === activeRow ? "is-active" : "";
+                  return (
+                    <li key={row} className={state}>
+                      <span className="pk-ui-mark">{index < doneRows ? <Check /> : null}</span>
+                      {row}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </div>
         </div>
@@ -248,22 +309,38 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
       {/* ============ 04 · Why Pico ============ */}
       <section id="clients" className="pk-section pk-why" aria-labelledby="pk-why-title">
         <div className="pk-wrap">
-          <h2 id="pk-why-title" className="pk-title"><Title parts={[s.why.title[0], s.why.title[1]]} /></h2>
+          <div className="pk-head">
+            <h2 id="pk-why-title" className="pk-title"><Title parts={[s.why.title[0], s.why.title[1]]} /></h2>
+            <div className="pk-toggle" role="tablist" aria-label={s.how.modeLabel}>
+              {(["client", "worker"] as const).map((aud) => (
+                <button
+                  key={aud}
+                  type="button"
+                  role="tab"
+                  aria-selected={whyAud === aud}
+                  className={whyAud === aud ? "is-active" : undefined}
+                  onClick={() => setWhyAud(aud)}
+                >
+                  {aud === "client" ? s.how.client : s.how.worker}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <div className="pk-split">
+          <div className="pk-split" key={whyAud}>
             <div className="pk-old">
               <p className="pk-side-label">{s.why.oldLabel}</p>
               <div className="pk-pile" aria-hidden>
                 {[0, 1, 2].map((n) => (
                   <div key={n} className="pk-pile-card">
                     <span className="pk-avatar" />
-                    <div><b>{s.why.proposal} #{n + 14}</b><i /><i /></div>
+                    <div><b>{whyAud === "client" ? s.why.proposal : w.whyProposalW} #{n + 14}</b><i /><i /></div>
                   </div>
                 ))}
-                <span className="pk-waiting">{s.why.oldTag}</span>
+                <span className="pk-waiting">{whyAud === "client" ? s.why.oldTag : w.whyOldTagW}</span>
               </div>
               <ul className="pk-old-list">
-                {s.why.old.map((item) => <li key={item}>{item}</li>)}
+                {whyOld.map((item) => <li key={item}>{item}</li>)}
               </ul>
             </div>
 
@@ -272,10 +349,10 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               <div className="pk-new-card">
                 <div className="pk-new-top">
                   <p>{copy.taskTitles[1]}</p>
-                  <span className="pk-status is-paid">{s.why.picoTag}</span>
+                  <span className="pk-status is-paid">{whyAud === "client" ? s.why.picoTag : w.whyPicoTagW}</span>
                 </div>
                 <ul>
-                  {s.why.pico.map((item) => (
+                  {whyPico.map((item) => (
                     <li key={item}><span className="pk-ui-mark is-on"><Check /></span>{item}</li>
                   ))}
                 </ul>
@@ -286,57 +363,44 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
       </section>
 
       {/* ============ 05 · Secure payments ============ */}
-      <section ref={payRef} className="pk-pay" aria-labelledby="pk-pay-title">
-        <div className="pk-sticky pk-pay-sticky">
-          <div className="pk-wrap pk-pay-inner">
-            <div className="pk-pay-copy">
-              <h2 id="pk-pay-title" className="pk-title"><Title parts={[s.pay.title[0], s.pay.title[1]]} /></h2>
-              <ol className="pk-pay-states">
-                {s.pay.states.map((state, index) => (
-                  <li key={state.label} className={index < payStage ? "is-done" : index === payStage ? "is-current" : undefined}>
-                    <button
-                      type="button"
-                      onClick={() => (payProgress === null ? setPayTap(index) : scrollToStage(payRef.current, index, 3))}
-                    >
-                      <span className="pk-pay-dot">{index < payStage ? <Check /> : null}</span>
-                      <span>
-                        <b>{state.title}</b>
-                        {index === payStage ? <small>{state.body}</small> : null}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </div>
+      <section ref={payRef} className={`pk-section pk-pay${payVisible ? " is-visible" : ""}`} aria-labelledby="pk-pay-title">
+        <div className="pk-wrap">
+          <h2 id="pk-pay-title" className="pk-title"><Title parts={[s.pay.title[0], s.pay.title[1]]} /></h2>
 
-            <div className={`pk-vault is-stage-${payStage}`}>
-              <svg className="pk-lock" viewBox="0 0 120 140" aria-hidden>
-                <path className="pk-lock-shackle" d="M34 62V44a26 26 0 0 1 52 0v18" fill="none" strokeWidth="11" strokeLinecap="round" />
-                <rect x="16" y="60" width="88" height="72" rx="20" className="pk-lock-body" />
-                <circle cx="60" cy="92" r="8" className="pk-lock-key" />
-                <rect x="56" y="96" width="8" height="16" rx="4" className="pk-lock-key" />
-              </svg>
-              <p className="pk-vault-label">{s.pay.amountLabel}</p>
-              <p className="pk-vault-amount">180.00<span> USDC</span></p>
-              <p className="pk-vault-state"><i />{s.pay.states[payStage].label}</p>
-              <p className="pk-vault-network">{s.pay.network}</p>
-            </div>
-          </div>
+          <ol className="pk-pay-flow">
+            {s.pay.states.map((state, index) => (
+              <li key={state.label} style={{ ["--pk-i" as string]: index }}>
+                <div className="pk-pay-top">
+                  <div className="pk-pay-icon"><StageIcon stage={index} /></div>
+                  <span className="pk-pay-n">{String(index + 1).padStart(2, "0")}</span>
+                </div>
+                <h3>{state.title}</h3>
+                <p className="pk-pay-body">{state.body}</p>
+                <div className="pk-pay-row">
+                  <strong>$180.00</strong>
+                  <span className="pk-pay-chip"><i />{state.label}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
       {/* ============ 06 · FAQ ============ */}
-      <section className="pk-section pk-faq" aria-labelledby="pk-faq-title">
+      <section id="faq" className="pk-section pk-faq" aria-labelledby="pk-faq-title">
         <div className="pk-wrap pk-faq-grid">
           <div className="pk-faq-side">
             <h2 id="pk-faq-title" className="pk-title">{s.faq.title}</h2>
             <div className="pk-help">
-              <p>{x.helpTitle}</p>
-              <Link href="/app/help" className="pk-help-link">{x.helpCta}<ArrowIcon /></Link>
+              <p className="pk-help-title">{w.readyTitle}</p>
+              <p className="pk-help-sub">{w.readySub}</p>
+              <a href="#waitlist" className="pk-help-link">{w.heroCta}<ArrowIcon /></a>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="pk-help-arrow" src="/landing/hero-arrow.webp" alt="" aria-hidden width={920} height={714} loading="lazy" />
             </div>
           </div>
           <ol className="pk-faq-list">
-            {s.faq.items.map((item, index) => {
+            {faqItems.map((item, index) => {
               const open = openFaq === index;
               return (
                 <li key={item.q} className={open ? "is-open" : undefined}>
@@ -360,15 +424,23 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         </div>
       </section>
 
-      {/* ============ 07 · Final CTA ============ */}
-      <section className="pk-final" aria-labelledby="pk-final-title">
+      {/* ============ 07 · Waitlist ============ */}
+      <section id="waitlist" className="pk-final" aria-labelledby="pk-final-title">
         <div className="pk-wrap pk-final-inner">
-          <h2 id="pk-final-title" className="pk-final-title"><Title parts={s.cta.title} /></h2>
-          <div className="pk-final-actions">
-            <Link href="/app/tasks/new" className="pk-btn pk-btn-primary">{s.cta.post}<ArrowIcon /></Link>
-            <Link href="/app" className="pk-btn pk-btn-ghost">{s.cta.find}</Link>
+          <div className="pk-final-copy">
+            <h2 id="pk-final-title" className="pk-final-title"><Title parts={s.cta.title} /></h2>
+            <p className="pk-final-lead">{w.lead}</p>
+            <ol className="pk-next" aria-label={w.nextTitle}>
+              {w.nextTitles.map((title, index) => (
+                <li key={title}>
+                  <span className="pk-next-n">{String(index + 1).padStart(2, "0")}</span>
+                  <b>{title}</b>
+                  <p>{w.nextDescs[index]}</p>
+                </li>
+              ))}
+            </ol>
           </div>
-          <p className="pk-final-note">{s.cta.note}</p>
+          <WaitlistForm language={language} />
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="pk-final-arrow" src="/landing/hero-arrow.webp" alt="" aria-hidden width={920} height={714} loading="lazy" />
@@ -378,29 +450,20 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         <div className="pk-wrap">
           <div className="pk-footer-top">
             <div className="pk-footer-brand">
-              <Link href="/" className="pk-footer-logo" aria-label="Pico">pico</Link>
+              <a href="#" className="pk-footer-logo" aria-label="Pico">pico</a>
               <p>{copy.footer.description}</p>
-              <span className="pk-footer-network"><i />{s.pay.network}</span>
-            </div>
+                          </div>
             <nav className="pk-footer-cols" aria-label="Footer">
               <div>
                 <p>{x.product}</p>
-                <Link href="/app/tasks/new">{copy.footer.post}</Link>
-                <Link href="/app">{copy.nav.findWork}</Link>
+                <a href="#tasks">{w.footerTasks}</a>
                 <a href="#flow">{copy.footer.flow}</a>
                 <a href="#clients">{copy.footer.clients}</a>
+                <a href="#faq">{w.navFaq}</a>
               </div>
               <div>
-                <p>{x.account}</p>
-                <Link href="/app">{copy.nav.signIn}</Link>
-                <Link href="/app/balance">{x.balance}</Link>
-                <Link href="/app/activity">{x.activity}</Link>
-                <Link href="/app/settings">{x.settings}</Link>
-              </div>
-              <div>
-                <p>{x.company}</p>
-                <Link href="/app/about">{x.about}</Link>
-                <Link href="/app/help">{x.helpCenter}</Link>
+                <p>{w.footerEarly}</p>
+                <a href="#waitlist">{w.navJoin}</a>
               </div>
             </nav>
           </div>
@@ -409,8 +472,259 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
             <span>{copy.footer.tagline}</span>
           </div>
         </div>
-        <div className="pk-footer-mark" aria-hidden>pico</div>
       </footer>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Waitlist form
+   Sends POST /api/waitlist (JSON):
+     { email, role: "client" | "worker", interest, language, source: "hero" | "waitlist", consent: true }
+   Expected responses: 200/201 saved · 409 already on the list · anything else = error.
+   The endpoint itself is backend work (see handoff note).
+   ------------------------------------------------------------------ */
+type FormStatus = "idle" | "submitting" | "success" | "duplicate" | "error";
+
+function WaitlistForm({ language }: { language: LandingLanguage }) {
+  const w = WAITLIST_COPY[language];
+  const [role, setRole] = useState<WaitlistRole>("client");
+  const [email, setEmail] = useState("");
+  const [interest, setInterest] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [status, setStatus] = useState<FormStatus>("idle");
+  const [modal, setModal] = useState<WaitlistModalState>(null);
+  const [errors, setErrors] = useState<{ email?: boolean; consent?: boolean }>({});
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const nextErrors = { email: !EMAIL_RE.test(email.trim()), consent: !consent };
+    setErrors(nextErrors);
+    if (nextErrors.email) {
+      emailRef.current?.focus();
+      return;
+    }
+    if (nextErrors.consent) return;
+
+    setStatus("submitting");
+    const result = await postWaitlist({ email: email.trim(), role, interest: interest.trim(), language, source: "waitlist" });
+    if (result === "error") {
+      setStatus("error");
+      return;
+    }
+    setModal({ result, email: email.trim(), role });
+    setStatus("idle");
+    if (result === "success") {
+      setEmail("");
+      setInterest("");
+      setConsent(false);
+    }
+  }
+
+  const submitting = status === "submitting";
+  const interestLabel = role === "client" ? w.interestHire : w.interestWork;
+  const interestPh = role === "client" ? w.interestHirePh : w.interestWorkPh;
+  const suggestions = HERO_COPY[language].modes[role === "client" ? "hire" : "work"].suggestions;
+
+  return (
+    <>
+    <WaitlistModal state={modal} language={language} onClose={() => setModal(null)} />
+    <form className="pk-form" onSubmit={submit} noValidate>
+      <div className="pk-form-head">
+        <h3>{w.submit}</h3>
+        <p>{w.formSub}</p>
+      </div>
+
+      <fieldset className="pk-form-role" disabled={submitting}>
+        <legend>{w.roleLabel}</legend>
+        <div className="pk-toggle pk-toggle-full">
+          {(["client", "worker"] as const).map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={role === item}
+              className={role === item ? "is-active" : undefined}
+              onClick={() => setRole(item)}
+            >
+              {item === "client" ? w.hire : w.work}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <label className="pk-field">
+        <span>{w.email}</span>
+        <span className="pk-input">
+          <svg viewBox="0 0 24 24" aria-hidden><path d="M4 6h16v12H4zM4.5 6.5l7.5 6 7.5-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>
+          <input
+            ref={emailRef}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            value={email}
+            placeholder={w.emailPlaceholder}
+            aria-invalid={errors.email || undefined}
+            aria-describedby={errors.email ? "pk-email-error" : undefined}
+            disabled={submitting}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              if (errors.email) setErrors((current) => ({ ...current, email: false }));
+            }}
+          />
+        </span>
+        {errors.email ? <small id="pk-email-error" className="pk-field-error">{w.errEmail}</small> : null}
+      </label>
+
+      <div className="pk-field">
+        <label htmlFor="pk-interest">{interestLabel} <em>{w.optional}</em></label>
+        <span className="pk-input">
+          <svg viewBox="0 0 24 24" aria-hidden><path d="M5 5h14v10H9l-4 4z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>
+          <input
+            id="pk-interest"
+            value={interest}
+            placeholder={interestPh}
+            maxLength={160}
+            disabled={submitting}
+            onChange={(event) => setInterest(event.target.value)}
+          />
+        </span>
+        <div className="pk-quick">
+          {suggestions.map((item) => (
+            <button
+              key={item}
+              type="button"
+              disabled={submitting}
+              className={interest === item ? "is-picked" : undefined}
+              onClick={() => setInterest(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <label className={`pk-consent${errors.consent ? " is-error" : ""}`}>
+        <input
+          type="checkbox"
+          checked={consent}
+          disabled={submitting}
+          aria-describedby={errors.consent ? "pk-consent-error" : undefined}
+          onChange={(event) => {
+            setConsent(event.target.checked);
+            if (event.target.checked) setErrors((current) => ({ ...current, consent: false }));
+          }}
+        />
+        <span className="pk-consent-box" aria-hidden><Check size={12} /></span>
+        <span>{w.consent}</span>
+      </label>
+      {errors.consent ? <small id="pk-consent-error" className="pk-field-error">{w.errConsent}</small> : null}
+
+      {status === "error" ? <p className="pk-form-note is-error" role="alert">{w.errServer}</p> : null}
+
+      <button type="submit" className="pk-btn pk-btn-primary pk-form-submit" disabled={submitting}>
+        {submitting ? <span className="pk-spinner" aria-hidden /> : null}
+        {submitting ? w.submitting : w.submit}
+        {submitting ? null : <ArrowIcon />}
+      </button>
+      <p className="pk-form-privacy">{w.privacy}</p>
+    </form>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Result popup — shown after a waitlist submission (hero or form).
+   Centered dialog over a blurred backdrop; closes on Esc, on the
+   backdrop, on × and on the main button. Focus goes to the button.
+   ------------------------------------------------------------------ */
+export type WaitlistModalState = { result: "success" | "duplicate"; email: string; role: WaitlistRole } | null;
+
+export function WaitlistModal({
+  state,
+  language,
+  onClose,
+}: {
+  state: WaitlistModalState;
+  language: LandingLanguage;
+  onClose: () => void;
+}) {
+  const w = WAITLIST_COPY[language];
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const open = !!state;
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    const id = window.setTimeout(() => buttonRef.current?.focus(), 60);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+      window.clearTimeout(id);
+    };
+  }, [open]);
+
+  if (!state || typeof document === "undefined") return null;
+  const success = state.result === "success";
+  const [before, after] = (success ? w.successBody : w.dupBody).split("{email}");
+
+  return createPortal(
+    <div
+      className="pico-landing pk-modal-layer"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className={`pk-modal${success ? " is-success" : " is-duplicate"}`} role="dialog" aria-modal="true" aria-labelledby="pk-modal-title">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="pk-modal-arrow" src="/landing/hero-arrow.webp" alt="" aria-hidden width={920} height={714} />
+        <button type="button" className="pk-modal-x" aria-label={w.close} onClick={onClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
+            <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
+
+        <div className="pk-modal-badge" aria-hidden>
+          <span className="pk-modal-ring" />
+          <span className="pk-modal-ring is-2" />
+          <span className="pk-modal-icon">
+            {success ? (
+              <Check size={30} />
+            ) : (
+              <svg width="28" height="28" viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4.5 6.5l7.5 6 7.5-6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" /></svg>
+            )}
+          </span>
+        </div>
+
+        <h3 id="pk-modal-title">{success ? w.successTitle : w.dupTitle}</h3>
+        <p className="pk-modal-body">
+          {before}
+          <b>{state.email}</b>
+          {after}
+        </p>
+        {success ? (
+          <>
+            <span className="pk-modal-role">{state.role === "client" ? w.successHire : w.successWork}</span>
+            <ol className="pk-modal-next">
+              {w.next.slice(1).map((item, index) => (
+                <li key={item}><span>{index + 2}</span>{item}</li>
+              ))}
+            </ol>
+          </>
+        ) : null}
+
+        <button ref={buttonRef} type="button" className="pk-btn pk-btn-primary pk-modal-cta" onClick={onClose}>
+          {w.gotIt}
+        </button>
+      </div>
+    </div>,
+    document.body,
   );
 }
