@@ -2,6 +2,7 @@ import type { LandingLanguage } from "@/components/landingTranslations";
 
 type Step = { title: string; body: string };
 type PayState = { label: string; title: string; body: string };
+export type Stat = { text: string; source: string; href: string };
 
 export type SectionsCopy = {
   explore: {
@@ -54,6 +55,7 @@ export type SectionsCopy = {
     find: string;
     note: string;
   };
+  stats: { hire: Stat; downtime: Stat; checkout: Stat };
 };
 
 export const SECTIONS_COPY: Record<LandingLanguage, SectionsCopy> = {
@@ -131,6 +133,11 @@ export const SECTIONS_COPY: Record<LandingLanguage, SectionsCopy> = {
         { q: "Who checks the work?", a: "A separate reviewer, matched by Pico to your task, checks the result against your brief. An auditor checks that review." },
         { q: "Do I need to understand crypto?", a: "Not really. Payments run in USDC on Solana, and in Pico you see the budget, your balance and a proof for every payment." },
       ],
+    },
+    stats: {
+      hire: { text: "Hiring a developer takes about 29 days on average. Your bug can't wait that long.", source: "Source: HackerRank, 2020", href: "https://www.hackerrank.com/wp-content/uploads/2025/10/Tech-Recruiting-Benchmark-Report.pdf" },
+      downtime: { text: "If an hour of downtime costs you $10,000, that's $167 every minute.", source: "Example based on ITIC, 2024", href: "https://itic-corp.com/itic-2024-hourly-cost-of-downtime-part-2/" },
+      checkout: { text: "1 in 6 US shoppers has abandoned a checkout because the site had errors or crashed.", source: "Source: Baymard Institute, 2025", href: "https://baymard.com/lists/cart-abandonment-rate" },
     },
     cta: {
       title: ["Your next task ", "starts here", "."],
@@ -215,6 +222,11 @@ export const SECTIONS_COPY: Record<LandingLanguage, SectionsCopy> = {
         { q: "¿Necesito entender de cripto?", a: "No mucho. Los pagos van en USDC sobre Solana, y en Pico ves el presupuesto, tu saldo y una prueba de cada pago." },
       ],
     },
+    stats: {
+      hire: { text: "Contratar a un desarrollador lleva unos 29 días de media. Tu bug no puede esperar tanto.", source: "Fuente: HackerRank, 2020", href: "https://www.hackerrank.com/wp-content/uploads/2025/10/Tech-Recruiting-Benchmark-Report.pdf" },
+      downtime: { text: "Si una hora de caída te cuesta 10.000 $, son 167 $ cada minuto.", source: "Ejemplo basado en ITIC, 2024", href: "https://itic-corp.com/itic-2024-hourly-cost-of-downtime-part-2/" },
+      checkout: { text: "1 de cada 6 compradores en EE. UU. ha abandonado un pago porque la web falló o dio errores.", source: "Fuente: Baymard Institute, 2025", href: "https://baymard.com/lists/cart-abandonment-rate" },
+    },
     cta: {
       title: ["Tu próxima tarea ", "empieza aquí", "."],
       post: "Publicar tarea",
@@ -297,6 +309,11 @@ export const SECTIONS_COPY: Record<LandingLanguage, SectionsCopy> = {
         { q: "Kto sprawdza pracę?", a: "Osobny recenzent, dobrany przez Pico do Twojego zadania, porównuje wynik z briefem. Audytor sprawdza tę recenzję." },
         { q: "Czy muszę znać się na krypto?", a: "Niekoniecznie. Płatności idą w USDC w sieci Solana, a w Pico widzisz budżet, saldo i potwierdzenie każdej płatności." },
       ],
+    },
+    stats: {
+      hire: { text: "Zatrudnienie programisty trwa średnio około 29 dni. Twój bug nie może tyle czekać.", source: "Źródło: HackerRank, 2020", href: "https://www.hackerrank.com/wp-content/uploads/2025/10/Tech-Recruiting-Benchmark-Report.pdf" },
+      downtime: { text: "Jeśli godzina przestoju kosztuje cię 10 000 $, to 167 $ co minutę.", source: "Przykład na podstawie ITIC, 2024", href: "https://itic-corp.com/itic-2024-hourly-cost-of-downtime-part-2/" },
+      checkout: { text: "1 na 6 kupujących w USA porzucił zakup, bo strona miała błędy lub się zawiesiła.", source: "Źródło: Baymard Institute, 2025", href: "https://baymard.com/lists/cart-abandonment-rate" },
     },
     cta: {
       title: ["Twoje kolejne zadanie ", "zaczyna się tu", "."],
@@ -381,6 +398,11 @@ export const SECTIONS_COPY: Record<LandingLanguage, SectionsCopy> = {
         { q: "Muss ich mich mit Krypto auskennen?", a: "Kaum. Zahlungen laufen in USDC auf Solana, und in Pico siehst du Budget, Guthaben und einen Nachweis für jede Zahlung." },
       ],
     },
+    stats: {
+      hire: { text: "Einen Entwickler einzustellen dauert im Schnitt etwa 29 Tage. Dein Bug kann nicht so lange warten.", source: "Quelle: HackerRank, 2020", href: "https://www.hackerrank.com/wp-content/uploads/2025/10/Tech-Recruiting-Benchmark-Report.pdf" },
+      downtime: { text: "Wenn dich eine Stunde Ausfall 10.000 $ kostet, sind das 167 $ pro Minute.", source: "Beispiel nach ITIC, 2024", href: "https://itic-corp.com/itic-2024-hourly-cost-of-downtime-part-2/" },
+      checkout: { text: "1 von 6 Käufern in den USA hat einen Checkout abgebrochen, weil die Seite Fehler hatte oder abstürzte.", source: "Quelle: Baymard Institute, 2025", href: "https://baymard.com/lists/cart-abandonment-rate" },
+    },
     cta: {
       title: ["Deine nächste Aufgabe ", "startet hier", "."],
       post: "Aufgabe posten",
@@ -463,6 +485,11 @@ export const SECTIONS_COPY: Record<LandingLanguage, SectionsCopy> = {
         { q: "Хто перевіряє роботу?", a: "Окремий рев’юер, якого Pico підбирає під твою задачу, звіряє результат із брифом. Аудитор перевіряє це рев’ю." },
         { q: "Чи треба розумітися на крипті?", a: "Не обов’язково. Платежі йдуть в USDC у мережі Solana, а в Pico ти бачиш бюджет, баланс і доказ кожної оплати." },
       ],
+    },
+    stats: {
+      hire: { text: "Найм розробника в середньому триває близько 29 днів. Ваш баг не може чекати так довго.", source: "Джерело: HackerRank, 2020", href: "https://www.hackerrank.com/wp-content/uploads/2025/10/Tech-Recruiting-Benchmark-Report.pdf" },
+      downtime: { text: "Якщо година простою коштує вам $10 000, це $167 щохвилини.", source: "Приклад за даними ITIC, 2024", href: "https://itic-corp.com/itic-2024-hourly-cost-of-downtime-part-2/" },
+      checkout: { text: "1 з 6 покупців у США кидав оформлення замовлення, бо сайт видавав помилки або падав.", source: "Джерело: Baymard Institute, 2025", href: "https://baymard.com/lists/cart-abandonment-rate" },
     },
     cta: {
       title: ["Твоє наступне завдання ", "починається тут", "."],

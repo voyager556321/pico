@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { HERO_COPY, LANDING_COPY, type LandingLanguage } from "@/components/landingTranslations";
-import { EXTRA_COPY, SECTIONS_COPY, WAITLIST_COPY } from "@/components/landingSectionsCopy";
+import { EXTRA_COPY, SECTIONS_COPY, WAITLIST_COPY, type Stat } from "@/components/landingSectionsCopy";
 
 /* ------------------------------------------------------------------
    Pre-launch landing. No scroll-driven animation: sections are static,
@@ -11,6 +11,16 @@ import { EXTRA_COPY, SECTIONS_COPY, WAITLIST_COPY } from "@/components/landingSe
    the visitor clicks, "Secure payments" shows all three states at once.
    Every CTA leads to the waitlist form at the end of the page.
    ------------------------------------------------------------------ */
+
+/** One sourced statistic with a small link to where the number comes from. */
+function StatLine({ stat, className }: { stat: Stat; className?: string }) {
+  return (
+    <p className={className ? `pk-stat ${className}` : "pk-stat"}>
+      {stat.text}{" "}
+      <a href={stat.href} target="_blank" rel="noopener noreferrer">{stat.source}</a>
+    </p>
+  );
+}
 
 export type WaitlistRole = "client" | "worker";
 
@@ -171,6 +181,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
 
   return (
     <div className="pk">
+      <div className="pk-wrap pk-stat-band"><StatLine stat={s.stats.hire} /></div>
       {/* ============ 02 · Explore tasks ============ */}
       <section id="tasks" className="pk-section pk-explore" aria-labelledby="pk-explore-title">
         <div className="pk-wrap">
@@ -327,6 +338,8 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
             </div>
           </div>
 
+          {whyAud === "client" ? <StatLine stat={s.stats.downtime} className="pk-stat-why" /> : null}
+
           <div className="pk-split" key={whyAud}>
             <div className="pk-old">
               <p className="pk-side-label">{s.why.oldLabel}</p>
@@ -428,6 +441,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
       <section id="waitlist" className="pk-final" aria-labelledby="pk-final-title">
         <div className="pk-wrap pk-final-inner">
           <div className="pk-final-copy">
+            <StatLine stat={s.stats.checkout} className="pk-stat-final" />
             <h2 id="pk-final-title" className="pk-final-title"><Title parts={s.cta.title} /></h2>
             <p className="pk-final-lead">{w.lead}</p>
             <ol className="pk-next" aria-label={w.nextTitle}>
