@@ -3904,6 +3904,7 @@ button {
 .pico-landing .ph-consent input:checked + .ph-consent-box { border-color: #3b7a33; background: #3b7a33; color: #fff; }
 .pico-landing .ph-consent input:focus-visible + .ph-consent-box { box-shadow: 0 0 0 4px rgba(59, 122, 51, .2); }
 .pico-landing .ph-consent.is-error .ph-consent-box { border-color: #c4452f; }
+.pico-landing .ph-note { max-width: 560px; margin: 0; color: var(--ph-muted); font-size: 13px; line-height: 1.5; }
 .pico-landing .ph-msg { margin: 0; padding: 8px 14px; border-radius: 999px; font-size: 14px; }
 .pico-landing .ph-msg.is-error { background: #fbeeea; color: #8f2e1d; }
 .pico-landing .ph-msg.is-info { background: #eaf2e7; color: var(--ph-green-deep); }
@@ -4400,7 +4401,7 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 .pico-landing .pk-form-submit { width: 100%; }
 .pico-landing .pk-form-submit:disabled { cursor: progress; opacity: .8; }
 .pico-landing .pk-spinner { width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; border-radius: 999px; animation: pk-spin .8s linear infinite; }
-.pico-landing .pk-form-privacy { margin: -12px 0 0; color: var(--pk-muted); font-size: 13px; text-align: center; }
+.pico-landing .pk-form-privacy { margin: -12px 0 0; line-height: 1.5; color: var(--pk-muted); font-size: 13px; text-align: center; }
 .pico-landing .pk-form-done { justify-items: start; gap: 12px; animation: pk-in .4s ease both; }
 .pico-landing .pk-form-check { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 999px; background: var(--pk-green); color: #fff; }
 .pico-landing .pk-form-done h3 { margin: 6px 0 0; font-size: 30px; font-weight: 700; letter-spacing: -0.035em; }
@@ -4524,4 +4525,77 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
   .pico-landing .pk-pay-flow li:not(:last-child)::after { top: auto; right: auto; bottom: -26px; left: 50%; transform: translateX(-50%) rotate(135deg); }
   .pico-landing .pk-final { padding-bottom: 46vw; }
   .pico-landing .pk-final-arrow { right: 0; bottom: -3%; width: 56vw; }
+}
+
+/* ===================================================================
+   Landing spacing system — one scale for every section after the hero.
+   Edit spacing here, not in the section blocks above.
+     --pk-gutter   side padding, same as the hero header (logo edge)
+     --pk-sy       vertical padding of a section
+     --pk-t2l      title → lead
+     --pk-h2c      heading block → section content
+     --pk-pad      inner padding of cards, panels and the form
+     --pk-gap      gap between cards
+   =================================================================== */
+.pico-landing .pk {
+  --pk-gutter: clamp(16px, 5vw, 72px);
+  --pk-sy: clamp(80px, 12vh, 120px);
+  --pk-t2l: clamp(14px, 2.2vh, 20px);
+  --pk-h2c: clamp(36px, 6vh, 56px);
+  --pk-pad: clamp(24px, 3.4vh, 32px);
+  --pk-gap: 16px;
+}
+.pico-landing .pk-wrap { width: min(1296px, 100% - 2 * var(--pk-gutter)); }
+.pico-landing .pk-section,
+.pico-landing .pk-final { padding-block: var(--pk-sy); }
+
+/* readable body copy */
+.pico-landing .pk-lead,
+.pico-landing .pk-explore-head .pk-lead,
+.pico-landing .pk-final-lead {
+  max-width: 560px;
+  margin-top: var(--pk-t2l);
+  color: #5f6a62;
+  font-size: clamp(17px, 2.4vh, 20px);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+.pico-landing .pk-task-more p,
+.pico-landing .pk-pay-body,
+.pico-landing .pk-faq-answer p,
+.pico-landing .pk-next p,
+.pico-landing .pk-stage-copy p:last-child { line-height: 1.55; }
+
+/* heading block → content: one distance everywhere */
+.pico-landing .pk-toolbar { margin: var(--pk-h2c) 0 var(--pk-gap); padding-top: 20px; align-items: center; }
+.pico-landing .pk-toolbar-label,
+.pico-landing .pk-toolbar .pk-link { font-size: 15px; line-height: 24px; }
+.pico-landing .pk-toolbar .pk-link { padding-bottom: 0; border-bottom: 0; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+.pico-landing .pk-how-inner { gap: var(--pk-h2c); }
+.pico-landing .pk-split,
+.pico-landing .pk-pay-flow,
+.pico-landing .pk-next { margin-top: var(--pk-h2c); }
+.pico-landing .pk-help { margin-top: var(--pk-h2c); }
+.pico-landing .pk-faq-grid,
+.pico-landing .pk-final-inner { gap: clamp(32px, 6vw, 96px); }
+
+/* cards: same padding, radius and gaps */
+.pico-landing .pk-task { --pk-pad: clamp(24px, 3.4vh, 32px); border-radius: 28px; }
+.pico-landing .pk-tasks,
+.pico-landing .pk-split { gap: var(--pk-gap); }
+.pico-landing .pk-pay-flow li,
+.pico-landing .pk-old,
+.pico-landing .pk-new,
+.pico-landing .pk-ui,
+.pico-landing .pk-form,
+.pico-landing .pk-help { padding: var(--pk-pad); border-radius: 28px; }
+.pico-landing .pk-form { gap: 24px; }
+
+/* section heads with a toggle: same gap when stacked on small screens */
+@media (max-width: 900px) {
+  .pico-landing .pk-head { gap: 20px; }
+}
+@media (max-width: 640px) {
+  .pico-landing .pk-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .pico-landing .pk-toolbar-label { white-space: nowrap; }
 }

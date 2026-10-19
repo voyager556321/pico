@@ -80,8 +80,7 @@ export function LandingPage() {
      3. result  — success / already on the list / error, shown in place */
   const [step, setStep] = useState<"ask" | "email">("ask");
   const [email, setEmail] = useState("");
-  const [consent, setConsent] = useState(false);
-  const [heroErrors, setHeroErrors] = useState<{ email?: boolean; consent?: boolean }>({});
+  const [heroErrors, setHeroErrors] = useState<{ email?: boolean }>({});
   const [heroStatus, setHeroStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [modal, setModal] = useState<WaitlistModalState>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -94,13 +93,12 @@ export function LandingPage() {
       window.setTimeout(() => emailRef.current?.focus(), 30);
       return;
     }
-    const errors = { email: !EMAIL_RE.test(email.trim()), consent: !consent };
+    const errors = { email: !EMAIL_RE.test(email.trim()) };
     setHeroErrors(errors);
     if (errors.email) {
       emailRef.current?.focus();
       return;
     }
-    if (errors.consent) return;
     setHeroStatus("submitting");
     const role = mode === "hire" ? "client" : "worker";
     const result = await postWaitlist({ email: email.trim(), role, interest: query.trim(), language, source: "hero" });
@@ -114,7 +112,6 @@ export function LandingPage() {
     setStep("ask");
     setQuery("");
     setEmail("");
-    setConsent(false);
   }
 
   function editAnswer() {
@@ -304,23 +301,8 @@ export function LandingPage() {
                 </div>
               ) : (
                 <div className="ph-step2">
-                  <label className={`ph-consent${heroErrors.consent ? " is-error" : ""}`}>
-                    <input
-                      type="checkbox"
-                      checked={consent}
-                      disabled={heroStatus === "submitting"}
-                      onChange={(event) => {
-                        setConsent(event.target.checked);
-                        if (event.target.checked) setHeroErrors((current) => ({ ...current, consent: false }));
-                      }}
-                    />
-                    <span className="ph-consent-box" aria-hidden>
-                      <svg width="12" height="12" viewBox="0 0 24 24"><path d="m5 12.5 4.2 4.2L19 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                    </span>
-                    {w.consent}
-                  </label>
+                  <p className="ph-note">{w.consentNote}</p>
                   {heroErrors.email ? <p className="ph-msg is-error" role="alert">{w.errEmail}</p> : null}
-                  {!heroErrors.email && heroErrors.consent ? <p className="ph-msg is-error" role="alert">{w.errConsent}</p> : null}
                   {heroStatus === "error" ? <p className="ph-msg is-error" role="alert">{w.errServer}</p> : null}
                 </div>
               )}

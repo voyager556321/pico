@@ -558,6 +558,7 @@ export type WaitlistCopy = {
   nextTitles: [string, string, string];
   nextDescs: [string, string, string];
   readySub: string;
+  consentNote: string;
 };
 
 export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
@@ -621,6 +622,7 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextTitles: ["Join the list", "Get your invite", "Get to work"],
     nextDescs: ["Takes about a minute.", "We email you when early access opens.", "Post your first task or take one."],
     readySub: "Early access opens soon. Save your spot.",
+    consentNote: "By joining, you agree to receive emails about Pico’s launch. Unsubscribe anytime.",
   },
   es: {
     badge: "Acceso anticipado · Muy pronto",
@@ -682,6 +684,7 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextTitles: ["Únete", "Recibe la invitación", "Empieza"],
     nextDescs: ["Te lleva un minuto.", "Te escribimos cuando abra el acceso anticipado.", "Publica tu primera tarea o toma una."],
     readySub: "El acceso anticipado abre pronto. Reserva tu plaza.",
+    consentNote: "Al unirte, aceptas recibir emails sobre el lanzamiento de Pico. Puedes darte de baja cuando quieras.",
   },
   pl: {
     badge: "Wczesny dostęp · Już wkrótce",
@@ -743,6 +746,7 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextTitles: ["Dołącz", "Odbierz zaproszenie", "Zaczynaj"],
     nextDescs: ["Zajmie to minutę.", "Napiszemy, gdy ruszy wczesny dostęp.", "Opublikuj pierwsze zadanie albo weź zlecenie."],
     readySub: "Wczesny dostęp rusza wkrótce. Zajmij miejsce.",
+    consentNote: "Dołączając, zgadzasz się na e-maile o starcie Pico. Możesz zrezygnować w każdej chwili.",
   },
   de: {
     badge: "Early Access · Bald verfügbar",
@@ -804,6 +808,7 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextTitles: ["Eintragen", "Einladung erhalten", "Loslegen"],
     nextDescs: ["Dauert etwa eine Minute.", "Wir schreiben dir, sobald Early Access startet.", "Poste deine erste Aufgabe oder übernimm eine."],
     readySub: "Early Access startet bald. Sichere dir deinen Platz.",
+    consentNote: "Mit dem Eintragen stimmst du E-Mails zum Start von Pico zu. Abmeldung jederzeit möglich.",
   },
   uk: {
     badge: "Ранній доступ · Скоро запуск",
@@ -865,5 +870,6 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextTitles: ["Приєднайся", "Отримай запрошення", "Починай"],
     nextDescs: ["Це займе хвилину.", "Ми напишемо, коли відкриється ранній доступ.", "Опублікуй першу задачу або візьми її."],
     readySub: "Ранній доступ скоро. Займи своє місце.",
+    consentNote: "Приєднуючись, ти погоджуєшся отримувати листи про запуск Pico. Відписатися можна будь-коли.",
   },
 };

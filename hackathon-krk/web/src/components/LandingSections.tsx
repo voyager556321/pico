@@ -491,21 +491,19 @@ function WaitlistForm({ language }: { language: LandingLanguage }) {
   const [role, setRole] = useState<WaitlistRole>("client");
   const [email, setEmail] = useState("");
   const [interest, setInterest] = useState("");
-  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<FormStatus>("idle");
   const [modal, setModal] = useState<WaitlistModalState>(null);
-  const [errors, setErrors] = useState<{ email?: boolean; consent?: boolean }>({});
+  const [errors, setErrors] = useState<{ email?: boolean }>({});
   const emailRef = useRef<HTMLInputElement>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextErrors = { email: !EMAIL_RE.test(email.trim()), consent: !consent };
+    const nextErrors = { email: !EMAIL_RE.test(email.trim()) };
     setErrors(nextErrors);
     if (nextErrors.email) {
       emailRef.current?.focus();
       return;
     }
-    if (nextErrors.consent) return;
 
     setStatus("submitting");
     const result = await postWaitlist({ email: email.trim(), role, interest: interest.trim(), language, source: "waitlist" });
@@ -518,7 +516,6 @@ function WaitlistForm({ language }: { language: LandingLanguage }) {
     if (result === "success") {
       setEmail("");
       setInterest("");
-      setConsent(false);
     }
   }
 
@@ -604,21 +601,6 @@ function WaitlistForm({ language }: { language: LandingLanguage }) {
         </div>
       </div>
 
-      <label className={`pk-consent${errors.consent ? " is-error" : ""}`}>
-        <input
-          type="checkbox"
-          checked={consent}
-          disabled={submitting}
-          aria-describedby={errors.consent ? "pk-consent-error" : undefined}
-          onChange={(event) => {
-            setConsent(event.target.checked);
-            if (event.target.checked) setErrors((current) => ({ ...current, consent: false }));
-          }}
-        />
-        <span className="pk-consent-box" aria-hidden><Check size={12} /></span>
-        <span>{w.consent}</span>
-      </label>
-      {errors.consent ? <small id="pk-consent-error" className="pk-field-error">{w.errConsent}</small> : null}
 
       {status === "error" ? <p className="pk-form-note is-error" role="alert">{w.errServer}</p> : null}
 
@@ -627,7 +609,7 @@ function WaitlistForm({ language }: { language: LandingLanguage }) {
         {submitting ? w.submitting : w.submit}
         {submitting ? null : <ArrowIcon />}
       </button>
-      <p className="pk-form-privacy">{w.privacy}</p>
+      <p className="pk-form-privacy">{w.consentNote}</p>
     </form>
     </>
   );
