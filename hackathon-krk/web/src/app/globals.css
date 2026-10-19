@@ -4615,3 +4615,12 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
   .pico-landing .pk-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
   .pico-landing .pk-toolbar-label { white-space: nowrap; }
 }
+
+/* ---------- sourced stats ---------- */
+.pico-landing .pk-stat { max-width: 640px; margin: 0; color: var(--pk-ink-soft); font-size: clamp(15px, 2.2vh, 17px); line-height: 1.5; }
+.pico-landing .pk-stat a { color: var(--pk-muted); font-size: 13px; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.pico-landing .pk-stat a:hover { color: var(--pk-green); }
+.pico-landing .pk-stat-band { padding-top: clamp(24px, 4vh, 40px); }
+.pico-landing .pk-stat-band .pk-stat { max-width: 760px; margin: 0 auto; padding: 14px 22px; border: 1px solid var(--pk-line); border-radius: 20px; background: #fff; text-align: center; }
+.pico-landing .pk-stat-why { margin: clamp(14px, 2.4vh, 22px) 0 clamp(18px, 3vh, 28px); }
+.pico-landing .pk-stat-final { margin: 0 0 clamp(16px, 3vh, 24px); }
