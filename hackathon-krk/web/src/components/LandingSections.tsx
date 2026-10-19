@@ -111,6 +111,18 @@ const EXAMPLE_TASKS = [
   { titleIndex: 3, lane: "design", budget: 120, skills: ["Figma", "UI"] },
 ] as const;
 
+
+const SECURITY_ICONS = [
+  // NDA — signed document
+  <svg key="nda" viewBox="0 0 24 24" aria-hidden><path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 15.5h3.5M9.5 19c1-1.6 1.8-1.6 2.5 0s1.5 1.6 2.5 0" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  // verified identity — badge with check
+  <svg key="id" viewBox="0 0 24 24" aria-hidden><rect x="3.5" y="5" width="17" height="14" rx="3" fill="none" stroke="currentColor" strokeWidth="1.7" /><circle cx="9" cy="11" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M5.8 16c.6-1.5 1.8-2.2 3.2-2.2s2.6.7 3.2 2.2M14.5 11.5l1.5 1.5 3-3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  // temporary access — key with clock
+  <svg key="time" viewBox="0 0 24 24" aria-hidden><circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m11 12 5-5M14.5 8.5l1.8 1.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /><circle cx="17.5" cy="16.5" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M17.5 15v1.7l1.1.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
+  // isolated environment — box in a dashed frame
+  <svg key="box" viewBox="0 0 24 24" aria-hidden><rect x="2.5" y="2.5" width="19" height="19" rx="4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2.4" /><path d="m12 7 4.5 2.5v5L12 17l-4.5-2.5v-5zM7.5 9.5 12 12l4.5-2.5M12 12v5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>,
+];
+
 const CLIENT_PROGRESS = { done: [0, 1, 1, 2, 3, 5], active: [false, false, true, true, true, false] };
 const WORKER_PROGRESS = { done: [1, 1, 2, 3, 3, 5], active: [false, true, true, false, true, false] };
 const STEP_MS = 2000;
@@ -172,7 +184,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
 
   /* 06 · faq */
   const [openFaq, setOpenFaq] = useState(0);
-  const faqItems = [s.faq.items[0], { q: w.faqPriceQ, a: w.faqPriceA }, ...s.faq.items.slice(1), { q: w.faqLaunchQ, a: w.faqLaunchA }];
+  const faqItems = [s.faq.items[0], { q: w.faqPriceQ, a: w.faqPriceA }, ...s.faq.items.slice(1, 4), { q: w.faqNdaQ, a: w.faqNdaA }, ...s.faq.items.slice(4), { q: w.faqLaunchQ, a: w.faqLaunchA }];
 
   /* 04 · why: clients / specialists */
   const [whyAud, setWhyAud] = useState<"client" | "worker">("client");
@@ -396,6 +408,26 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* ============ 05b · Code security ============ */}
+      <section id="security" className="pk-section pk-sec" aria-labelledby="pk-sec-title">
+        <div className="pk-wrap pk-sec-grid">
+          <div className="pk-sec-head">
+            <h2 id="pk-sec-title" className="pk-title"><Title parts={[w.secTitle[0], w.secTitle[1]]} /></h2>
+            <p className="pk-lead">{w.secLead}</p>
+            <AccessCard card={w.secCard} />
+          </div>
+          <ul className="pk-sec-list">
+            {w.secItems.map((item, index) => (
+              <li key={item.title}>
+                <span className="pk-sec-icon">{SECURITY_ICONS[index]}</span>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -722,5 +754,52 @@ export function WaitlistModal({
       </div>
     </div>,
     document.body,
+  );
+}
+
+/* ------------------------------------------------------------------
+   Security visual: a small product fragment instead of an icon —
+   the access card a client would see for a task. The timer counts
+   down to show that access is temporary.
+   ------------------------------------------------------------------ */
+function AccessCard({ card }: { card: { title: string; role: string; active: string; nda: string; id: string; env: string; ends: string } }) {
+  const TOTAL = 24 * 3600;
+  const [left, setLeft] = useState(TOTAL - 19);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const id = window.setInterval(() => setLeft((value) => (value <= 1 ? TOTAL - 19 : value - 1)), 1000);
+    return () => window.clearInterval(id);
+  }, [TOTAL]);
+  const hh = String(Math.floor(left / 3600)).padStart(2, "0");
+  const mm = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
+  const ss = String(left % 60).padStart(2, "0");
+  const rows = [card.nda, card.id, card.env];
+  return (
+    <div className="pk-access" aria-hidden>
+      <div className="pk-access-top">
+        <span className="pk-access-title">{card.title}</span>
+        <span className="pk-access-live"><i />{card.active}</span>
+      </div>
+      <div className="pk-access-who">
+        <span className="pk-access-avatar">MK</span>
+        <span>
+          <b>{card.role} #2481</b>
+          <small>{rows[1]}</small>
+        </span>
+      </div>
+      <ul className="pk-access-rows">
+        {rows.map((row) => (
+          <li key={row}>
+            <span className="pk-access-check"><Check size={12} /></span>
+            {row}
+          </li>
+        ))}
+      </ul>
+      <div className="pk-access-timer">
+        <span>{card.ends}</span>
+        <strong>{hh}:{mm}:{ss}</strong>
+      </div>
+      <div className="pk-access-bar"><span style={{ width: `${(left / TOTAL) * 100}%` }} /></div>
+    </div>
   );
 }

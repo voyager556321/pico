@@ -189,8 +189,8 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       cards: [
         {
           who: "CLIENTS",
-          pain: "Hiring theatre for a 2–4 hour job",
-          fix: "Post and fund once. The first qualified podium fills the seats — no CV browsing.",
+          pain: "Hiring theatre for a 2-4 hour job",
+          fix: "Post and fund once. The first qualified podium fills the seats - no CV browsing.",
         },
         {
           who: "CLIENTS",
@@ -230,7 +230,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "WHEN THE DEADLINE IS CLOSING IN",
       title: "Don’t let one stuck task hold the whole project back.",
       description:
-        "Bring the one or two things blocking progress to Pico. Find a qualified specialist for focused work—without the long hiring cycle.",
+        "Bring the one or two things blocking progress to Pico. Find a qualified specialist for focused work-without the long hiring cycle.",
       benefits: [
         "Post a clear task with your budget",
         "Review demonstrated skills before choosing",
@@ -286,7 +286,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Verified work without the hiring overhead — clear budgets, qualified specialists, independent review.",
+        "Verified work without the hiring overhead - clear budgets, qualified specialists, independent review.",
       app: "App",
       post: "Post a task",
       clients: "For clients",
@@ -544,13 +544,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "DLACZEGO PICO",
       title: "Do zadań, które grzęzną w procesie rekrutacji",
       description:
-        "Dla konkretnych projektów, które wymagają właściwego specjalisty od zaraz — bez zamieniania kilku godzin pracy w tydzień poszukiwań.",
+        "Dla konkretnych projektów, które wymagają właściwego specjalisty od zaraz - bez zamieniania kilku godzin pracy w tydzień poszukiwań.",
       pico: "Pico:",
       cards: [
         {
           who: "KLIENCI",
           pain: "Rozbudowana rekrutacja do zadania na kilka godzin",
-          fix: "Dodaj zadanie i zasil je raz. Pierwsza zakwalifikowana grupa zajmuje miejsca — bez przeglądania CV.",
+          fix: "Dodaj zadanie i zasil je raz. Pierwsza zakwalifikowana grupa zajmuje miejsca - bez przeglądania CV.",
         },
         {
           who: "KLIENCI",
@@ -590,7 +590,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "GDY ZBLIŻA SIĘ TERMIN",
       title: "Nie pozwól, by jedno zadanie zatrzymało cały projekt.",
       description:
-        "Przekaż Pico jedno lub dwa zadania, które blokują postęp. Znajdź sprawdzonego specjalistę do konkretnej pracy — bez długiej rekrutacji.",
+        "Przekaż Pico jedno lub dwa zadania, które blokują postęp. Znajdź sprawdzonego specjalistę do konkretnej pracy - bez długiej rekrutacji.",
       benefits: [
         "Opisz zadanie i podaj budżet",
         "Sprawdź potwierdzone umiejętności przed wyborem",
@@ -646,7 +646,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Zweryfikowana praca bez zbędnej rekrutacji — jasne budżety, sprawdzeni specjaliści i niezależna kontrola.",
+        "Zweryfikowana praca bez zbędnej rekrutacji - jasne budżety, sprawdzeni specjaliści i niezależna kontrola.",
       app: "Aplikacja",
       post: "Dodaj zadanie",
       clients: "Dla klientów",
@@ -724,13 +724,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "WARUM PICO",
       title: "Für Aufgaben, die im Einstellungsprozess stecken bleiben",
       description:
-        "Für klar umrissene Projekte, die sofort die passende Fachkraft brauchen – ohne aus wenigen Arbeitsstunden eine Woche Suche zu machen.",
+        "Für klar umrissene Projekte, die sofort die passende Fachkraft brauchen - ohne aus wenigen Arbeitsstunden eine Woche Suche zu machen.",
       pico: "Pico:",
       cards: [
         {
           who: "AUFTRAGGEBER",
           pain: "Aufwendige Suche für einen Auftrag über wenige Stunden",
-          fix: "Auftrag einstellen und einmal finanzieren. Qualifizierte Personen besetzen die Plätze – ganz ohne Lebenslauf-Suche.",
+          fix: "Auftrag einstellen und einmal finanzieren. Qualifizierte Personen besetzen die Plätze - ganz ohne Lebenslauf-Suche.",
         },
         {
           who: "AUFTRAGGEBER",
@@ -770,7 +770,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "WENN DER TERMIN NÄHER RÜCKT",
       title: "Lass nicht zu, dass eine offene Aufgabe das ganze Projekt aufhält.",
       description:
-        "Bring die ein oder zwei Aufgaben zu Pico, die den Fortschritt blockieren. Finde eine qualifizierte Fachkraft für gezielte Arbeit – ohne lange Personalsuche.",
+        "Bring die ein oder zwei Aufgaben zu Pico, die den Fortschritt blockieren. Finde eine qualifizierte Fachkraft für gezielte Arbeit - ohne lange Personalsuche.",
       benefits: [
         "Stelle eine klare Aufgabe mit Budget ein",
         "Prüfe nachgewiesene Fähigkeiten vor der Auswahl",
@@ -826,7 +826,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Geprüfte Arbeit ohne aufwendige Personalsuche – klare Budgets, qualifizierte Fachkräfte und unabhängige Prüfung.",
+        "Geprüfte Arbeit ohne aufwendige Personalsuche - klare Budgets, qualifizierte Fachkräfte und unabhängige Prüfung.",
       app: "App",
       post: "Auftrag einstellen",
       clients: "Für Auftraggeber",
@@ -864,7 +864,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     promo: {
       title: "Горять терміни?",
-      body: "Знайдіть перевіреного фахівця для 1–2 завдань, що затримують проєкт.",
+      body: "Знайдіть перевіреного фахівця для 1-2 завдань, що затримують проєкт.",
       link: "Як це працює",
     },
     hero: {
@@ -904,13 +904,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "ЧОМУ PICO",
       title: "Для завдань, що застрягають у процесі найму",
       description:
-        "Для чітких проєктів, яким потрібен відповідний фахівець уже зараз — без тижня пошуків заради кількох годин роботи.",
+        "Для чітких проєктів, яким потрібен відповідний фахівець уже зараз - без тижня пошуків заради кількох годин роботи.",
       pico: "Pico:",
       cards: [
         {
           who: "КЛІЄНТИ",
           pain: "Довгий найм для завдання на кілька годин",
-          fix: "Опублікуйте завдання й заздалегідь визначте бюджет. Перевірені фахівці займуть місця — без перегляду резюме.",
+          fix: "Опублікуйте завдання й заздалегідь визначте бюджет. Перевірені фахівці займуть місця - без перегляду резюме.",
         },
         {
           who: "КЛІЄНТИ",
@@ -925,7 +925,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         {
           who: "КЛІЄНТИ",
           pain: "Результат без незалежної перевірки",
-          fix: "Основний рецензент перевіряє роботу, а аудитор — саму перевірку.",
+          fix: "Основний рецензент перевіряє роботу, а аудитор - саму перевірку.",
         },
         {
           who: "УСІ",
@@ -950,7 +950,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "КОЛИ ДЕДЛАЙН НАБЛИЖАЄТЬСЯ",
       title: "Не дозволь одному завданню загальмувати весь проєкт.",
       description:
-        "Передай Pico одне чи два завдання, що блокують роботу. Знайди кваліфікованого фахівця для конкретної задачі — без тривалого найму.",
+        "Передай Pico одне чи два завдання, що блокують роботу. Знайди кваліфікованого фахівця для конкретної задачі - без тривалого найму.",
       benefits: [
         "Опиши завдання та вкажи бюджет",
         "Перевір підтверджені навички перед вибором",
@@ -1006,7 +1006,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Перевірена робота без зайвого найму — чіткі бюджети, кваліфіковані фахівці й незалежна перевірка.",
+        "Перевірена робота без зайвого найму - чіткі бюджети, кваліфіковані фахівці й незалежна перевірка.",
       app: "Застосунок",
       post: "Створити завдання",
       clients: "Для клієнтів",
@@ -1061,7 +1061,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Hire", " fast. Get it done."],
-        subtitle: "Deadline close? Get a verified specialist for 1–2 tasks, fast.",
+        subtitle: "Deadline close? Get a verified specialist for 1-2 tasks, fast.",
         placeholder: "What do you need done?",
         inputLabel: "Describe your task",
         cta: "Post a task",
@@ -1085,7 +1085,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Contrata", " ya. Hecho hoy."],
-        subtitle: "¿Plazo encima? Un especialista verificado para 1–2 tareas, rápido.",
+        subtitle: "¿Plazo encima? Un especialista verificado para 1-2 tareas, rápido.",
         placeholder: "¿Qué necesitas resolver?",
         inputLabel: "Describe tu tarea",
         cta: "Publicar tarea",
@@ -1109,7 +1109,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Zlecaj", " szybko. Gotowe."],
-        subtitle: "Termin goni? Zweryfikowany specjalista do 1–2 zadań, szybko.",
+        subtitle: "Termin goni? Zweryfikowany specjalista do 1-2 zadań, szybko.",
         placeholder: "Co trzeba zrobić?",
         inputLabel: "Opisz zadanie",
         cta: "Opublikuj zadanie",
@@ -1133,7 +1133,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Beauftragen.", " Erledigt."],
-        subtitle: "Deadline naht? Ein verifizierter Profi für 1–2 Aufgaben, schnell.",
+        subtitle: "Deadline naht? Ein verifizierter Profi für 1-2 Aufgaben, schnell.",
         placeholder: "Was soll erledigt werden?",
         inputLabel: "Beschreibe deine Aufgabe",
         cta: "Aufgabe posten",
@@ -1157,7 +1157,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Наймай", " швидко. Готово."],
-        subtitle: "Горить дедлайн? Перевірений фахівець для 1–2 задач, швидко.",
+        subtitle: "Горить дедлайн? Перевірений фахівець для 1-2 задач, швидко.",
         placeholder: "Що потрібно зробити?",
         inputLabel: "Опишіть задачу",
         cta: "Опублікувати задачу",
