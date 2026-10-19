@@ -4286,6 +4286,57 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
   .pico-landing .pk-sec-list { grid-template-columns: 1fr; }
 }
 
+/* security as a contained panel: clear end of the block before FAQ */
+.pico-landing .pk-sec-grid {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(32px, 5vw, 72px);
+  border: 1px solid #dfe9da;
+  border-radius: 40px;
+  background:
+    radial-gradient(60% 80% at 0% 100%, rgba(59, 122, 51, .10) 0%, rgba(59, 122, 51, 0) 70%),
+    linear-gradient(180deg, #f1f6ee 0%, #e9f1e5 100%);
+}
+.pico-landing .pk-sec-head { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100%; }
+.pico-landing .pk-sec-list { position: relative; z-index: 1; }
+.pico-landing .pk-sec-list li { border-color: rgba(255, 255, 255, .9); box-shadow: 0 1px 2px rgba(17, 26, 20, .04), 0 18px 40px rgba(31, 63, 36, .06); }
+.pico-landing .pk-sec-list li:hover { box-shadow: 0 1px 2px rgba(17, 26, 20, .04), 0 26px 56px rgba(31, 63, 36, .12); transform: translateY(-2px); }
+.pico-landing .pk-sec-list li { transition: transform .25s, box-shadow .25s; }
+.pico-landing .pk-access {
+  width: min(360px, 100%);
+  margin-top: auto;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .86);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 2px rgba(17, 26, 20, .05), 0 30px 60px rgba(31, 63, 36, .14);
+  transform: rotate(-2deg);
+  transform-origin: left bottom;
+}
+.pico-landing .pk-sec-head .pk-access { margin-top: clamp(32px, 6vh, 64px); }
+.pico-landing .pk-access-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pico-landing .pk-access-title { color: var(--pk-muted); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.pico-landing .pk-access-live { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--pk-mint); color: var(--pk-deep); font-size: 12px; font-weight: 600; }
+.pico-landing .pk-access-live i { width: 6px; height: 6px; border-radius: 99px; background: var(--pk-green); box-shadow: 0 0 0 3px rgba(59, 122, 51, .2); animation: pk-blink 1.6s ease-in-out infinite; }
+@keyframes pk-blink { 50% { opacity: .35; } }
+.pico-landing .pk-access-who { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--pk-line); }
+.pico-landing .pk-access-avatar { display: grid; flex: none; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: linear-gradient(135deg, #3b7a33, #1f3f24); color: #fff; font-size: 13px; font-weight: 700; }
+.pico-landing .pk-access-who b { display: block; font-size: 15px; font-weight: 600; }
+.pico-landing .pk-access-who small { display: block; margin-top: 2px; color: var(--pk-muted); font-size: 12px; }
+.pico-landing .pk-access-rows { display: grid; gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; }
+.pico-landing .pk-access-rows li { display: flex; align-items: center; gap: 10px; color: var(--pk-ink-soft); font-size: 14px; }
+.pico-landing .pk-access-check { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: var(--pk-green); color: #fff; }
+.pico-landing .pk-access-timer { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 16px; }
+.pico-landing .pk-access-timer span { color: var(--pk-muted); font-size: 13px; }
+.pico-landing .pk-access-timer strong { color: var(--pk-ink); font-size: 20px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pico-landing .pk-access-bar { height: 6px; margin-top: 8px; overflow: hidden; border-radius: 99px; background: #e6ece3; }
+.pico-landing .pk-access-bar span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #3b7a33, #7cc06e); transition: width 1s linear; }
+@media (max-width: 900px) {
+  .pico-landing .pk-sec-grid { border-radius: 28px; }
+  .pico-landing .pk-access { transform: none; margin-top: 28px; }
+}
+
 /* ---------- 06 · faq ---------- */
 .pico-landing .pk-faq-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(28px, 6vw, 96px); align-items: start; }
 .pico-landing .pk-faq-side { position: sticky; top: clamp(24px, 8vh, 80px); }

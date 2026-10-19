@@ -417,6 +417,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
           <div className="pk-sec-head">
             <h2 id="pk-sec-title" className="pk-title"><Title parts={[w.secTitle[0], w.secTitle[1]]} /></h2>
             <p className="pk-lead">{w.secLead}</p>
+            <AccessCard card={w.secCard} />
           </div>
           <ul className="pk-sec-list">
             {w.secItems.map((item, index) => (
@@ -753,5 +754,52 @@ export function WaitlistModal({
       </div>
     </div>,
     document.body,
+  );
+}
+
+/* ------------------------------------------------------------------
+   Security visual: a small product fragment instead of an icon —
+   the access card a client would see for a task. The timer counts
+   down to show that access is temporary.
+   ------------------------------------------------------------------ */
+function AccessCard({ card }: { card: { title: string; role: string; active: string; nda: string; id: string; env: string; ends: string } }) {
+  const TOTAL = 24 * 3600;
+  const [left, setLeft] = useState(TOTAL - 19);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const id = window.setInterval(() => setLeft((value) => (value <= 1 ? TOTAL - 19 : value - 1)), 1000);
+    return () => window.clearInterval(id);
+  }, [TOTAL]);
+  const hh = String(Math.floor(left / 3600)).padStart(2, "0");
+  const mm = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
+  const ss = String(left % 60).padStart(2, "0");
+  const rows = [card.nda, card.id, card.env];
+  return (
+    <div className="pk-access" aria-hidden>
+      <div className="pk-access-top">
+        <span className="pk-access-title">{card.title}</span>
+        <span className="pk-access-live"><i />{card.active}</span>
+      </div>
+      <div className="pk-access-who">
+        <span className="pk-access-avatar">MK</span>
+        <span>
+          <b>{card.role} #2481</b>
+          <small>{rows[1]}</small>
+        </span>
+      </div>
+      <ul className="pk-access-rows">
+        {rows.map((row) => (
+          <li key={row}>
+            <span className="pk-access-check"><Check size={12} /></span>
+            {row}
+          </li>
+        ))}
+      </ul>
+      <div className="pk-access-timer">
+        <span>{card.ends}</span>
+        <strong>{hh}:{mm}:{ss}</strong>
+      </div>
+      <div className="pk-access-bar"><span style={{ width: `${(left / TOTAL) * 100}%` }} /></div>
+    </div>
   );
 }
