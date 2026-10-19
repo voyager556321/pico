@@ -8,7 +8,7 @@ import { EXTRA_COPY, SECTIONS_COPY, WAITLIST_COPY, type Stat } from "@/component
 /* ------------------------------------------------------------------
    Pre-launch landing. No scroll-driven animation: sections are static,
    "How it works" auto-advances only while visible and stops as soon as
-   the visitor clicks, "Secure payments" shows all three states at once.
+   the visitor clicks, "How payment works" shows all three steps at once.
    Every CTA leads to the waitlist form at the end of the page.
    ------------------------------------------------------------------ */
 
@@ -81,23 +81,33 @@ function Check({ size = 14 }: { size?: number }) {
 }
 
 function StageIcon({ stage }: { stage: number }) {
-  if (stage === 1) {
+  if (stage === 0) {
+    // criteria agreed: checklist
     return (
       <svg viewBox="0 0 48 48" aria-hidden>
-        <path d="M24 5 9 11v11c0 9.5 6.4 17.8 15 21 8.6-3.2 15-11.5 15-21V11L24 5Z" fill="currentColor" opacity=".16" />
-        <path d="M24 5 9 11v11c0 9.5 6.4 17.8 15 21 8.6-3.2 15-11.5 15-21V11L24 5Z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
-        <path d="m17 24 5 5 9-10" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="10" y="7" width="28" height="35" rx="6" fill="currentColor" opacity=".16" />
+        <rect x="10" y="7" width="28" height="35" rx="6" fill="none" stroke="currentColor" strokeWidth="2.4" />
+        <path d="m16 19 3 3 5-5M28 20h4M16 31l3 3 5-5M28 32h4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
-  const open = stage === 2;
+  if (stage === 1) {
+    // work reviewed: magnifier with check
+    return (
+      <svg viewBox="0 0 48 48" aria-hidden>
+        <circle cx="21" cy="21" r="12" fill="currentColor" opacity=".16" />
+        <circle cx="21" cy="21" r="12" fill="none" stroke="currentColor" strokeWidth="2.4" />
+        <path d="m30 30 9 9" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+        <path d="m15.5 21 4 4 7-8" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  // invoice sent: receipt
   return (
     <svg viewBox="0 0 48 48" aria-hidden>
-      <path d={open ? "M15 21v-6a9 9 0 0 1 17.4-3.2" : "M15 21v-6a9 9 0 0 1 18 0v6"} fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-      <rect x="9" y="21" width="30" height="22" rx="7" fill="currentColor" opacity=".16" />
-      <rect x="9" y="21" width="30" height="22" rx="7" fill="none" stroke="currentColor" strokeWidth="2.4" />
-      <circle cx="24" cy="31" r="2.6" fill="currentColor" />
-      <path d="M24 33v4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M12 6h24v36l-4-3-4 3-4-3-4 3-4-3-4 3Z" fill="currentColor" opacity=".16" />
+      <path d="M12 6h24v36l-4-3-4 3-4-3-4 3-4-3-4 3Z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M18 16h12M18 23h12M18 30h7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -113,14 +123,14 @@ const EXAMPLE_TASKS = [
 
 
 const SECURITY_ICONS = [
-  // NDA — signed document
-  <svg key="nda" viewBox="0 0 24 24" aria-hidden><path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 15.5h3.5M9.5 19c1-1.6 1.8-1.6 2.5 0s1.5 1.6 2.5 0" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
-  // verified identity — badge with check
-  <svg key="id" viewBox="0 0 24 24" aria-hidden><rect x="3.5" y="5" width="17" height="14" rx="3" fill="none" stroke="currentColor" strokeWidth="1.7" /><circle cx="9" cy="11" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M5.8 16c.6-1.5 1.8-2.2 3.2-2.2s2.6.7 3.2 2.2M14.5 11.5l1.5 1.5 3-3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
-  // temporary access — key with clock
-  <svg key="time" viewBox="0 0 24 24" aria-hidden><circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m11 12 5-5M14.5 8.5l1.8 1.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /><circle cx="17.5" cy="16.5" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M17.5 15v1.7l1.1.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-  // isolated environment — box in a dashed frame
-  <svg key="box" viewBox="0 0 24 24" aria-hidden><rect x="2.5" y="2.5" width="19" height="19" rx="4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2.4" /><path d="m12 7 4.5 2.5v5L12 17l-4.5-2.5v-5zM7.5 9.5 12 12l4.5-2.5M12 12v5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>,
+  // confidentiality terms: document
+  <svg key="doc" viewBox="0 0 24 24" aria-hidden><path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 15.5h5M10 19h3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  // skill test passed: rosette badge
+  <svg key="badge" viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="9" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m9.6 9 1.7 1.7 3.2-3.3M8.6 13.6 7.2 21l4.8-2.4 4.8 2.4-1.4-7.4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  // you control access: key
+  <svg key="key" viewBox="0 0 24 24" aria-hidden><circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m11 12 8-8M16 7l2.5 2.5M13.5 9.5l2 2" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  // no production keys: crossed-out database
+  <svg key="noprod" viewBox="0 0 24 24" aria-hidden><ellipse cx="12" cy="6" rx="6.5" ry="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M5.5 6v12c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5V6M5.5 12c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5M3.5 3.5l17 17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>,
 ];
 
 const CLIENT_PROGRESS = { done: [0, 1, 1, 2, 3, 5], active: [false, false, true, true, true, false] };
@@ -236,7 +246,6 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
                   </div>
                   <div className="pk-due">
                     <b>{s.explore.deadlines[index]}</b>
-                    <span className="pk-secured"><i />{copy.board.securedPayment}</span>
                   </div>
                 </div>
               </li>
@@ -387,7 +396,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         </div>
       </section>
 
-      {/* ============ 05 · Secure payments ============ */}
+      {/* ============ 05 · How payment works ============ */}
       <section ref={payRef} className={`pk-section pk-pay${payVisible ? " is-visible" : ""}`} aria-labelledby="pk-pay-title">
         <div className="pk-wrap">
           <h2 id="pk-pay-title" className="pk-title"><Title parts={[s.pay.title[0], s.pay.title[1]]} /></h2>
@@ -402,12 +411,12 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
                 <h3>{state.title}</h3>
                 <p className="pk-pay-body">{state.body}</p>
                 <div className="pk-pay-row">
-                  <strong>$180.00</strong>
                   <span className="pk-pay-chip"><i />{state.label}</span>
                 </div>
               </li>
             ))}
           </ol>
+          <p className="pk-pay-note">{s.pay.note}</p>
         </div>
       </section>
 
@@ -510,6 +519,10 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               <div>
                 <p>{w.footerEarly}</p>
                 <a href="#waitlist">{w.navJoin}</a>
+              </div>
+              <div>
+                <p>{x.contact}</p>
+                <a href="mailto:team.hirepico@outlook.com">team.hirepico@outlook.com</a>
               </div>
             </nav>
           </div>
@@ -758,34 +771,17 @@ export function WaitlistModal({
 }
 
 /* ------------------------------------------------------------------
-   Security visual: a small product fragment instead of an icon —
-   the access card a client would see for a task. The timer counts
-   down to show that access is temporary.
+   Security visual: a small product fragment instead of an icon -
+   the access card a client would see for a task. It lists only what
+   Pico does today: terms accepted, skill test passed, test data only.
    ------------------------------------------------------------------ */
-function AccessCard({ card }: { card: { title: string; role: string; active: string; nda: string; id: string; env: string; ends: string } }) {
-  const TOTAL = 24 * 3600;
-  const [left, setLeft] = useState(TOTAL - 19);
-  useEffect(() => {
-    if (prefersReducedMotion()) return;
-    const id = window.setInterval(() => setLeft((value) => (value <= 1 ? TOTAL - 19 : value - 1)), 1000);
-    return () => window.clearInterval(id);
-  }, [TOTAL]);
-  const hh = String(Math.floor(left / 3600)).padStart(2, "0");
-  const mm = String(Math.floor((left % 3600) / 60)).padStart(2, "0");
-  const ss = String(left % 60).padStart(2, "0");
+function AccessCard({ card }: { card: { title: string; active: string; nda: string; id: string; env: string } }) {
   const rows = [card.nda, card.id, card.env];
   return (
     <div className="pk-access" aria-hidden>
       <div className="pk-access-top">
         <span className="pk-access-title">{card.title}</span>
         <span className="pk-access-live"><i />{card.active}</span>
-      </div>
-      <div className="pk-access-who">
-        <span className="pk-access-avatar">MK</span>
-        <span>
-          <b>{card.role} #2481</b>
-          <small>{rows[1]}</small>
-        </span>
       </div>
       <ul className="pk-access-rows">
         {rows.map((row) => (
@@ -795,11 +791,6 @@ function AccessCard({ card }: { card: { title: string; role: string; active: str
           </li>
         ))}
       </ul>
-      <div className="pk-access-timer">
-        <span>{card.ends}</span>
-        <strong>{hh}:{mm}:{ss}</strong>
-      </div>
-      <div className="pk-access-bar"><span style={{ width: `${(left / TOTAL) * 100}%` }} /></div>
     </div>
   );
 }
