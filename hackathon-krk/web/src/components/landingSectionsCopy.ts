@@ -559,6 +559,11 @@ export type WaitlistCopy = {
   nextDescs: [string, string, string];
   readySub: string;
   consentNote: string;
+  faqNdaQ: string;
+  faqNdaA: string;
+  secTitle: [string, string];
+  secLead: string;
+  secItems: { title: string; body: string }[];
 };
 
 export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
@@ -623,6 +628,11 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextDescs: ["Takes about a minute.", "We email you when early access opens.", "Post your first task or take one."],
     readySub: "Early access opens soon. Save your spot.",
     consentNote: "By joining, you agree to receive emails about Pico’s launch. Unsubscribe anytime.",
+    secTitle: ["Your code. ", "Protected."],
+    secLead: "Handing your code to someone new is the scary part. On Pico, it’s protected by default.",
+    secItems: [{"title": "NDA before every task", "body": "Specialists accept a non-disclosure agreement before they see your brief or your code."}, {"title": "Verified identity", "body": "Every specialist confirms who they are before taking paid work."}, {"title": "Temporary access", "body": "Access is given for one task only and ends when the task closes."}, {"title": "Isolated environment", "body": "Work happens in a separate, isolated environment — not inside your production."}],
+    faqNdaQ: "Is my task kept confidential?",
+    faqNdaA: "Yes. Everyone on a task — the specialist, the reviewer and the auditor — works under an NDA. We don’t publish or share your task, your code or the delivered work.",
   },
   es: {
     badge: "Acceso anticipado · Muy pronto",
@@ -685,6 +695,11 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextDescs: ["Te lleva un minuto.", "Te escribimos cuando abra el acceso anticipado.", "Publica tu primera tarea o toma una."],
     readySub: "El acceso anticipado abre pronto. Reserva tu plaza.",
     consentNote: "Al unirte, aceptas recibir emails sobre el lanzamiento de Pico. Puedes darte de baja cuando quieras.",
+    secTitle: ["Tu código. ", "Protegido."],
+    secLead: "Dar tu código a alguien nuevo es lo que más preocupa. En Pico está protegido por defecto.",
+    secItems: [{"title": "NDA antes de cada tarea", "body": "Los especialistas aceptan un acuerdo de confidencialidad antes de ver tu brief o tu código."}, {"title": "Identidad verificada", "body": "Cada especialista confirma quién es antes de aceptar trabajo pagado."}, {"title": "Acceso temporal", "body": "El acceso es solo para una tarea y termina cuando la tarea se cierra."}, {"title": "Entorno aislado", "body": "El trabajo se hace en un entorno separado y aislado, no dentro de tu producción."}],
+    faqNdaQ: "¿Mi tarea es confidencial?",
+    faqNdaA: "Sí. Todos los que participan en una tarea —el especialista, el revisor y el auditor— trabajan bajo un NDA. No publicamos ni compartimos tu tarea, tu código ni el trabajo entregado.",
   },
   pl: {
     badge: "Wczesny dostęp · Już wkrótce",
@@ -747,6 +762,11 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextDescs: ["Zajmie to minutę.", "Napiszemy, gdy ruszy wczesny dostęp.", "Opublikuj pierwsze zadanie albo weź zlecenie."],
     readySub: "Wczesny dostęp rusza wkrótce. Zajmij miejsce.",
     consentNote: "Dołączając, zgadzasz się na e-maile o starcie Pico. Możesz zrezygnować w każdej chwili.",
+    secTitle: ["Twój kod. ", "Chroniony."],
+    secLead: "Oddanie kodu komuś nowemu to największa obawa. W Pico jest on chroniony domyślnie.",
+    secItems: [{"title": "NDA przed każdym zadaniem", "body": "Specjaliści akceptują umowę o zachowaniu poufności, zanim zobaczą brief lub kod."}, {"title": "Zweryfikowana tożsamość", "body": "Każdy specjalista potwierdza, kim jest, zanim weźmie płatne zlecenie."}, {"title": "Tymczasowy dostęp", "body": "Dostęp obejmuje tylko jedno zadanie i wygasa po jego zamknięciu."}, {"title": "Izolowane środowisko", "body": "Praca odbywa się w osobnym, izolowanym środowisku — nie na Twojej produkcji."}],
+    faqNdaQ: "Czy moje zadanie jest poufne?",
+    faqNdaA: "Tak. Każdy, kto pracuje przy zadaniu — specjalista, recenzent i audytor — działa w ramach NDA. Nie publikujemy ani nie udostępniamy Twojego zadania, kodu ani oddanej pracy.",
   },
   de: {
     badge: "Early Access · Bald verfügbar",
@@ -809,6 +829,11 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextDescs: ["Dauert etwa eine Minute.", "Wir schreiben dir, sobald Early Access startet.", "Poste deine erste Aufgabe oder übernimm eine."],
     readySub: "Early Access startet bald. Sichere dir deinen Platz.",
     consentNote: "Mit dem Eintragen stimmst du E-Mails zum Start von Pico zu. Abmeldung jederzeit möglich.",
+    secTitle: ["Dein Code. ", "Geschützt."],
+    secLead: "Code an jemand Neues zu geben, ist die größte Sorge. Bei Pico ist er standardmäßig geschützt.",
+    secItems: [{"title": "NDA vor jeder Aufgabe", "body": "Fachkräfte akzeptieren eine Geheimhaltungsvereinbarung, bevor sie Briefing oder Code sehen."}, {"title": "Verifizierte Identität", "body": "Jede Fachkraft bestätigt ihre Identität, bevor sie bezahlte Arbeit übernimmt."}, {"title": "Temporärer Zugriff", "body": "Zugriff gilt nur für eine Aufgabe und endet, wenn sie abgeschlossen ist."}, {"title": "Isolierte Umgebung", "body": "Gearbeitet wird in einer separaten, isolierten Umgebung – nicht in deiner Produktion."}],
+    faqNdaQ: "Bleibt meine Aufgabe vertraulich?",
+    faqNdaA: "Ja. Alle Beteiligten – Fachkraft, Reviewer und Auditor – arbeiten unter NDA. Wir veröffentlichen oder teilen weder deine Aufgabe noch deinen Code oder die gelieferte Arbeit.",
   },
   uk: {
     badge: "Ранній доступ · Скоро запуск",
@@ -871,5 +896,10 @@ export const WAITLIST_COPY: Record<LandingLanguage, WaitlistCopy> = {
     nextDescs: ["Це займе хвилину.", "Ми напишемо, коли відкриється ранній доступ.", "Опублікуй першу задачу або візьми її."],
     readySub: "Ранній доступ скоро. Займи своє місце.",
     consentNote: "Приєднуючись, ти погоджуєшся отримувати листи про запуск Pico. Відписатися можна будь-коли.",
+    secTitle: ["Твій код. ", "Захищений."],
+    secLead: "Віддати код новій людині — найбільший страх. У Pico він захищений за замовчуванням.",
+    secItems: [{"title": "NDA перед кожною задачею", "body": "Фахівці приймають угоду про нерозголошення ще до того, як побачать бриф чи код."}, {"title": "Перевірена особа", "body": "Кожен фахівець підтверджує, хто він, перш ніж братися за оплачувану роботу."}, {"title": "Тимчасовий доступ", "body": "Доступ видається лише на одну задачу й закривається разом із нею."}, {"title": "Ізольоване середовище", "body": "Робота йде в окремому ізольованому середовищі, а не у твоєму продакшні."}],
+    faqNdaQ: "Чи конфіденційна моя задача?",
+    faqNdaA: "Так. Усі, хто працює над задачею — фахівець, рев’юер і аудитор, — працюють за NDA. Ми не публікуємо й нікому не передаємо твою задачу, код чи здану роботу.",
   },
 };

@@ -4270,6 +4270,22 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 .pico-landing .pk-pay-body + .pk-pay-row { border-top: 1px solid rgba(255, 255, 255, .08); margin-top: auto; }
 .pico-landing .pk-pay-flow li .pk-pay-body { margin-bottom: clamp(18px, 3vh, 24px); }
 
+/* ---------- 05b · code security ---------- */
+.pico-landing .pk-sec-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; gap: clamp(32px, 6vw, 96px); }
+.pico-landing .pk-sec-list { display: grid; grid-template-columns: 1fr 1fr; gap: var(--pk-gap, 16px); margin: 0; padding: 0; list-style: none; }
+.pico-landing .pk-sec-list li { padding: var(--pk-pad, 28px); border: 1px solid var(--pk-line); border-radius: 28px; background: #fff; transition: border-color .25s, box-shadow .25s; }
+.pico-landing .pk-sec-list li:hover { border-color: #cfdcca; box-shadow: 0 24px 50px rgba(17, 26, 20, .06); }
+.pico-landing .pk-sec-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: var(--pk-mint); color: var(--pk-deep); }
+.pico-landing .pk-sec-icon svg { width: 26px; height: 26px; }
+.pico-landing .pk-sec-list h3 { margin: 20px 0 0; font-size: clamp(19px, 2.8vh, 22px); font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; }
+.pico-landing .pk-sec-list p { margin: 8px 0 0; color: #5f6a62; font-size: 15px; line-height: 1.55; }
+@media (max-width: 900px) {
+  .pico-landing .pk-sec-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .pico-landing .pk-sec-list { grid-template-columns: 1fr; }
+}
+
 /* ---------- 06 · faq ---------- */
 .pico-landing .pk-faq-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(28px, 6vw, 96px); align-items: start; }
 .pico-landing .pk-faq-side { position: sticky; top: clamp(24px, 8vh, 80px); }
