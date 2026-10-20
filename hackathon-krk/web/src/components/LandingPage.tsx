@@ -15,6 +15,7 @@ import {
 } from "@/components/landingTranslations";
 import { EMAIL_RE, LandingSections, WaitlistModal, postWaitlist, type WaitlistModalState } from "@/components/LandingSections";
 import { WAITLIST_COPY } from "@/components/landingSectionsCopy";
+import { track } from "@/lib/analytics";
 
 /* Big background word under the hero, translated per language. */
 const BACKDROP_WORD: Record<LandingLanguage, string> = {
@@ -88,6 +89,7 @@ export function LandingPage() {
   async function submitHero(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (step === "ask") {
+      track("cta_clicked", { location: "hero", role: mode === "hire" ? "client" : "specialist", language });
       setStep("email");
       setHeroStatus("idle");
       window.setTimeout(() => emailRef.current?.focus(), 30);
@@ -136,6 +138,7 @@ export function LandingPage() {
     );
     if (selectedLanguage) {
       setLanguage(selectedLanguage.code);
+      track("language_changed", { language: selectedLanguage.code, from: language });
       try {
         window.localStorage.setItem(APP_LANGUAGE_STORAGE_KEY, selectedLanguage.code);
       } catch {
@@ -175,7 +178,7 @@ export function LandingPage() {
                   ))}
                 </select>
               </label>
-              <a href="#waitlist" className="ph-signin">{w.navJoin}</a>
+              <a href="#waitlist" className="ph-signin" onClick={() => track("cta_clicked", { location: "header", language })}>{w.navJoin}</a>
               <button
                 type="button"
                 className="ph-menu-button"
@@ -192,7 +195,7 @@ export function LandingPage() {
               <a href="#flow" onClick={() => setNavOpen(false)}>{copy.nav.how}</a>
               <a href="#clients" onClick={() => setNavOpen(false)}>{copy.nav.clients}</a>
               <a href="#faq" onClick={() => setNavOpen(false)}>{w.navFaq}</a>
-              <a href="#waitlist" onClick={() => setNavOpen(false)}>{w.navJoin}</a>
+              <a href="#waitlist" onClick={() => { setNavOpen(false); track("cta_clicked", { location: "mobile_nav", language }); }}>{w.navJoin}</a>
             </div>
           ) : null}
         </header>
@@ -207,6 +210,7 @@ export function LandingPage() {
                 aria-selected={mode === item}
                 className={mode === item ? "is-active" : undefined}
                 onClick={() => {
+                  if (item !== mode) track("waitlist_role_selected", { role: item === "hire" ? "client" : "specialist", location: "hero", language });
                   setMode(item);
                   if (step === "ask") setQuery("");
                 }}

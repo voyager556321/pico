@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             <li>the site language you used and which form you signed up from;</li>
             <li>your consent to receive emails and the time you joined.</li>
           </ul>
-          <p>We do not use advertising or tracking cookies. We use Vercel Web Analytics to count anonymous page views; it does not use cookies and does not identify you.</p>
+          <p>We do not use advertising or tracking cookies. We use Vercel Web Analytics to count anonymous page views. We also use PostHog, hosted on EU servers in Frankfurt, to record anonymous usage events, such as which sections of the page are viewed and which buttons are clicked. Neither tool uses cookies, and these events are not linked to your email address.</p>
 
           <h2>Why we use it</h2>
           <p>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
 
           <h2>Where it is stored</h2>
           <p>
-            The waitlist is stored in a Postgres database hosted by Supabase. The website is hosted on Vercel. These
+            The waitlist is stored in a Postgres database hosted by Supabase. The website is hosted on Vercel. Anonymous usage analytics are processed by PostHog on EU servers (Frankfurt). These
             providers process data on our behalf to run the service.
           </p>
 
