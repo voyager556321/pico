@@ -113,14 +113,14 @@ const EXAMPLE_TASKS = [
 
 
 const SECURITY_ICONS = [
-  // NDA — signed document
-  <svg key="nda" viewBox="0 0 24 24" aria-hidden><path d="M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 15.5h3.5M9.5 19c1-1.6 1.8-1.6 2.5 0s1.5 1.6 2.5 0" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
-  // verified identity — badge with check
-  <svg key="id" viewBox="0 0 24 24" aria-hidden><rect x="3.5" y="5" width="17" height="14" rx="3" fill="none" stroke="currentColor" strokeWidth="1.7" /><circle cx="9" cy="11" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M5.8 16c.6-1.5 1.8-2.2 3.2-2.2s2.6.7 3.2 2.2M14.5 11.5l1.5 1.5 3-3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
-  // temporary access — key with clock
-  <svg key="time" viewBox="0 0 24 24" aria-hidden><circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m11 12 5-5M14.5 8.5l1.8 1.8" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /><circle cx="17.5" cy="16.5" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M17.5 15v1.7l1.1.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-  // isolated environment — box in a dashed frame
-  <svg key="box" viewBox="0 0 24 24" aria-hidden><rect x="2.5" y="2.5" width="19" height="19" rx="4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2.4" /><path d="m12 7 4.5 2.5v5L12 17l-4.5-2.5v-5zM7.5 9.5 12 12l4.5-2.5M12 12v5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>,
+  // confidentiality — document with a lock
+  <svg key="conf" viewBox="0 0 24 24" aria-hidden><path d="M7 3h7l4 4v6M14 3v4h4M7 3v18h6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /><rect x="14" y="15" width="7" height="6" rx="1.6" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M15.6 15v-1.4a1.9 1.9 0 0 1 3.8 0V15" fill="none" stroke="currentColor" strokeWidth="1.7" /></svg>,
+  // skill-tested — award badge with check
+  <svg key="skill" viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="9.5" r="6" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m9.4 9.6 1.8 1.8 3.6-3.6M8.5 14.5 7 21l5-2.6 5 2.6-1.5-6.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  // you control access — git branch
+  <svg key="branch" viewBox="0 0 24 24" aria-hidden><circle cx="6.5" cy="5.5" r="2.3" fill="none" stroke="currentColor" strokeWidth="1.7" /><circle cx="6.5" cy="18.5" r="2.3" fill="none" stroke="currentColor" strokeWidth="1.7" /><circle cx="17.5" cy="8" r="2.3" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="M6.5 7.8v8.4M17.5 10.3c0 4-5 3.2-9.6 6.4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>,
+  // no production keys — key with a slash
+  <svg key="nokey" viewBox="0 0 24 24" aria-hidden><circle cx="8.5" cy="14.5" r="3.8" fill="none" stroke="currentColor" strokeWidth="1.7" /><path d="m11.2 11.8 7-7M16 7l2 2M14.2 8.8l1.6 1.6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /><path d="M3.5 3.5l17 17" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>,
 ];
 
 const CLIENT_PROGRESS = { done: [0, 1, 1, 2, 3, 5], active: [false, false, true, true, true, false] };
@@ -417,7 +417,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
           <div className="pk-sec-head">
             <h2 id="pk-sec-title" className="pk-title"><Title parts={[w.secTitle[0], w.secTitle[1]]} /></h2>
             <p className="pk-lead">{w.secLead}</p>
-            <AccessCard card={w.secCard} />
+            <AccessCard card={w.secCard} task={copy.taskTitles[1]} />
           </div>
           <ul className="pk-sec-list">
             {w.secItems.map((item, index) => (
@@ -762,7 +762,7 @@ export function WaitlistModal({
    the access card a client would see for a task. The timer counts
    down to show that access is temporary.
    ------------------------------------------------------------------ */
-function AccessCard({ card }: { card: { title: string; role: string; active: string; nda: string; id: string; env: string; ends: string } }) {
+function AccessCard({ card, task }: { task: string; card: { title: string; role: string; active: string; nda: string; id: string; env: string; ends: string } }) {
   const TOTAL = 24 * 3600;
   const [left, setLeft] = useState(TOTAL - 19);
   useEffect(() => {
@@ -784,7 +784,7 @@ function AccessCard({ card }: { card: { title: string; role: string; active: str
         <span className="pk-access-avatar">MK</span>
         <span>
           <b>{card.role} #2481</b>
-          <small>{rows[1]}</small>
+          <small>{task}</small>
         </span>
       </div>
       <ul className="pk-access-rows">
