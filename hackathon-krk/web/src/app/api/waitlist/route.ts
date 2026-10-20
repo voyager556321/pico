@@ -32,6 +32,8 @@ const WAITLIST_SCHEMA = [
     consent boolean not null default false,
     created_at timestamptz not null default now()
   )`,
+  // Block access through the public Supabase API; the server connects directly to Postgres.
+  `alter table pico_waitlist enable row level security`,
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

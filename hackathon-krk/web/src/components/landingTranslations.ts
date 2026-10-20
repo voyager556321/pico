@@ -109,7 +109,6 @@ type LandingCopy = {
     highestBudget: string;
     lookingToQualify: string;
     reviewCount: string;
-    securedPayment: string;
     fixed: string;
     enterBoard: string;
     noMatches: string;
@@ -151,20 +150,20 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "A faster lane for expert work",
       headline: ["Great work,", "without the", "long wait."],
       description:
-        "When a deadline is close, post the one or two tasks holding up your project. Pico helps you find a qualified specialist quickly, with work reviewed before payment is released.",
+        "When a deadline is close, post the one or two tasks holding up your project. Pico helps you find a qualified specialist quickly, with work reviewed against agreed criteria before your card is charged.",
       postTask: "Post a task",
       exploreWork: "Explore open work",
-      proof: ["Payments secured up front", "Skills proven up front", "Independent review"],
+      proof: ["Criteria agreed up front", "Skills proven up front", "Independent review"],
     },
     preview: {
       kicker: "HOW PICO WORKS",
       headline: ["Small task.", "Serious follow-through."],
       caption:
-        "A clear brief, a proven specialist, and a payment that moves when the work is verified.",
+        "A clear brief, a skill-tested specialist, and a card charge only after the work passes review.",
       people: ["CLIENT", "SPECIALIST", "REVIEW"],
       budget: "Task budget",
       payment: "Payment",
-      held: "Secured",
+      held: "After review",
       review: "Review",
       steps: "2 steps",
       example: "EXAMPLE TASK · QA & TESTING",
@@ -177,7 +176,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       auditReview: "Audit review",
       passed: "Passed",
       inProgress: "In progress",
-      payout: "Payment released after review",
+      payout: "Card charged after review",
       execution: "Execution",
     },
     problem: {
@@ -200,7 +199,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         {
           who: "SPECIALISTS",
           pain: "Rejection or non-payment after you start",
-          fix: "The task budget is secured before work begins, so payment is ready when the work is approved.",
+          fix: "Criteria are agreed before work begins, so you know exactly what gets the work approved.",
         },
         {
           who: "CLIENTS",
@@ -216,13 +215,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     flow: {
       eyebrow: "THE PROCESS",
-      title: "From a clear budget to a verified payout",
+      title: "From clear criteria to a reviewed result",
       steps: [
         { title: "Set budget", body: "Choose the budget and payout split" },
         { title: "Qualify", body: "Timed skill tests" },
         { title: "Assign", body: "Work and review slots" },
         { title: "Verify", body: "Independent review" },
-        { title: "Pay", body: "Release payment after review" },
+        { title: "Pay", body: "Card charged after review" },
       ],
       note: "The same timed qualification identifies the specialist and the reviewers. If someone declines, only that seat is refilled.",
     },
@@ -234,7 +233,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       benefits: [
         "Post a clear task with your budget",
         "Review demonstrated skills before choosing",
-        "Approve the work before payment is released",
+        "Pay only after the work passes review",
       ],
       cta: "Get help with a task",
       note: "Focused work, without another long hiring process.",
@@ -261,7 +260,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       qa: "QA",
       design: "Design",
       clear: "Clear",
-      securedBudget: "Secured budget",
+      securedBudget: "Task budget",
       minimumBudget: "Minimum budget",
       maximumBudget: "Maximum budget",
       slots: "Slots",
@@ -276,7 +275,6 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       highestBudget: "Highest budget",
       lookingToQualify: "interested",
       reviewCount: "reviews",
-      securedPayment: "Payment secured",
       fixed: "Fixed",
       enterBoard: "View task",
       noMatches: "No sample tasks match these filters.",
@@ -286,12 +284,12 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Verified work without the hiring overhead - clear budgets, qualified specialists, independent review.",
+        "Short tasks, skill-tested specialists, review against criteria you agree up front.",
       app: "App",
       post: "Post a task",
       clients: "For clients",
       flow: "How it works",
-      tagline: "Short tasks. Qualified people. Secure payments.",
+      tagline: "Short tasks. Skill-tested people. Pay against agreed criteria.",
     },
     taskTitles: [
       "Review API access controls",
@@ -331,20 +329,20 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "Una vía más rápida para el trabajo especializado",
       headline: ["Buen trabajo,", "sin tanta", "espera."],
       description:
-        "Cuando se acerca la fecha límite, publica las una o dos tareas que están frenando tu proyecto. Pico te ayuda a encontrar rápidamente a un especialista cualificado; el pago se libera tras revisar el trabajo.",
+        "Cuando se acerca la fecha límite, publica las una o dos tareas que están frenando tu proyecto. Pico te ayuda a encontrar rápidamente a un especialista cualificado; la tarjeta se cobra solo después de revisar el trabajo.",
       postTask: "Publicar una tarea",
       exploreWork: "Ver tareas disponibles",
-      proof: ["Pagos protegidos desde el inicio", "Habilidades demostradas", "Revisión independiente"],
+      proof: ["Criterios acordados desde el inicio", "Habilidades demostradas", "Revisión independiente"],
     },
     preview: {
       kicker: "CÓMO FUNCIONA PICO",
       headline: ["Una tarea breve.", "Un resultado serio."],
       caption:
-        "Un encargo claro, un especialista cualificado y un pago que se libera cuando el trabajo queda verificado.",
+        "Un encargo claro, un especialista evaluado y un cobro con tarjeta solo cuando el trabajo supera la revisión.",
       people: ["CLIENTE", "ESPECIALISTA", "REVISIÓN"],
       budget: "Presupuesto",
       payment: "Pago",
-      held: "Protegido",
+      held: "Tras la revisión",
       review: "Revisión",
       steps: "2 pasos",
       example: "TAREA DE EJEMPLO · QA Y PRUEBAS",
@@ -357,7 +355,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       auditReview: "Auditoría",
       passed: "Aprobada",
       inProgress: "En curso",
-      payout: "El pago se libera tras la revisión",
+      payout: "Cobro con tarjeta tras la revisión",
       execution: "Ejecución",
     },
     problem: {
@@ -380,7 +378,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         {
           who: "ESPECIALISTAS",
           pain: "Rechazo o impago después de empezar",
-          fix: "El presupuesto queda protegido antes de empezar, para que el pago esté listo cuando se apruebe el trabajo.",
+          fix: "Los criterios se acuerdan antes de empezar, así sabes exactamente qué hace que se apruebe el trabajo.",
         },
         {
           who: "CLIENTES",
@@ -396,13 +394,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     flow: {
       eyebrow: "EL PROCESO",
-      title: "De un presupuesto claro a un pago verificado",
+      title: "De criterios claros a un resultado revisado",
       steps: [
         { title: "Presupuesto", body: "Define el presupuesto y el reparto" },
         { title: "Demuestra", body: "Pruebas de habilidad cronometradas" },
         { title: "Asigna", body: "Trabajo y puestos de revisión" },
         { title: "Verifica", body: "Revisión independiente" },
-        { title: "Paga", body: "Libera el pago tras la revisión" },
+        { title: "Paga", body: "Cobro con tarjeta tras la revisión" },
       ],
       note: "La misma prueba cronometrada selecciona al especialista y a quienes revisan. Si alguien renuncia, solo se vuelve a cubrir ese puesto.",
     },
@@ -414,7 +412,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       benefits: [
         "Publica una tarea clara con su presupuesto",
         "Revisa las habilidades demostradas antes de elegir",
-        "Aprueba el trabajo antes de liberar el pago",
+        "Paga solo cuando el trabajo supera la revisión",
       ],
       cta: "Encuentra ayuda para una tarea",
       note: "Trabajo concreto, sin otro largo proceso de selección.",
@@ -441,7 +439,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       qa: "Pruebas de calidad",
       design: "Diseño",
       clear: "Borrar",
-      securedBudget: "Presupuesto protegido",
+      securedBudget: "Presupuesto de la tarea",
       minimumBudget: "Presupuesto mínimo",
       maximumBudget: "Presupuesto máximo",
       slots: "Puestos",
@@ -456,7 +454,6 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       highestBudget: "Mayor presupuesto",
       lookingToQualify: "interesados",
       reviewCount: "revisiones",
-      securedPayment: "Pago protegido",
       fixed: "Precio fijo",
       enterBoard: "Ver tarea",
       noMatches: "No hay tareas de ejemplo con estos filtros.",
@@ -466,12 +463,12 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Trabajo verificado sin procesos de selección interminables: presupuestos claros, especialistas cualificados y revisión independiente.",
+        "Tareas cortas, especialistas con habilidades evaluadas y revisión según criterios acordados de antemano.",
       app: "Aplicación",
       post: "Publicar una tarea",
       clients: "Para clientes",
       flow: "Cómo funciona",
-      tagline: "Tareas breves. Profesionales cualificados. Pagos seguros.",
+      tagline: "Tareas breves. Especialistas evaluados. Pagas según criterios acordados.",
     },
     taskTitles: [
       "Revisar los permisos de acceso de la API",
@@ -511,20 +508,20 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "Szybsza droga do specjalistycznej pracy",
       headline: ["Świetna praca,", "bez długiego", "czekania."],
       description:
-        "Gdy zbliża się termin, dodaj jedno lub dwa zadania, które blokują projekt. Pico pomaga szybko znaleźć sprawdzonego specjalistę; wypłata następuje po weryfikacji pracy.",
+        "Gdy zbliża się termin, dodaj jedno lub dwa zadania, które blokują projekt. Pico pomaga szybko znaleźć sprawdzonego specjalistę; karta jest obciążana dopiero po sprawdzeniu pracy.",
       postTask: "Dodaj zadanie",
       exploreWork: "Przeglądaj zadania",
-      proof: ["Płatność zabezpieczona od początku", "Umiejętności sprawdzone przed startem", "Niezależna weryfikacja"],
+      proof: ["Kryteria uzgodnione z góry", "Umiejętności sprawdzone przed startem", "Niezależna weryfikacja"],
     },
     preview: {
       kicker: "JAK DZIAŁA PICO",
       headline: ["Krótkie zadanie.", "Rzetelna realizacja."],
       caption:
-        "Jasny zakres, sprawdzony specjalista i wypłata po zweryfikowaniu pracy.",
+        "Jasny zakres, specjalista po teście umiejętności i płatność kartą dopiero po sprawdzeniu pracy.",
       people: ["KLIENT", "SPECJALISTA", "WERYFIKACJA"],
       budget: "Budżet zadania",
       payment: "Płatność",
-      held: "Zabezpieczona",
+      held: "Po recenzji",
       review: "Weryfikacja",
       steps: "2 etapy",
       example: "PRZYKŁADOWE ZADANIE · TESTY QA",
@@ -537,7 +534,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       auditReview: "Audyt",
       passed: "Zaliczona",
       inProgress: "W toku",
-      payout: "Wypłata po zatwierdzeniu weryfikacji",
+      payout: "Płatność kartą po pozytywnej recenzji",
       execution: "Realizacja",
     },
     problem: {
@@ -560,7 +557,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         {
           who: "SPECJALIŚCI",
           pain: "Odrzucenie lub brak zapłaty po rozpoczęciu pracy",
-          fix: "Budżet jest zabezpieczony przed rozpoczęciem pracy, więc wypłata czeka na akceptację zadania.",
+          fix: "Kryteria są uzgadniane przed rozpoczęciem pracy, więc wiesz dokładnie, co decyduje o akceptacji.",
         },
         {
           who: "KLIENCI",
@@ -576,13 +573,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     flow: {
       eyebrow: "JAK TO DZIAŁA",
-      title: "Od jasnego budżetu do zweryfikowanej wypłaty",
+      title: "Od jasnych kryteriów do sprawdzonego wyniku",
       steps: [
         { title: "Ustal budżet", body: "Wybierz budżet i podział wypłaty" },
         { title: "Sprawdź", body: "Testy umiejętności na czas" },
         { title: "Przydziel", body: "Praca i miejsca weryfikacji" },
         { title: "Zweryfikuj", body: "Niezależna kontrola" },
-        { title: "Wypłać", body: "Zwolnij płatność po weryfikacji" },
+        { title: "Zapłać", body: "Płatność kartą po recenzji" },
       ],
       note: "Ten sam test na czas wybiera specjalistę i osoby weryfikujące. Jeśli ktoś zrezygnuje, ponownie obsadzane jest tylko jego miejsce.",
     },
@@ -594,7 +591,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       benefits: [
         "Opisz zadanie i podaj budżet",
         "Sprawdź potwierdzone umiejętności przed wyborem",
-        "Zatwierdź pracę przed wypłatą",
+        "Płać dopiero, gdy praca przejdzie recenzję",
       ],
       cta: "Znajdź pomoc do zadania",
       note: "Konkretna praca bez kolejnej długiej rekrutacji.",
@@ -621,7 +618,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       qa: "Testy QA",
       design: "Projektowanie",
       clear: "Wyczyść",
-      securedBudget: "Zabezpieczony budżet",
+      securedBudget: "Budżet zadania",
       minimumBudget: "Minimalny budżet",
       maximumBudget: "Maksymalny budżet",
       slots: "Role",
@@ -636,7 +633,6 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       highestBudget: "Najwyższy budżet",
       lookingToQualify: "zainteresowanych",
       reviewCount: "weryfikacje",
-      securedPayment: "Płatność zabezpieczona",
       fixed: "Stała cena",
       enterBoard: "Zobacz zadanie",
       noMatches: "Brak przykładowych zadań dla tych filtrów.",
@@ -646,12 +642,12 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Zweryfikowana praca bez zbędnej rekrutacji - jasne budżety, sprawdzeni specjaliści i niezależna kontrola.",
+        "Krótkie zadania, specjaliści po teście umiejętności i recenzja według kryteriów uzgodnionych z góry.",
       app: "Aplikacja",
       post: "Dodaj zadanie",
       clients: "Dla klientów",
       flow: "Jak to działa",
-      tagline: "Krótkie zadania. Sprawdzeni specjaliści. Bezpieczne płatności.",
+      tagline: "Krótkie zadania. Specjaliści po teście umiejętności. Płatność według uzgodnionych kryteriów.",
     },
     taskTitles: [
       "Sprawdź uprawnienia dostępu do API",
@@ -691,20 +687,20 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "Der schnellere Weg zu qualifizierter Arbeit",
       headline: ["Gute Arbeit,", "ohne langes", "Warten."],
       description:
-        "Wenn die Deadline näher rückt, stellen Sie die ein oder zwei Aufgaben ein, die Ihr Projekt aufhalten. Pico hilft Ihnen, schnell eine qualifizierte Fachkraft zu finden. Die Zahlung wird erst nach Prüfung der Arbeit freigegeben.",
+        "Wenn die Deadline näher rückt, stellen Sie die ein oder zwei Aufgaben ein, die Ihr Projekt aufhalten. Pico hilft Ihnen, schnell eine qualifizierte Fachkraft zu finden. Ihre Karte wird erst belastet, wenn die Arbeit geprüft ist.",
       postTask: "Auftrag einstellen",
       exploreWork: "Offene Aufträge ansehen",
-      proof: ["Zahlung von Anfang an abgesichert", "Fähigkeiten vorab geprüft", "Unabhängige Prüfung"],
+      proof: ["Kriterien vorab vereinbart", "Fähigkeiten vorab geprüft", "Unabhängige Prüfung"],
     },
     preview: {
       kicker: "SO FUNKTIONIERT PICO",
       headline: ["Kurze Aufgabe.", "Sorgfältig erledigt."],
       caption:
-        "Ein klarer Auftrag, eine geprüfte Fachkraft und eine Zahlung nach erfolgreicher Verifizierung.",
+        "Ein klarer Auftrag, eine Fachkraft mit Skill-Test und eine Kartenbelastung erst nach bestandenem Review.",
       people: ["AUFTRAGGEBER", "FACHKRAFT", "PRÜFUNG"],
       budget: "Auftragsbudget",
       payment: "Zahlung",
-      held: "Abgesichert",
+      held: "Nach Review",
       review: "Prüfung",
       steps: "2 Schritte",
       example: "BEISPIELAUFTRAG · QA & TESTS",
@@ -717,7 +713,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       auditReview: "Audit-Prüfung",
       passed: "Bestanden",
       inProgress: "In Bearbeitung",
-      payout: "Zahlung nach erfolgreicher Prüfung",
+      payout: "Kartenbelastung nach bestandenem Review",
       execution: "Umsetzung",
     },
     problem: {
@@ -740,7 +736,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         {
           who: "FACHKRÄFTE",
           pain: "Ablehnung oder keine Zahlung nach Arbeitsbeginn",
-          fix: "Das Budget ist vor Arbeitsbeginn abgesichert, damit die Zahlung nach Freigabe der Arbeit bereitsteht.",
+          fix: "Die Kriterien werden vor Arbeitsbeginn vereinbart, damit klar ist, wann die Arbeit abgenommen wird.",
         },
         {
           who: "AUFTRAGGEBER",
@@ -756,13 +752,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     flow: {
       eyebrow: "DER ABLAUF",
-      title: "Vom klaren Budget zur geprüften Auszahlung",
+      title: "Von klaren Kriterien zum geprüften Ergebnis",
       steps: [
         { title: "Budget festlegen", body: "Budget und Auszahlungsanteile wählen" },
         { title: "Qualifizieren", body: "Zeitbegrenzte Fähigkeitstests" },
         { title: "Zuweisen", body: "Auftrag und Prüfplätze vergeben" },
         { title: "Verifizieren", body: "Unabhängige Prüfung" },
-        { title: "Auszahlen", body: "Zahlung nach der Prüfung freigeben" },
+        { title: "Bezahlen", body: "Kartenbelastung nach der Prüfung" },
       ],
       note: "Derselbe zeitbegrenzte Test wählt die Fachkraft und die Prüfenden aus. Lehnt jemand ab, wird nur dieser Platz neu vergeben.",
     },
@@ -774,7 +770,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       benefits: [
         "Stelle eine klare Aufgabe mit Budget ein",
         "Prüfe nachgewiesene Fähigkeiten vor der Auswahl",
-        "Gib die Arbeit frei, bevor die Zahlung erfolgt",
+        "Zahle erst, wenn die Arbeit das Review besteht",
       ],
       cta: "Hilfe für eine Aufgabe finden",
       note: "Gezielte Arbeit statt einer weiteren langen Personalsuche.",
@@ -801,7 +797,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       qa: "Qualitätssicherung",
       design: "Design",
       clear: "Zurücksetzen",
-      securedBudget: "Gesichertes Budget",
+      securedBudget: "Aufgabenbudget",
       minimumBudget: "Mindestbudget",
       maximumBudget: "Höchstbudget",
       slots: "Rollen",
@@ -816,7 +812,6 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       highestBudget: "Höchstes Budget",
       lookingToQualify: "interessiert",
       reviewCount: "Prüfungen",
-      securedPayment: "Zahlung gesichert",
       fixed: "Festpreis",
       enterBoard: "Auftrag ansehen",
       noMatches: "Keine Beispielaufträge passen zu diesen Filtern.",
@@ -826,12 +821,12 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Geprüfte Arbeit ohne aufwendige Personalsuche - klare Budgets, qualifizierte Fachkräfte und unabhängige Prüfung.",
+        "Kurze Aufgaben, Fachkräfte mit Skill-Test und ein Review nach vorab vereinbarten Kriterien.",
       app: "App",
       post: "Auftrag einstellen",
       clients: "Für Auftraggeber",
       flow: "So funktioniert’s",
-      tagline: "Kurze Aufgaben. Geprüfte Fachkräfte. Sichere Zahlungen.",
+      tagline: "Kurze Aufgaben. Getestete Fachkräfte. Bezahlung nach vereinbarten Kriterien.",
     },
     taskTitles: [
       "API-Zugriffsrechte überprüfen",
@@ -864,27 +859,27 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     promo: {
       title: "Горять терміни?",
-      body: "Знайдіть перевіреного фахівця для 1-2 завдань, що затримують проєкт.",
+      body: "Знайдіть фахівця з перевіреними навичками для 1-2 задач, що затримують проєкт.",
       link: "Як це працює",
     },
     hero: {
       badge: "Швидший шлях до фахової роботи",
       headline: ["Якісна робота,", "без довгого", "очікування."],
       description:
-        "Коли дедлайн наближається, опишіть одне-два завдання, через які стоїть проєкт. Pico допоможе швидко знайти перевіреного фахівця, а оплату буде здійснено після перевірки роботи.",
+        "Коли дедлайн наближається, опишіть одне-два завдання, через які стоїть проєкт. Pico допоможе швидко знайти фахівця з перевіреними навичками, а кошти з картки буде списано лише після перевірки роботи.",
       postTask: "Створити завдання",
       exploreWork: "Переглянути завдання",
-      proof: ["Оплата захищена від початку", "Навички перевірено заздалегідь", "Незалежна перевірка"],
+      proof: ["Критерії погоджено наперед", "Навички перевірено заздалегідь", "Незалежна перевірка"],
     },
     preview: {
       kicker: "ЯК ПРАЦЮЄ PICO",
       headline: ["Коротке завдання.", "Результат із перевіркою."],
       caption:
-        "Чіткий опис, перевірений фахівець і виплата після підтвердження результату.",
+        "Чіткий опис, фахівець із перевіреними навичками й оплата з картки лише після перевірки результату.",
       people: ["КЛІЄНТ", "ФАХІВЕЦЬ", "ПЕРЕВІРКА"],
       budget: "Бюджет завдання",
       payment: "Оплата",
-      held: "Захищена",
+      held: "Після перевірки",
       review: "Перевірка",
       steps: "2 етапи",
       example: "ПРИКЛАД ЗАВДАННЯ · QA І ТЕСТУВАННЯ",
@@ -897,7 +892,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       auditReview: "Аудит",
       passed: "Пройдено",
       inProgress: "У процесі",
-      payout: "Оплата надійде після перевірки",
+      payout: "Оплата з картки після перевірки",
       execution: "Виконавець",
     },
     problem: {
@@ -920,7 +915,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
         {
           who: "ФАХІВЦІ",
           pain: "Відмова або несплата після початку роботи",
-          fix: "Бюджет захищено до початку роботи, тож після схвалення завдання оплата буде готова.",
+          fix: "Критерії погоджують до початку роботи, тож заздалегідь зрозуміло, за чим приймуть роботу.",
         },
         {
           who: "КЛІЄНТИ",
@@ -936,13 +931,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     flow: {
       eyebrow: "ПРОЦЕС",
-      title: "Від чіткого бюджету до перевіреної виплати",
+      title: "Від чітких критеріїв до перевіреного результату",
       steps: [
         { title: "Визначити бюджет", body: "Обрати бюджет і частки виплати" },
         { title: "Перевірити", body: "Тестування навичок на час" },
         { title: "Призначити", body: "Виконавця та рецензентів" },
         { title: "Підтвердити", body: "Незалежна перевірка" },
-        { title: "Виплатити", body: "Підтвердити оплату після перевірки" },
+        { title: "Оплатити", body: "Оплата з картки після перевірки" },
       ],
       note: "Той самий тест на час відбирає виконавця й рецензентів. Якщо хтось відмовиться, повторно заповнюється лише його місце.",
     },
@@ -954,7 +949,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       benefits: [
         "Опиши завдання та вкажи бюджет",
         "Перевір підтверджені навички перед вибором",
-        "Підтвердь роботу до того, як буде здійснено оплату",
+        "Плати лише після того, як робота пройде перевірку",
       ],
       cta: "Знайти фахівця для завдання",
       note: "Конкретна робота без тривалого процесу найму.",
@@ -981,7 +976,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       qa: "Тестування",
       design: "Дизайн",
       clear: "Очистити",
-      securedBudget: "Захищений бюджет",
+      securedBudget: "Бюджет задачі",
       minimumBudget: "Мінімальний бюджет",
       maximumBudget: "Максимальний бюджет",
       slots: "Ролі",
@@ -996,7 +991,6 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       highestBudget: "Найбільший бюджет",
       lookingToQualify: "зацікавлених",
       reviewCount: "перевірки",
-      securedPayment: "Оплату захищено",
       fixed: "Фіксована ціна",
       enterBoard: "Переглянути завдання",
       noMatches: "За цими фільтрами немає прикладів завдань.",
@@ -1006,12 +1000,12 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
     },
     footer: {
       description:
-        "Перевірена робота без зайвого найму - чіткі бюджети, кваліфіковані фахівці й незалежна перевірка.",
+        "Короткі задачі, фахівці з тестом навичок і перевірка за критеріями, погодженими наперед.",
       app: "Застосунок",
       post: "Створити завдання",
       clients: "Для клієнтів",
       flow: "Як це працює",
-      tagline: "Короткі завдання. Перевірені фахівці. Захищені виплати.",
+      tagline: "Короткі задачі. Фахівці з тестом навичок. Оплата за погодженими критеріями.",
     },
     taskTitles: [
       "Перевірити права доступу до API",
@@ -1061,7 +1055,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Hire", " fast. Get it done."],
-        subtitle: "Deadline close? Get a verified specialist for 1-2 tasks, fast.",
+        subtitle: "Deadline close? Get a skill-tested specialist for 1-2 tasks, fast.",
         placeholder: "What do you need done?",
         inputLabel: "Describe your task",
         cta: "Post a task",
@@ -1069,7 +1063,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
       },
       work: {
         headline: ["", "Work", " smart. Earn faster."],
-        subtitle: "Take short paid tasks that match your verified skills.",
+        subtitle: "Take short paid tasks that match your tested skills.",
         placeholder: "What can you do? React, Node.js, QA…",
         inputLabel: "Your skills",
         cta: "Find work",
@@ -1085,7 +1079,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Contrata", " ya. Hecho hoy."],
-        subtitle: "¿Plazo encima? Un especialista verificado para 1-2 tareas, rápido.",
+        subtitle: "¿Plazo encima? Un especialista con habilidades evaluadas para 1-2 tareas, rápido.",
         placeholder: "¿Qué necesitas resolver?",
         inputLabel: "Describe tu tarea",
         cta: "Publicar tarea",
@@ -1093,7 +1087,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
       },
       work: {
         headline: ["", "Trabaja", " mejor. Cobra ya."],
-        subtitle: "Toma tareas cortas y pagadas según tus habilidades verificadas.",
+        subtitle: "Toma tareas cortas y pagadas según tus habilidades evaluadas.",
         placeholder: "¿Qué sabes hacer? React, Node.js, QA…",
         inputLabel: "Tus habilidades",
         cta: "Buscar trabajo",
@@ -1109,7 +1103,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Zlecaj", " szybko. Gotowe."],
-        subtitle: "Termin goni? Zweryfikowany specjalista do 1-2 zadań, szybko.",
+        subtitle: "Termin goni? Specjalista po teście umiejętności do 1-2 zadań, szybko.",
         placeholder: "Co trzeba zrobić?",
         inputLabel: "Opisz zadanie",
         cta: "Opublikuj zadanie",
@@ -1133,7 +1127,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Beauftragen.", " Erledigt."],
-        subtitle: "Deadline naht? Ein verifizierter Profi für 1-2 Aufgaben, schnell.",
+        subtitle: "Deadline naht? Ein Profi mit bestandenem Skill-Test für 1-2 Aufgaben, schnell.",
         placeholder: "Was soll erledigt werden?",
         inputLabel: "Beschreibe deine Aufgabe",
         cta: "Aufgabe posten",
@@ -1157,7 +1151,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
     modes: {
       hire: {
         headline: ["", "Наймай", " швидко. Готово."],
-        subtitle: "Горить дедлайн? Перевірений фахівець для 1-2 задач, швидко.",
+        subtitle: "Горить дедлайн? Фахівець із перевіреними навичками для 1-2 задач, швидко.",
         placeholder: "Що потрібно зробити?",
         inputLabel: "Опишіть задачу",
         cta: "Опублікувати задачу",
@@ -1165,7 +1159,7 @@ export const HERO_COPY: Record<LandingLanguage, HeroCopy> = {
       },
       work: {
         headline: ["", "Працюй", " розумно. Заробляй."],
-        subtitle: "Беріть короткі оплачувані задачі під свої перевірені навички.",
+        subtitle: "Беріть короткі оплачувані задачі під навички, підтверджені тестом.",
         placeholder: "Що ви вмієте? React, Node.js, QA…",
         inputLabel: "Ваші навички",
         cta: "Знайти роботу",

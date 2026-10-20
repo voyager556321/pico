@@ -4676,3 +4676,18 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 .pico-landing .pk-stat-band .pk-stat { max-width: 760px; margin: 0 auto; padding: 14px 22px; border: 1px solid var(--pk-line); border-radius: 20px; background: #fff; text-align: center; }
 .pico-landing .pk-stat-why { margin: clamp(14px, 2.4vh, 22px) 0 clamp(18px, 3vh, 28px); }
 .pico-landing .pk-stat-final { margin: 0 0 clamp(16px, 3vh, 24px); }
+
+/* Pay block: Stripe card reassurance */
+.pico-landing .pk-pay-note { margin: clamp(18px, 3vh, 28px) 0 0; color: inherit; opacity: .68; font-size: 13px; line-height: 1.5; text-align: center; }
+
+/* Privacy policy page */
+.pico-landing .pk-form-privacy a { color: var(--pk-green); text-decoration: underline; }
+.pico-landing.pk-legal { min-height: 100vh; padding: clamp(32px, 6vh, 64px) 0 80px; }
+.pk-legal .pk-legal-doc { max-width: 760px; margin: 0 auto; line-height: 1.6; color: var(--pk-ink-soft); font-size: 16px; }
+.pk-legal .pk-legal-back { display: inline-block; margin-bottom: 32px; color: var(--pk-green); font-weight: 600; font-size: 20px; }
+.pk-legal h1 { margin: 0 0 8px; color: var(--pk-ink); font-size: clamp(32px, 5vw, 44px); line-height: 1.1; }
+.pk-legal h2 { margin: 32px 0 8px; color: var(--pk-ink); font-size: 20px; }
+.pk-legal p, .pk-legal ul { margin: 0 0 12px; }
+.pk-legal ul { padding-left: 20px; list-style: disc; }
+.pk-legal a { color: var(--pk-green); text-decoration: underline; }
+.pk-legal .pk-legal-updated { color: var(--pk-muted); font-size: 14px; }
