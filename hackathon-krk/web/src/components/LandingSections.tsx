@@ -227,7 +227,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
           observer.unobserve(entry.target);
         }
       }
-    }, { threshold: 0.3 });
+    }, { threshold: 0, rootMargin: "0px 0px -40% 0px" }); /* fires once a section reaches the upper 60% of the screen, even if it is taller than the screen */
     ids.forEach((id) => { const el = document.getElementById(id); if (el) observer.observe(el); });
     return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
