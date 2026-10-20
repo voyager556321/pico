@@ -524,14 +524,15 @@ export type ExtraCopy = {
   helpCenter: string;
   rights: string;
   contact: string;
+  privacy: string;
 };
 
 export const EXTRA_COPY: Record<LandingLanguage, ExtraCopy> = {
-  en: { helpTitle: "Still have a question?", helpCta: "Open help center", product: "Product", account: "Account", company: "Pico", balance: "Balance", activity: "Activity", settings: "Settings", about: "About", helpCenter: "Help center", rights: "All rights reserved.", contact: "Contact" },
-  es: { helpTitle: "¿Te queda alguna duda?", helpCta: "Abrir centro de ayuda", product: "Producto", account: "Cuenta", company: "Pico", balance: "Saldo", activity: "Actividad", settings: "Ajustes", about: "Acerca de", helpCenter: "Centro de ayuda", rights: "Todos los derechos reservados.", contact: "Contacto" },
-  pl: { helpTitle: "Masz jeszcze pytanie?", helpCta: "Otwórz centrum pomocy", product: "Produkt", account: "Konto", company: "Pico", balance: "Saldo", activity: "Aktywność", settings: "Ustawienia", about: "O nas", helpCenter: "Centrum pomocy", rights: "Wszelkie prawa zastrzeżone.", contact: "Kontakt" },
-  de: { helpTitle: "Noch Fragen?", helpCta: "Hilfe-Center öffnen", product: "Produkt", account: "Konto", company: "Pico", balance: "Guthaben", activity: "Aktivität", settings: "Einstellungen", about: "Über uns", helpCenter: "Hilfe-Center", rights: "Alle Rechte vorbehalten.", contact: "Kontakt" },
-  uk: { helpTitle: "Залишилися питання?", helpCta: "Відкрити центр допомоги", product: "Продукт", account: "Акаунт", company: "Pico", balance: "Баланс", activity: "Активність", settings: "Налаштування", about: "Про нас", helpCenter: "Центр допомоги", rights: "Усі права захищено.", contact: "Контакти" },
+  en: { helpTitle: "Still have a question?", helpCta: "Open help center", product: "Product", account: "Account", company: "Pico", balance: "Balance", activity: "Activity", settings: "Settings", about: "About", helpCenter: "Help center", rights: "All rights reserved.", contact: "Contact", privacy: "Privacy Policy" },
+  es: { helpTitle: "¿Te queda alguna duda?", helpCta: "Abrir centro de ayuda", product: "Producto", account: "Cuenta", company: "Pico", balance: "Saldo", activity: "Actividad", settings: "Ajustes", about: "Acerca de", helpCenter: "Centro de ayuda", rights: "Todos los derechos reservados.", contact: "Contacto", privacy: "Política de privacidad" },
+  pl: { helpTitle: "Masz jeszcze pytanie?", helpCta: "Otwórz centrum pomocy", product: "Produkt", account: "Konto", company: "Pico", balance: "Saldo", activity: "Aktywność", settings: "Ustawienia", about: "O nas", helpCenter: "Centrum pomocy", rights: "Wszelkie prawa zastrzeżone.", contact: "Kontakt", privacy: "Polityka prywatności" },
+  de: { helpTitle: "Noch Fragen?", helpCta: "Hilfe-Center öffnen", product: "Produkt", account: "Konto", company: "Pico", balance: "Guthaben", activity: "Aktivität", settings: "Einstellungen", about: "Über uns", helpCenter: "Hilfe-Center", rights: "Alle Rechte vorbehalten.", contact: "Kontakt", privacy: "Datenschutz" },
+  uk: { helpTitle: "Залишилися питання?", helpCta: "Відкрити центр допомоги", product: "Продукт", account: "Акаунт", company: "Pico", balance: "Баланс", activity: "Активність", settings: "Налаштування", about: "Про нас", helpCenter: "Центр допомоги", rights: "Усі права захищено.", contact: "Контакти", privacy: "Політика конфіденційності" },
 };
 
 /* ------------------------------------------------------------------

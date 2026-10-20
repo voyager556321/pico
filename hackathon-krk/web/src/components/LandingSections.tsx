@@ -523,6 +523,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               <div>
                 <p>{x.contact}</p>
                 <a href="mailto:team.hirepico@outlook.com">team.hirepico@outlook.com</a>
+                <a href="/privacy">{x.privacy}</a>
               </div>
             </nav>
           </div>
@@ -547,6 +548,7 @@ type FormStatus = "idle" | "submitting" | "success" | "duplicate" | "error";
 
 function WaitlistForm({ language }: { language: LandingLanguage }) {
   const w = WAITLIST_COPY[language];
+  const x = EXTRA_COPY[language];
   const [role, setRole] = useState<WaitlistRole>("client");
   const [email, setEmail] = useState("");
   const [interest, setInterest] = useState("");
@@ -668,7 +670,7 @@ function WaitlistForm({ language }: { language: LandingLanguage }) {
         {submitting ? w.submitting : w.submit}
         {submitting ? null : <ArrowIcon />}
       </button>
-      <p className="pk-form-privacy">{w.consentNote}</p>
+      <p className="pk-form-privacy">{w.consentNote} <a href="/privacy" target="_blank" rel="noopener">{x.privacy}</a></p>
     </form>
     </>
   );
