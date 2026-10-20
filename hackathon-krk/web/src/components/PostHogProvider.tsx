@@ -10,7 +10,8 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
     if (!token || posthog.__loaded) return;
     posthog.init(token, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://eu.i.posthog.com",
+      api_host: "/ingest",
+      ui_host: "https://eu.posthog.com",
       cookieless_mode: "always",
       person_profiles: "identified_only",
       disable_session_recording: true,
