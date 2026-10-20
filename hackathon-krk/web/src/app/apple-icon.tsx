@@ -7,7 +7,7 @@ export default function AppleIcon() {
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#1f3f24", color: "#fff", fontSize: 120, fontWeight: 800, fontFamily: "sans-serif" }}>
-        P
+        T
       </div>
     ),
     size,

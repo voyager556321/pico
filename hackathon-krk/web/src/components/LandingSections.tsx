@@ -370,7 +370,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         </div>
       </section>
 
-      {/* ============ 04 · Why Pico ============ */}
+      {/* ============ 04 · Why Task.quo ============ */}
       <section id="clients" className="pk-section pk-why" aria-labelledby="pk-why-title">
         <div className="pk-wrap">
           <div className="pk-head">
@@ -540,7 +540,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         <div className="pk-wrap">
           <div className="pk-footer-top">
             <div className="pk-footer-brand">
-              <a href="#" className="pk-footer-logo" aria-label="Pico">pico</a>
+              <a href="#" className="pk-footer-logo" aria-label="Task.quo">Task.quo</a>
               <p>{copy.footer.description}</p>
                           </div>
             <nav className="pk-footer-cols" aria-label="Footer">
@@ -563,7 +563,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
             </nav>
           </div>
           <div className="pk-footer-bottom">
-            <span>© {new Date().getFullYear()} Pico. {x.rights}</span>
+            <span>© {new Date().getFullYear()} Task.quo. {x.rights}</span>
             <span>{copy.footer.tagline}</span>
           </div>
         </div>
@@ -813,7 +813,7 @@ export function WaitlistModal({
 /* ------------------------------------------------------------------
    Security visual: a small product fragment instead of an icon -
    the access card a client would see for a task. It lists only what
-   Pico does today: terms accepted, skill test passed, test data only.
+   Task.quo does today: terms accepted, skill test passed, test data only.
    ------------------------------------------------------------------ */
 function AccessCard({ card }: { card: { title: string; active: string; nda: string; id: string; env: string } }) {
   const rows = [card.nda, card.id, card.env];

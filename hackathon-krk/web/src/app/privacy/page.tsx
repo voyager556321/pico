@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy – Pico",
-  description: "How Pico handles the data you share when joining the waitlist.",
+  title: "Privacy Policy – Task.quo",
+  description: "How Task.quo handles the data you share when joining the waitlist.",
 };
 
 const EMAIL = "team.hirepico@outlook.com";
@@ -12,12 +12,12 @@ export default function PrivacyPage() {
     <div className="pico-landing pk-legal">
       <main className="pk-wrap">
         <article className="pk-legal-doc">
-          <a href="/" className="pk-legal-back">pico</a>
+          <a href="/" className="pk-legal-back">Task.quo</a>
           <h1>Privacy Policy</h1>
           <p className="pk-legal-updated">Last updated: October 20, 2026</p>
 
           <p>
-            Pico is a pre-launch marketplace for short freelance tasks, run by the Pico team. This page explains
+            Task.quo is a pre-launch marketplace for short freelance tasks, run by the Task.quo team. This page explains
             what data we collect when you join our waitlist, why, and what you can do about it.
           </p>
 
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
 
           <h2>Why we use it</h2>
           <p>
-            Only to email you about Pico&apos;s launch. You can unsubscribe at any time. We do not sell your data or
+            Only to email you about Task.quo&apos;s launch. You can unsubscribe at any time. We do not sell your data or
             share it for marketing.
           </p>
 

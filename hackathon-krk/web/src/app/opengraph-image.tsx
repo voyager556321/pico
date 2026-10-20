@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "Pico — Hire fast. Get it done. Skill-tested specialists for 1–2 tasks. Tasks from $40, pay only after review.";
+  "Task.quo — Hire fast. Get it done. Skill-tested specialists for 1–2 tasks. Tasks from $40, pay only after review.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -40,7 +40,7 @@ export default function Image() {
           >
             P
           </div>
-          <div style={{ fontSize: 44, fontWeight: 800, color: GREEN }}>Pico</div>
+          <div style={{ fontSize: 44, fontWeight: 800, color: GREEN }}>Task.quo</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ display: "flex", fontSize: 96, fontWeight: 800, color: "#111", letterSpacing: -3, lineHeight: 1.05 }}>

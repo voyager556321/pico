@@ -150,13 +150,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "A faster lane for expert work",
       headline: ["Great work,", "without the", "long wait."],
       description:
-        "When a deadline is close, post the one or two tasks holding up your project. Pico helps you find a qualified specialist quickly, with work reviewed against agreed criteria before your card is charged.",
+        "When a deadline is close, post the one or two tasks holding up your project. Task.quo helps you find a qualified specialist quickly, with work reviewed against agreed criteria before your card is charged.",
       postTask: "Post a task",
       exploreWork: "Explore open work",
       proof: ["Criteria agreed up front", "Skills proven up front", "Independent review"],
     },
     preview: {
-      kicker: "HOW PICO WORKS",
+      kicker: "HOW TASK.QUO WORKS",
       headline: ["Small task.", "Serious follow-through."],
       caption:
         "A clear brief, a skill-tested specialist, and a card charge only after the work passes review.",
@@ -180,11 +180,11 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       execution: "Execution",
     },
     problem: {
-      eyebrow: "WHY PICO",
+      eyebrow: "WHY TASK.QUO",
       title: "Built for the work that gets stuck in the hiring process",
       description:
         "For focused projects that need the right specialist now, without turning a few hours of work into a week of searching.",
-      pico: "Pico:",
+      pico: "Task.quo:",
       cards: [
         {
           who: "CLIENTS",
@@ -229,7 +229,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "WHEN THE DEADLINE IS CLOSING IN",
       title: "Don’t let one stuck task hold the whole project back.",
       description:
-        "Bring the one or two things blocking progress to Pico. Find a qualified specialist for focused work-without the long hiring cycle.",
+        "Bring the one or two things blocking progress to Task.quo. Find a qualified specialist for focused work-without the long hiring cycle.",
       benefits: [
         "Post a clear task with your budget",
         "Review demonstrated skills before choosing",
@@ -329,13 +329,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "Una vía más rápida para el trabajo especializado",
       headline: ["Buen trabajo,", "sin tanta", "espera."],
       description:
-        "Cuando se acerca la fecha límite, publica las una o dos tareas que están frenando tu proyecto. Pico te ayuda a encontrar rápidamente a un especialista cualificado; la tarjeta se cobra solo después de revisar el trabajo.",
+        "Cuando se acerca la fecha límite, publica las una o dos tareas que están frenando tu proyecto. Task.quo te ayuda a encontrar rápidamente a un especialista cualificado; la tarjeta se cobra solo después de revisar el trabajo.",
       postTask: "Publicar una tarea",
       exploreWork: "Ver tareas disponibles",
       proof: ["Criterios acordados desde el inicio", "Habilidades demostradas", "Revisión independiente"],
     },
     preview: {
-      kicker: "CÓMO FUNCIONA PICO",
+      kicker: "CÓMO FUNCIONA TASK.QUO",
       headline: ["Una tarea breve.", "Un resultado serio."],
       caption:
         "Un encargo claro, un especialista evaluado y un cobro con tarjeta solo cuando el trabajo supera la revisión.",
@@ -359,11 +359,11 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       execution: "Ejecución",
     },
     problem: {
-      eyebrow: "POR QUÉ PICO",
+      eyebrow: "POR QUÉ TASK.QUO",
       title: "Para el trabajo que se atasca en el proceso de contratación",
       description:
         "Para proyectos concretos que necesitan al especialista adecuado ahora, sin convertir unas horas de trabajo en una semana de búsqueda.",
-      pico: "Pico:",
+      pico: "Task.quo:",
       cards: [
         {
           who: "CLIENTES",
@@ -408,7 +408,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "SI SE ACERCA LA FECHA LÍMITE",
       title: "Que una tarea atascada no frene todo el proyecto.",
       description:
-        "Trae a Pico una o dos tareas que bloquean el avance. Encuentra a un especialista cualificado para un trabajo concreto, sin un largo proceso de selección.",
+        "Trae a Task.quo una o dos tareas que bloquean el avance. Encuentra a un especialista cualificado para un trabajo concreto, sin un largo proceso de selección.",
       benefits: [
         "Publica una tarea clara con su presupuesto",
         "Revisa las habilidades demostradas antes de elegir",
@@ -508,13 +508,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "Szybsza droga do specjalistycznej pracy",
       headline: ["Świetna praca,", "bez długiego", "czekania."],
       description:
-        "Gdy zbliża się termin, dodaj jedno lub dwa zadania, które blokują projekt. Pico pomaga szybko znaleźć sprawdzonego specjalistę; karta jest obciążana dopiero po sprawdzeniu pracy.",
+        "Gdy zbliża się termin, dodaj jedno lub dwa zadania, które blokują projekt. Task.quo pomaga szybko znaleźć sprawdzonego specjalistę; karta jest obciążana dopiero po sprawdzeniu pracy.",
       postTask: "Dodaj zadanie",
       exploreWork: "Przeglądaj zadania",
       proof: ["Kryteria uzgodnione z góry", "Umiejętności sprawdzone przed startem", "Niezależna weryfikacja"],
     },
     preview: {
-      kicker: "JAK DZIAŁA PICO",
+      kicker: "JAK DZIAŁA TASK.QUO",
       headline: ["Krótkie zadanie.", "Rzetelna realizacja."],
       caption:
         "Jasny zakres, specjalista po teście umiejętności i płatność kartą dopiero po sprawdzeniu pracy.",
@@ -538,11 +538,11 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       execution: "Realizacja",
     },
     problem: {
-      eyebrow: "DLACZEGO PICO",
+      eyebrow: "DLACZEGO TASK.QUO",
       title: "Do zadań, które grzęzną w procesie rekrutacji",
       description:
         "Dla konkretnych projektów, które wymagają właściwego specjalisty od zaraz - bez zamieniania kilku godzin pracy w tydzień poszukiwań.",
-      pico: "Pico:",
+      pico: "Task.quo:",
       cards: [
         {
           who: "KLIENCI",
@@ -587,7 +587,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "GDY ZBLIŻA SIĘ TERMIN",
       title: "Nie pozwól, by jedno zadanie zatrzymało cały projekt.",
       description:
-        "Przekaż Pico jedno lub dwa zadania, które blokują postęp. Znajdź sprawdzonego specjalistę do konkretnej pracy - bez długiej rekrutacji.",
+        "Przekaż Task.quo jedno lub dwa zadania, które blokują postęp. Znajdź sprawdzonego specjalistę do konkretnej pracy - bez długiej rekrutacji.",
       benefits: [
         "Opisz zadanie i podaj budżet",
         "Sprawdź potwierdzone umiejętności przed wyborem",
@@ -687,13 +687,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "Der schnellere Weg zu qualifizierter Arbeit",
       headline: ["Gute Arbeit,", "ohne langes", "Warten."],
       description:
-        "Wenn die Deadline näher rückt, stellen Sie die ein oder zwei Aufgaben ein, die Ihr Projekt aufhalten. Pico hilft Ihnen, schnell eine qualifizierte Fachkraft zu finden. Ihre Karte wird erst belastet, wenn die Arbeit geprüft ist.",
+        "Wenn die Deadline näher rückt, stellen Sie die ein oder zwei Aufgaben ein, die Ihr Projekt aufhalten. Task.quo hilft Ihnen, schnell eine qualifizierte Fachkraft zu finden. Ihre Karte wird erst belastet, wenn die Arbeit geprüft ist.",
       postTask: "Auftrag einstellen",
       exploreWork: "Offene Aufträge ansehen",
       proof: ["Kriterien vorab vereinbart", "Fähigkeiten vorab geprüft", "Unabhängige Prüfung"],
     },
     preview: {
-      kicker: "SO FUNKTIONIERT PICO",
+      kicker: "SO FUNKTIONIERT TASK.QUO",
       headline: ["Kurze Aufgabe.", "Sorgfältig erledigt."],
       caption:
         "Ein klarer Auftrag, eine Fachkraft mit Skill-Test und eine Kartenbelastung erst nach bestandenem Review.",
@@ -717,11 +717,11 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       execution: "Umsetzung",
     },
     problem: {
-      eyebrow: "WARUM PICO",
+      eyebrow: "WARUM TASK.QUO",
       title: "Für Aufgaben, die im Einstellungsprozess stecken bleiben",
       description:
         "Für klar umrissene Projekte, die sofort die passende Fachkraft brauchen - ohne aus wenigen Arbeitsstunden eine Woche Suche zu machen.",
-      pico: "Pico:",
+      pico: "Task.quo:",
       cards: [
         {
           who: "AUFTRAGGEBER",
@@ -766,7 +766,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "WENN DER TERMIN NÄHER RÜCKT",
       title: "Lass nicht zu, dass eine offene Aufgabe das ganze Projekt aufhält.",
       description:
-        "Bring die ein oder zwei Aufgaben zu Pico, die den Fortschritt blockieren. Finde eine qualifizierte Fachkraft für gezielte Arbeit - ohne lange Personalsuche.",
+        "Bring die ein oder zwei Aufgaben zu Task.quo, die den Fortschritt blockieren. Finde eine qualifizierte Fachkraft für gezielte Arbeit - ohne lange Personalsuche.",
       benefits: [
         "Stelle eine klare Aufgabe mit Budget ein",
         "Prüfe nachgewiesene Fähigkeiten vor der Auswahl",
@@ -866,13 +866,13 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       badge: "Швидший шлях до фахової роботи",
       headline: ["Якісна робота,", "без довгого", "очікування."],
       description:
-        "Коли дедлайн наближається, опишіть одне-два завдання, через які стоїть проєкт. Pico допоможе швидко знайти фахівця з перевіреними навичками, а кошти з картки буде списано лише після перевірки роботи.",
+        "Коли дедлайн наближається, опишіть одне-два завдання, через які стоїть проєкт. Task.quo допоможе швидко знайти фахівця з перевіреними навичками, а кошти з картки буде списано лише після перевірки роботи.",
       postTask: "Створити завдання",
       exploreWork: "Переглянути завдання",
       proof: ["Критерії погоджено наперед", "Навички перевірено заздалегідь", "Незалежна перевірка"],
     },
     preview: {
-      kicker: "ЯК ПРАЦЮЄ PICO",
+      kicker: "ЯК ПРАЦЮЄ TASK.QUO",
       headline: ["Коротке завдання.", "Результат із перевіркою."],
       caption:
         "Чіткий опис, фахівець із перевіреними навичками й оплата з картки лише після перевірки результату.",
@@ -896,11 +896,11 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       execution: "Виконавець",
     },
     problem: {
-      eyebrow: "ЧОМУ PICO",
+      eyebrow: "ЧОМУ TASK.QUO",
       title: "Для завдань, що застрягають у процесі найму",
       description:
         "Для чітких проєктів, яким потрібен відповідний фахівець уже зараз - без тижня пошуків заради кількох годин роботи.",
-      pico: "Pico:",
+      pico: "Task.quo:",
       cards: [
         {
           who: "КЛІЄНТИ",
@@ -945,7 +945,7 @@ export const LANDING_COPY: Record<LandingLanguage, LandingCopy> = {
       eyebrow: "КОЛИ ДЕДЛАЙН НАБЛИЖАЄТЬСЯ",
       title: "Не дозволь одному завданню загальмувати весь проєкт.",
       description:
-        "Передай Pico одне чи два завдання, що блокують роботу. Знайди кваліфікованого фахівця для конкретної задачі - без тривалого найму.",
+        "Передай Task.quo одне чи два завдання, що блокують роботу. Знайди кваліфікованого фахівця для конкретної задачі - без тривалого найму.",
       benefits: [
         "Опиши завдання та вкажи бюджет",
         "Перевір підтверджені навички перед вибором",
