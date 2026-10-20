@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "How Task.quo handles the data you share when joining the waitlist.",
 };
 
-const EMAIL = "team.hirepico@outlook.com";
+const EMAIL = "taskquoteam@gmail.com";
 
 export default function PrivacyPage() {
   return (

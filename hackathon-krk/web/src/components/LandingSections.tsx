@@ -557,7 +557,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               </div>
               <div>
                 <p>{x.contact}</p>
-                <a href="mailto:team.hirepico@outlook.com">team.hirepico@outlook.com</a>
+                <a href="mailto:taskquoteam@gmail.com">taskquoteam@gmail.com</a>
                 <a href="/privacy">{x.privacy}</a>
               </div>
             </nav>
