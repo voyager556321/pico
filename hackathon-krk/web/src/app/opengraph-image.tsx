@@ -38,7 +38,7 @@ export default function Image() {
               fontWeight: 800,
             }}
           >
-            P
+            T
           </div>
           <div style={{ fontSize: 44, fontWeight: 800, color: GREEN }}>Task.quo</div>
         </div>
