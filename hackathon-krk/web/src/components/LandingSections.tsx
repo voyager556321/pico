@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { HERO_COPY, LANDING_COPY, type LandingLanguage } from "@/components/landingTranslations";
+import { track } from "@/lib/analytics";
 import { EXTRA_COPY, SECTIONS_COPY, WAITLIST_COPY, type Stat } from "@/components/landingSectionsCopy";
 
 /* ------------------------------------------------------------------
@@ -148,15 +149,26 @@ export async function postWaitlist(data: {
   language: LandingLanguage;
   source: "hero" | "waitlist";
 }): Promise<WaitlistResult> {
+  const props = { role: data.role === "client" ? "client" : "specialist", language: data.language, source: data.source };
+  track("waitlist_submitted", props);
   try {
     const response = await fetch("/api/waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...data, consent: true }),
     });
-    if (response.status === 409) return "duplicate";
-    return response.ok ? "success" : "error";
+    if (response.status === 409) {
+      track("waitlist_duplicate", props);
+      return "duplicate";
+    }
+    if (response.ok) {
+      track("waitlist_success", props);
+      return "success";
+    }
+    track("waitlist_error", { ...props, status: response.status });
+    return "error";
   } catch {
+    track("waitlist_error", { ...props, status: 0 });
     return "error";
   }
 }
@@ -201,6 +213,26 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
   const whyOld = whyAud === "client" ? s.why.old : w.whyOldW;
   const whyPico = whyAud === "client" ? s.why.pico : w.whyPicoW;
 
+  /* analytics: section_viewed once per key section */
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const ids = ["flow", "clients", "security", "faq", "waitlist"];
+    const seen = new Set<string>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const id = entry.target.id;
+        if (entry.isIntersecting && !seen.has(id)) {
+          seen.add(id);
+          track("section_viewed", { section: id === "flow" ? "how_it_works" : id, language });
+          observer.unobserve(entry.target);
+        }
+      }
+    }, { threshold: 0, rootMargin: "0px 0px -40% 0px" }); /* fires once a section reaches the upper 60% of the screen, even if it is taller than the screen */
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="pk">
       <div className="pk-wrap pk-stat-band"><StatLine stat={s.stats.hire} /></div>
@@ -214,7 +246,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
 
           <div className="pk-toolbar">
             <p className="pk-toolbar-label">{s.explore.example}<b>{EXAMPLE_TASKS.length}</b></p>
-            <a href="#waitlist" className="pk-link">{w.tasksCta}<ArrowIcon /></a>
+            <a href="#waitlist" onClick={() => track("cta_clicked", { location: "tasks", language })} className="pk-link">{w.tasksCta}<ArrowIcon /></a>
           </div>
 
           <ul className="pk-tasks">
@@ -338,7 +370,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         </div>
       </section>
 
-      {/* ============ 04 · Why Pico ============ */}
+      {/* ============ 04 · Why Task.quo ============ */}
       <section id="clients" className="pk-section pk-why" aria-labelledby="pk-why-title">
         <div className="pk-wrap">
           <div className="pk-head">
@@ -448,7 +480,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
             <div className="pk-help">
               <p className="pk-help-title">{w.readyTitle}</p>
               <p className="pk-help-sub">{w.readySub}</p>
-              <a href="#waitlist" className="pk-help-link">{w.heroCta}<ArrowIcon /></a>
+              <a href="#waitlist" onClick={() => track("cta_clicked", { location: "faq", language })} className="pk-help-link">{w.heroCta}<ArrowIcon /></a>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="pk-help-arrow" src="/landing/hero-arrow.webp" alt="" aria-hidden width={920} height={714} loading="lazy" />
             </div>
@@ -462,7 +494,10 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
                     type="button"
                     aria-expanded={open}
                     aria-controls={`pk-faq-${index}`}
-                    onClick={() => setOpenFaq(open ? -1 : index)}
+                    onClick={() => {
+                      if (!open) track("faq_opened", { index: index + 1, language });
+                      setOpenFaq(open ? -1 : index);
+                    }}
                   >
                     <span className="pk-faq-n">{String(index + 1).padStart(2, "0")}</span>
                     <span className="pk-faq-q">{item.q}</span>
@@ -505,9 +540,9 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         <div className="pk-wrap">
           <div className="pk-footer-top">
             <div className="pk-footer-brand">
-              <a href="#" className="pk-footer-logo" aria-label="Taskquo">
+              <a href="#" className="pk-footer-logo" aria-label="Task.quo">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/brand/taskquo-lockup-color-on-dark.svg" alt="Taskquo" width={154} height={40} />
+                <img src="/brand/taskquo-lockup-color-on-dark.svg" alt="Task.quo" width={154} height={40} />
               </a>
               <p>{copy.footer.description}</p>
                           </div>
@@ -521,7 +556,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               </div>
               <div>
                 <p>{w.footerEarly}</p>
-                <a href="#waitlist">{w.navJoin}</a>
+                <a href="#waitlist" onClick={() => track("cta_clicked", { location: "footer", language })}>{w.navJoin}</a>
               </div>
               <div>
                 <p>{x.contact}</p>
@@ -531,7 +566,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
             </nav>
           </div>
           <div className="pk-footer-bottom">
-            <span>© {new Date().getFullYear()} Pico. {x.rights}</span>
+            <span>© {new Date().getFullYear()} Task.quo. {x.rights}</span>
             <span>{copy.footer.tagline}</span>
           </div>
         </div>
@@ -606,7 +641,10 @@ function WaitlistForm({ language }: { language: LandingLanguage }) {
               type="button"
               aria-pressed={role === item}
               className={role === item ? "is-active" : undefined}
-              onClick={() => setRole(item)}
+              onClick={() => {
+                if (item !== role) track("waitlist_role_selected", { role: item === "client" ? "client" : "specialist", location: "waitlist_form", language });
+                setRole(item);
+              }}
             >
               {item === "client" ? w.hire : w.work}
             </button>
@@ -778,7 +816,7 @@ export function WaitlistModal({
 /* ------------------------------------------------------------------
    Security visual: a small product fragment instead of an icon -
    the access card a client would see for a task. It lists only what
-   Pico does today: terms accepted, skill test passed, test data only.
+   Task.quo does today: terms accepted, skill test passed, test data only.
    ------------------------------------------------------------------ */
 function AccessCard({ card }: { card: { title: string; active: string; nda: string; id: string; env: string } }) {
   const rows = [card.nda, card.id, card.env];

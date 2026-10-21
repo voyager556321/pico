@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { PostHogProvider } from "@/components/PostHogProvider";
 import "./globals.css";
 
-const SITE_URL = "https://hirepico.vercel.app";
-const SITE_TITLE = "Pico — Hire fast. Get it done.";
+const SITE_URL = "https://taskquo.vercel.app";
+const SITE_TITLE = "Task.quo — Hire fast. Get it done.";
 const SITE_DESCRIPTION =
   "Deadline close? Get a skill-tested specialist for 1–2 tasks. Work is checked against 3–5 criteria agreed upfront, and you pay only for work that passes review. Tasks from $40.";
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
-    siteName: "Pico",
+    siteName: "Task.quo",
     type: "website",
     locale: "en_US",
   },
@@ -46,7 +47,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
+        <PostHogProvider>{children}</PostHogProvider>
         <Analytics />
       </body>
     </html>

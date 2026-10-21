@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "Taskquo — Hire fast. Get it done. Skill-tested specialists for 1–2 tasks. Tasks from $40, pay only after review.";
+  "Task.quo — Hire fast. Get it done. Skill-tested specialists for 1–2 tasks. Tasks from $40, pay only after review.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
