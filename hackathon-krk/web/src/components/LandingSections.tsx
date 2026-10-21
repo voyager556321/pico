@@ -505,7 +505,10 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
         <div className="pk-wrap">
           <div className="pk-footer-top">
             <div className="pk-footer-brand">
-              <a href="#" className="pk-footer-logo" aria-label="Pico">pico</a>
+              <a href="#" className="pk-footer-logo" aria-label="Taskquo">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand/taskquo-lockup-color-on-dark.svg" alt="Taskquo" width={154} height={40} />
+              </a>
               <p>{copy.footer.description}</p>
                           </div>
             <nav className="pk-footer-cols" aria-label="Footer">
@@ -522,7 +525,7 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               </div>
               <div>
                 <p>{x.contact}</p>
-                <a href="mailto:team.hirepico@outlook.com">team.hirepico@outlook.com</a>
+                <a href="mailto:taskquoteam@gmail.com">taskquoteam@gmail.com</a>
                 <a href="/privacy">{x.privacy}</a>
               </div>
             </nav>

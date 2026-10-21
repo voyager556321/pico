@@ -3660,12 +3660,10 @@ button {
 }
 .pico-landing .ph-logo {
   justify-self: start;
-  font-size: clamp(26px, 3.6vh, 32px);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.05em;
-  color: var(--ph-ink);
+  display: inline-flex;
+  align-items: center;
 }
+.pico-landing .ph-logo img { display: block; width: auto; height: clamp(28px, 4vh, 34px); }
 .pico-landing .ph-nav {
   display: flex;
   align-items: center;
@@ -4530,7 +4528,8 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 /* ---------- footer ---------- */
 .pico-landing .pk-footer { position: relative; overflow: hidden; background: var(--pk-night); color: #fff; }
 .pico-landing .pk-footer-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: clamp(32px, 6vw, 96px); padding: clamp(56px, 10vh, 96px) 0 clamp(40px, 7vh, 64px); }
-.pico-landing .pk-footer-logo { font-size: 40px; font-weight: 700; line-height: 1; letter-spacing: -0.05em; color: #fff; }
+.pico-landing .pk-footer-logo { display: inline-flex; }
+.pico-landing .pk-footer-logo img { display: block; width: auto; height: 40px; }
 .pico-landing .pk-footer-brand p { max-width: 380px; margin: 18px 0 0; color: #a9bba5; font-size: 15px; line-height: 1.55; }
 .pico-landing .pk-footer-network { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; padding: 8px 14px; border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; color: #d9e6d5; font-size: 13px; }
 .pico-landing .pk-footer-network i { width: 7px; height: 7px; border-radius: 99px; background: #9fd88f; box-shadow: 0 0 0 4px rgba(159, 216, 143, .16); }

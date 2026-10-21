@@ -152,7 +152,10 @@ export function LandingPage() {
       <section className="ph-hero" aria-labelledby="ph-title">
         <header className="ph-header">
           <div className="ph-header-row">
-            <Link href="/" className="ph-logo" aria-label="Pico">pico</Link>
+            <Link href="/" className="ph-logo" aria-label="Taskquo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/taskquo-lockup-color.svg" alt="Taskquo" width={123} height={32} />
+            </Link>
 
             <nav className="ph-nav" aria-label="Main">
               <a href="#flow">{copy.nav.how}</a>
