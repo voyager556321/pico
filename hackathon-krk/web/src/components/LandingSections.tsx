@@ -116,10 +116,10 @@ function StageIcon({ stage }: { stage: number }) {
 /* Example tasks. Titles come from the translated copy; budgets are
    illustrative and labelled as examples on the page. */
 const EXAMPLE_TASKS = [
+  { titleIndex: 4, lane: "video", budget: 100, skills: ["Premiere Pro", "Captions", "Motion graphics"] },
+  { titleIndex: 3, lane: "design", budget: 80, skills: ["Figma", "Branding"] },
   { titleIndex: 1, lane: "debugging", budget: 180, skills: ["React", "Auth", "Next.js"] },
   { titleIndex: 0, lane: "codeReview", budget: 140, skills: ["Node.js", "Security"] },
-  { titleIndex: 2, lane: "qa", budget: 90, skills: ["Mobile", "Playwright"] },
-  { titleIndex: 3, lane: "design", budget: 120, skills: ["Figma", "UI"] },
 ] as const;
 
 
@@ -260,7 +260,6 @@ export function LandingSections({ language }: { language: LandingLanguage }) {
               >
                 <div className="pk-task-top">
                   <span className="pk-chip">{laneLabel(task.lane)}</span>
-                  {task.lane === "design" ? <span className="pk-soon">{w.soonTag}</span> : null}
                 </div>
                 <div className="pk-task-body">
                   <h3>{copy.taskTitles[task.titleIndex]}</h3>

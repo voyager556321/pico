@@ -6,7 +6,7 @@ import "./globals.css";
 const SITE_URL = "https://taskquo.vercel.app";
 const SITE_TITLE = "Task.quo — Hire fast. Get it done.";
 const SITE_DESCRIPTION =
-  "Deadline close? Get a skill-tested specialist for 1–2 tasks. Work is checked against 3–5 criteria agreed upfront, and you pay only for work that passes review. Tasks from $40.";
+  "Short tasks done by skill-tested specialists: a video edit, a logo or banner, a bug fix. Work is checked against 3–5 criteria agreed upfront, and you pay only for work that passes review. Tasks from $40.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
