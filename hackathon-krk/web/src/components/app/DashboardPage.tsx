@@ -157,7 +157,7 @@ export function DashboardPage() {
           </h2>
           <p className="mx-auto mt-2.5 max-w-md text-[15px] leading-relaxed text-[var(--app-muted)]">
             {mode === "hiring"
-              ? "Lock USDC, set N and %. Workers race the timed tests — you only fund escrow and get the assigned team."
+              ? "Set the budget and criteria. Specialists take timed skill tests — you just review the work."
               : "Browse the board, enter Qualifying races, or wait for operator assign_team if you’re already on a podium."}
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-2">

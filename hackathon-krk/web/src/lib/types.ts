@@ -13,7 +13,7 @@ export type TaskStatus =
   | "completed"
   | "cancelled";
 
-export type TaskCategory = "Design" | "Development" | "QA & Testing";
+export type TaskCategory = "Video" | "Design" | "Development" | "QA & Testing";
 
 export type AppMode = "hire" | "work" | "rev";
 
@@ -140,6 +140,10 @@ export const ACTIVE_STATUSES: TaskStatus[] = [
 // ---------- Question bank ----------
 
 export const QBANK: Record<TaskCategory, QItem[]> = {
+  Video: [
+    { k: "fmt", q: "Which export format will you deliver?", o: ["MP4 (H.264)", "GIF", "Raw project only"], c: [0], chk: "Delivered as MP4" },
+    { k: "len", q: "Will the final cut match the requested length?", o: ["Yes, within a second or two", "Roughly", "No"], c: [0], chk: "Length matches brief" },
+  ],
   Design: [
     { k: "Criteria check · Single choice", q: 'Which hero meets "mobile layout at 375 px with no horizontal scroll"?', o: ["A · Two columns side by side, 440 px minimum width", "B · Stacked: headline, offer, image below, 16 px text", "C · Desktop hero scaled down to fit 375 px"], c: [1], chk: "criterion 1" },
     { k: "Criteria check · Single choice", q: "The brief allows 8 words or fewer in the headline. Which headline passes?", o: ['A · "Spring sale: 30% off everything until Sunday"', 'B · "Get ready for our biggest spring sale of the year with 30% off"', 'C · "Spring is here and so are our amazing deals for everyone"'], c: [0], chk: "criterion 5" },

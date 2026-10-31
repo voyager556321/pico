@@ -23,11 +23,11 @@ import { getTaskCapabilities, toTaskSnapshot } from "@/platform";
 
 const QUESTIONS = [
   {
-    prompt: "Test 1 — pick the correct escrow rule",
+    prompt: "Test 1: pick the correct payment rule",
     options: [
       "Client can reclaim after claim",
       "Per-task vault; cancel only while Qualifying",
-      "Shared prepaid wallet pays all tasks",
+      "One shared balance pays all tasks",
     ],
     correct: 1,
   },
@@ -111,7 +111,7 @@ export function QualifyPage() {
 
   function submitAnswer() {
     if (!taskId || startedAt === null || choice === null) {
-      setMsg("Pick an answer (connect wallet or use demo worker)");
+      setMsg("Pick an answer (sign in or use the demo account)");
       return;
     }
     if (!task) {
@@ -173,7 +173,7 @@ export function QualifyPage() {
         );
       } else {
         setMsg(
-          `Finished all 3. T3 time ${elapsed} ms — status: worker on podium.`
+          `Finished all 3. T3 time ${elapsed} ms — you passed.`
         );
         setStartedAt(null);
       }
@@ -231,7 +231,7 @@ export function QualifyPage() {
           </h1>
           <p className="mt-2.5 text-[15px] leading-relaxed text-[var(--muted)]">
             {caps.blocks.qualify ??
-              "Timed qualification is for workers only. As hiring, you fund escrow and wait for the operator to assign the podium."}
+              "Skill tests are for specialists. As a client, you reserve the budget and we assign the specialists who pass."}
           </p>
         </div>
         <Panel className="space-y-3">
@@ -305,7 +305,7 @@ export function QualifyPage() {
             <code className="mono text-[var(--app-accent)]">
               {shortPk(worker.toBase58())}
             </code>
-            {!publicKey ? " (demo worker — connect wallet to use yours)" : ""}.
+            {!publicKey ? " (demo account, sign in to use yours)" : ""}.
           </p>
         </div>
       ) : null}
@@ -360,11 +360,11 @@ export function QualifyPage() {
         ) : passed >= 3 ? (
           <div className="mt-2 space-y-2">
             <p className="text-[14px] text-[var(--ok)]">
-              Worker status: passedRound=3 · on podium
+              Status: passed all 3 tests
               {myEntry ? ` · T3 ${myEntry.timesMs[2]} ms` : ""}.
             </p>
             <p className="text-[12px] text-[var(--muted)]">
-              Waiting for operator assign_team — or use Promote stub above.
+              Waiting to be assigned to the task.
             </p>
           </div>
         ) : (

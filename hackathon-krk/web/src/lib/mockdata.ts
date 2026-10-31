@@ -24,7 +24,7 @@ function addTask(t: TaskSeed) {
 addTask({
   id: "signup",
   title: "Sign-up regression test",
-  cat: "QA & Testing",
+  cat: "Development",
   reward: 90,
   status: "review",
   worker: "4821",
@@ -56,16 +56,16 @@ addTask({
   ],
   events: [
     ["Work submitted", "Report with 4 failing cases", "Sep 22, 16:40", ""],
-    ["Worker started", "Worker #4821", "Sep 18, 10:20", ""],
-    ["Worker assigned", "Worker #4821 · first to reach 75 / 100", "Sep 18, 09:12", ""],
-    ["Funds locked", "90.00 USDC from Available", "Sep 17, 14:05", "money"],
+    ["Specialist started", "Specialist #4821", "Sep 18, 10:20", ""],
+    ["Specialist assigned", "Specialist #4821 · first to reach 75 / 100", "Sep 18, 09:12", ""],
+    ["Funds locked", "$90.00 from Available", "Sep 17, 14:05", "money"],
   ],
 });
 
 addTask({
   id: "landingqa",
   title: "Landing copy QA",
-  cat: "QA & Testing",
+  cat: "Development",
   reward: 70,
   status: "dispute",
   worker: "2209",
@@ -84,7 +84,7 @@ addTask({
     by: "client",
     opened: "Sep 21",
     decideBy: "Sep 28",
-    claim: 'The headline on the page says "Ship faster with Pico". The brief says "Hire for a task in minutes". It wasn\'t flagged.',
+    claim: 'The headline on the page says "Ship faster with Task.quo". The brief says "Hire for a task in minutes". It wasn\'t flagged.',
     pos: "The headline follows the brief doc v2 from Sep 20. The version you mention is v3, shared after I submitted.",
     evidence: [
       ["PNG", "landing-headline.png", "Screenshot of the live headline · added by you"],
@@ -97,10 +97,10 @@ addTask({
     ["w", "Sep 23 · 09:12", "The headline follows the brief doc v2 from Sep 20. The version you mention is v3, shared after I submitted."],
   ],
   events: [
-    ["Worker replied in the dispute", "Pico decides by Sep 28", "Sep 23, 09:12", "err"],
+    ["Specialist replied in the dispute", "Task.quo decides by Sep 28", "Sep 23, 09:12", "err"],
     ["Dispute opened", "Criterion 2 · by you", "Sep 21, 18:02", "err"],
     ["Work submitted", "Report with 12 issues", "Sep 20, 15:00", ""],
-    ["Funds locked", "70.00 USDC from Available", "Sep 15, 10:10", "money"],
+    ["Funds locked", "$70.00 from Available", "Sep 15, 10:10", "money"],
   ],
 });
 
@@ -127,9 +127,9 @@ addTask({
     { id: "5190", lvl: "Mid", st: "below", score: 50, t: "Sep 22, 17:44", ans: [1, 2, 0, [0, 1, 2]] },
   ],
   events: [
-    ["2 workers below the pass mark", "50 / 100 each · Pico keeps waiting", "Sep 22, 18:47", "warn"],
-    ["Qualification started", "Pico sent the test to 6 eligible workers", "Sep 22, 16:10", ""],
-    ["Funds locked", "150.00 USDC from Available", "Sep 22, 16:05", "money"],
+    ["2 workers below the pass mark", "50 / 100 each · Task.quo keeps waiting", "Sep 22, 18:47", "warn"],
+    ["Qualification started", "Task.quo sent the test to 6 eligible workers", "Sep 22, 16:10", ""],
+    ["Funds locked", "$150.00 from Available", "Sep 22, 16:05", "money"],
   ],
 });
 
@@ -159,10 +159,10 @@ addTask({
   unread: 2,
   files: [["PR", "Draft pull request #412", "github.com/northwind/shop/pull/412"]],
   events: [
-    ["Worker sent 2 messages", "Unread", "Sep 23, 11:42", ""],
-    ["Worker started", "In Progress", "Sep 20, 10:30", ""],
-    ["Worker assigned", "Worker #5190 · first to reach 75 / 100", "Sep 20, 10:04", ""],
-    ["Funds locked", "120.00 USDC from Available", "Sep 19, 14:22", "money"],
+    ["Specialist sent 2 messages", "Unread", "Sep 23, 11:42", ""],
+    ["Specialist started", "In Progress", "Sep 20, 10:30", ""],
+    ["Specialist assigned", "Specialist #5190 · first to reach 75 / 100", "Sep 20, 10:04", ""],
+    ["Funds locked", "$120.00 from Available", "Sep 19, 14:22", "money"],
   ],
 });
 
@@ -191,47 +191,47 @@ addTask({
   events: [
     ["Independent verification started", "1 reviewer is checking against your criteria", "Sep 22, 18:15", ""],
     ["Work submitted", "PR #398", "Sep 22, 18:10", ""],
-    ["Worker assigned", "Worker #6603", "Sep 18, 09:40", ""],
-    ["Funds locked", "200.00 USDC + 20.00 verification fee", "Sep 17, 11:02", "money"],
+    ["Specialist assigned", "Specialist #6603", "Sep 18, 09:40", ""],
+    ["Funds locked", "$200.00 + 20.00 verification fee", "Sep 17, 11:02", "money"],
   ],
 });
 
 addTask({
   id: "onboarding",
-  title: "Onboarding illustrations",
-  cat: "Design",
-  reward: 80,
+  title: "Podcast trailer, episode 12",
+  cat: "Video",
+  reward: 100,
   status: "revision",
   worker: "2744",
   funded: "Sep 16",
   assigned: "Sep 17",
   submitted: "Sep 21",
   due: "Sep 25",
-  desc: "Four spot illustrations for the onboarding screens, in our brand style.",
+  desc: "A 45–60 s trailer cut from the full episode: opens mid-conversation, big animated captions, 16:9.",
   crit: [
-    "Four illustrations, one per onboarding step.",
-    "Uses colors from the brand kit only.",
-    "SVG exports under 30 KB each.",
-    "Source Figma file with named layers.",
+    "45–60 seconds, 16:9, 1080p.",
+    "Captions match the speech word for word.",
+    "Hard cuts every 1–3 s, no zooms or transitions.",
+    "Delivered as MP4 plus the project file.",
   ],
-  req: { crit: 1, note: "Illustration 3 still uses the old purple (#7C3AED). Please switch to colors from the brand kit.", at: "Sep 22, 10:15", by: "client" },
-  sub: { at: "Sep 21, 17:30", note: "4 SVGs and the Figma source are attached.", files: [["ZIP", "illustrations.zip", "4 SVG · 88 KB"], ["FIG", "Figma source", "figma.com/file/onboarding-ill"]] },
+  req: { crit: 1, note: "Captions at 0:14–0:19 don’t match what the guest says. Please fix that line.", at: "Sep 22, 10:15", by: "client" },
+  sub: { at: "Sep 21, 17:30", note: "Trailer MP4 and the Premiere project are attached.", files: [["MP4", "ep12-trailer.mp4", "0:52 · 84 MB"], ["PRJ", "Premiere project", "ep12-trailer.prproj"]] },
   chat: [
     ["y", "Sep 22 · 10:15", "Requested changes on criterion 2, see the note above."],
-    ["w", "Sep 22 · 10:40", "Got it, updating illustration 3 today."],
+    ["w", "Sep 22 · 10:40", "Got it, fixing that caption today."],
   ],
   events: [
-    ["Changes requested", "Criterion 2 · colors from the brand kit", "Sep 22, 10:15", "rev"],
-    ["Work submitted", "4 SVGs + Figma file", "Sep 21, 17:30", ""],
-    ["Worker assigned", "Worker #2744", "Sep 17, 12:00", ""],
-    ["Funds locked", "80.00 USDC from Available", "Sep 16, 09:40", "money"],
+    ["Changes requested", "Criterion 2 · captions match the speech", "Sep 22, 10:15", "rev"],
+    ["Work submitted", "Trailer MP4 + project file", "Sep 21, 17:30", ""],
+    ["Specialist assigned", "Specialist #2744", "Sep 17, 12:00", ""],
+    ["Funds locked", "$100.00 from Available", "Sep 16, 09:40", "money"],
   ],
 });
 
 addTask({
   id: "launch",
-  title: "Launch banner set",
-  cat: "Design",
+  title: "Product demo video (45 s)",
+  cat: "Video",
   reward: 60,
   status: "completed",
   worker: "3107",
@@ -240,15 +240,15 @@ addTask({
   paidAmt: 60,
   proof: "8kFe…2mWq",
   how: "accepted",
-  desc: "Five banner sizes for the product launch campaign.",
-  crit: ["Five sizes from the ad spec.", "Brand fonts and colors.", "Exported as PNG and editable Figma."],
-  sub: { at: "Sep 16, 17:20", note: "5 banners, PNG and Figma.", files: [["ZIP", "launch-banners.zip", "5 PNG · 2.1 MB"], ["FIG", "Figma source", "figma.com/file/launch-banners"]] },
-  files: [["ZIP", "launch-banners.zip", "5 PNG · 2.1 MB"], ["FIG", "Figma source", "figma.com/file/launch-banners"]],
+  desc: "A 45 s screen-recorded demo of the new dashboard, with captions and a music bed.",
+  crit: ["45 s ± 5 s, 16:9 and 9:16 versions.", "Brand fonts and colors in captions.", "MP4 exports plus the project file."],
+  sub: { at: "Sep 16, 17:20", note: "Both versions and the project file.", files: [["MP4", "demo-16x9.mp4", "0:45 · 61 MB"], ["MP4", "demo-9x16.mp4", "0:45 · 58 MB"]] },
+  files: [["MP4", "demo-16x9.mp4", "0:45 · 61 MB"], ["MP4", "demo-9x16.mp4", "0:45 · 58 MB"]],
   events: [
-    ["Payout released", "60.00 USDC to Worker #3107", "Sep 18, 12:00", "money"],
+    ["Payout released", "$60.00 to Specialist #3107", "Sep 18, 12:00", "money"],
     ["You accepted the work", "All 3 criteria met", "Sep 18, 11:58", ""],
-    ["Work submitted", "5 banners", "Sep 16, 17:20", ""],
-    ["Funds locked", "60.00 USDC from Available", "Sep 12, 09:30", "money"],
+    ["Work submitted", "2 video versions", "Sep 16, 17:20", ""],
+    ["Funds locked", "$60.00 from Available", "Sep 12, 09:30", "money"],
   ],
 });
 
@@ -268,9 +268,9 @@ addTask({
   crit: ["All 40 icons on a 24 px grid.", "Stroke 1.7 px, round caps.", "Optimised SVG export."],
   files: [["ZIP", "icons-24.zip", "40 SVG · 48 KB"]],
   events: [
-    ["Payout released", "45.00 USDC to Worker #3107", "Sep 12, 16:40", "money"],
+    ["Payout released", "$45.00 to Specialist #3107", "Sep 12, 16:40", "money"],
     ["You accepted the work", "All 3 criteria met", "Sep 12, 16:38", ""],
-    ["Funds locked", "45.00 USDC from Available", "Sep 8, 10:00", "money"],
+    ["Funds locked", "$45.00 from Available", "Sep 8, 10:00", "money"],
   ],
 });
 
@@ -286,10 +286,10 @@ addTask({
   desc: "Review our API docs for missing endpoints and unclear examples.",
   crit: ["Every public endpoint listed.", "Each example runs as written.", "Issues logged per page."],
   events: [
-    ["Funds returned", "55.00 USDC to Available", "Sep 16, 14:05", "money"],
+    ["Funds returned", "$55.00 to Available", "Sep 16, 14:05", "money"],
     ["Task cancelled", "Before assignment", "Sep 16, 14:05", ""],
     ["Qualification ended", "0 of 4 workers reached the pass mark", "Sep 16, 09:00", "warn"],
-    ["Funds locked", "55.00 USDC from Available", "Sep 11, 13:20", "money"],
+    ["Funds locked", "$55.00 from Available", "Sep 11, 13:20", "money"],
   ],
 });
 
@@ -340,7 +340,7 @@ export const WTASKS: Record<string, WorkerTask> = {
     id: "flaky",
     title: "Fix flaky login tests",
     company: "Fernway",
-    cat: "QA & Testing",
+    cat: "Development",
     level: "Junior and above",
     pay: 70,
     deadline: "2 days after assignment",
@@ -408,6 +408,6 @@ export const CANDS: Record<string, {
 
 export const NOTES = [
   { t: "Work submitted", s: "Sign-up regression test · review by Oct 6", go: "signup", mode: "hire" },
-  { t: "Worker replied in a dispute", s: "Landing copy QA · Pico decides by Sep 28", go: "landingqa", mode: "hire" },
+  { t: "Specialist replied in a dispute", s: "Landing copy QA · Task.quo decides by Sep 28", go: "landingqa", mode: "hire" },
   { t: "2 workers below the pass mark", s: "Pricing page redesign · still finding a worker", go: "pricing", mode: "hire" },
 ];

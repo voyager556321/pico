@@ -76,8 +76,8 @@ export function DemoControls({
           {!compact ? (
             <p className="mt-1 max-w-lg text-[12px] leading-relaxed text-[var(--app-muted)]">
               {role === "hiring"
-                ? "Client path: seed a funded task, then assign a team. Workers take the timed tests — not you."
-                : "Flow without Devnet. Wallet optional — uses demo worker if disconnected."}
+                ? "Client path: seed a funded task, then assign a team. Specialists take the timed tests — not you."
+                : "Demo mode: works without signing in, using a demo account."}
             </p>
           ) : null}
         </div>
@@ -113,7 +113,7 @@ export function DemoControls({
             type="button"
             className="app-demo-btn"
             onClick={() =>
-              run("Worker passed 3 tests", () => {
+              run("Specialist passed 3 tests", () => {
                 seedDemoTask({ client: publicKey });
                 simulateWorkerPassed(DEMO_TASK_PK.toBase58(), worker);
               })

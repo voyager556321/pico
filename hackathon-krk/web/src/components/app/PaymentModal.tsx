@@ -99,7 +99,7 @@ function DepositBody({
         <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-[var(--pink)]" />
         <p className="mt-4 text-lg font-semibold">Confirming deposit…</p>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Waiting for on-chain confirmation.
+          Waiting for payment confirmation.
         </p>
       </div>
     );
@@ -111,7 +111,7 @@ function DepositBody({
         <StatusPill tone="ok">Budget updated</StatusPill>
         <p className="mt-4 text-lg font-semibold">Funds added to your vault</p>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          +${amount.toFixed(2)} USDC deposited on Devnet.
+          +${amount.toFixed(2)} added to your balance.
         </p>
         <BtnPink className="mt-6 w-full justify-center py-3" onClick={onClose}>
           Back to dashboard
@@ -144,7 +144,7 @@ function DepositBody({
     <div>
       <h2 className="text-xl font-semibold">Add Funds</h2>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Deposit USDC into your spending vault. This is a limit — not full wallet
+        Add funds to your balance. This is a limit — not full wallet
         access.
       </p>
       <div className="mt-5 grid grid-cols-3 gap-2">
@@ -164,8 +164,8 @@ function DepositBody({
         ))}
       </div>
       <div className="mt-4 space-y-2 text-sm">
-        <Row label="Amount" value={`$${amount.toFixed(2)} USDC`} />
-        <Row label="Network" value="Solana Devnet" />
+        <Row label="Amount" value={`$${amount.toFixed(2)}`} />
+        <Row label="Method" value="Test payment" />
       </div>
       <BtnPink
         className="mt-5 w-full justify-center"
@@ -211,7 +211,7 @@ function WithdrawBody({
         <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-[var(--pink)]" />
         <p className="mt-4 text-lg font-semibold">Confirming withdrawal…</p>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Waiting for on-chain confirmation.
+          Waiting for payment confirmation.
         </p>
       </div>
     );
@@ -261,9 +261,9 @@ function WithdrawBody({
       <div className="mt-4 space-y-2 text-sm">
         <Row
           label="Available to withdraw"
-          value={`$${amt.toFixed(2)} USDC`}
+          value={`$${amt.toFixed(2)}`}
         />
-        <Row label="Network" value="Solana Devnet" />
+        <Row label="Method" value="Test payment" />
       </div>
       <BtnPink
         className="mt-5 w-full justify-center py-3.5"

@@ -2,16 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { getAccount, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { useEffect, useState } from "react";
 import { IconSearch } from "@/components/icons";
 import { ICONS, type IconName } from "@/components/icons";
-import { PicoMark } from "@/components/app/ui";
+import { AccountSlot, useAccountIdentity } from "@/components/app/AccountSlot";
 import { APP_COPY, useAppLanguage } from "@/components/app/AppLanguage";
 import { LANDING_LANGUAGES, type LandingLanguage } from "@/components/landingTranslations";
-import { USDC_MINT, shortPk } from "@/lib/constants";
 
 export type AppMode = "hiring" | "working";
 
@@ -78,32 +74,10 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useAppMode();
   const { language, setLanguage } = useAppLanguage();
   const copy = APP_COPY[language].chrome;
-  const [mounted, setMounted] = useState(false);
-  const { publicKey } = useWallet();
-  const { connection } = useConnection();
-  const [usdc, setUsdc] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const me = useAccountIdentity(mode === "working" ? "Alex Morgan" : "Northwind Studio");
 
-  useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    if (!publicKey) {
-      setUsdc(null);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const ata = getAssociatedTokenAddressSync(USDC_MINT, publicKey);
-        const account = await getAccount(connection, ata);
-        if (!cancelled) setUsdc(Number(account.amount) / 1e6);
-      } catch {
-        if (!cancelled) setUsdc(0);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [publicKey, connection]);
+  useEffect(() => setMenuOpen(false), [pathname]);
 
   const pageName = pathname === "/app"
     ? copy.home
@@ -111,13 +85,13 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
       ?? (pathname.includes("/room/") ? "workroom" : "taskDetails")];
 
   return (
-    <div className="app" lang={LANDING_LANGUAGES.find((item) => item.code === language)?.locale}>
+    <div className={`app tq-app${menuOpen ? " menu-open" : ""}`} lang={LANDING_LANGUAGES.find((item) => item.code === language)?.locale}>
       <aside className="sb">
         <div className="brandrow">
-          <Link href="/app" className="logo" aria-label="Pico home">
-            <i>P</i>Pico
+          <Link href="/app" className="tq-logo" aria-label="Task.quo home">
+            <img src="/brand/taskquo-lockup-color.svg" alt="Task.quo" width={112} height={29} />
           </Link>
-          <span className="icb" aria-hidden>{ICONS.side && <ICONS.side size={16} />}</span>
+          <button type="button" className="tq-menu-close" aria-label="Close menu" onClick={() => setMenuOpen(false)}>×</button>
         </div>
 
         <Link className="srch" href="/app/tasks" aria-label={copy.searchTasks}>
@@ -154,14 +128,15 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
         <div className="grow" />
         <Link className="ni sout" href="/#flow">{ICONS.arrow && <ICONS.arrow size={18} />}{copy.howItWorks}</Link>
         <div className="acct">
-          <span className="avs">{publicKey ? shortPk(publicKey.toBase58(), 1).slice(0, 2).toUpperCase() : "NS"}</span>
-          <span><b>{publicKey ? shortPk(publicKey.toBase58(), 4) : "Northwind Studio"}</b><small>{publicKey ? copy.devnetWallet : mode === "working" ? copy.workerAccount : copy.companyAccount}</small></span>
-          {ICONS.updown && <ICONS.updown size={16} />}
+          <span className="avs">{me.initials}</span>
+          <span><b>{me.name}</b><small>{mode === "working" ? copy.workerAccount : copy.companyAccount}</small></span>
         </div>
       </aside>
+      <div className="tq-scrim" aria-hidden onClick={() => setMenuOpen(false)} />
 
       <main className="mn">
         <header className="tb">
+          <button type="button" className="tq-menu-btn" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><span /><span /><span /></button>
           <div className="crumb"><Link href="/app">{copy.workspace}</Link><span>/</span><b>{pageName}</b></div>
           <div className="tbr">
             <label className="app-language-picker">
@@ -179,11 +154,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
               <button type="button" className={mode === "working" ? "on" : ""} aria-pressed={mode === "working"} onClick={() => setMode("working")}>{ICONS.tool && <ICONS.tool size={16} />}{copy.working}</button>
             </div>
             <button className="bell" aria-label={copy.notifications} type="button">{ICONS.bell && <ICONS.bell size={18} />}</button>
-            {mounted ? (
-              <div className="chrome-wallet"><WalletMultiButton /></div>
-            ) : (
-              <button className="wchip" type="button" disabled><span className="wi">◈</span><span><b>Phantom<span>Devnet</span></b><small>{usdc === null ? copy.connectWallet : `${usdc.toFixed(2)} USDC`}</small></span><span className="dotg" /></button>
-            )}
+            <AccountSlot label={copy.connectWallet} />
           </div>
         </header>
         {children}

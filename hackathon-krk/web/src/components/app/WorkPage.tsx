@@ -84,7 +84,7 @@ export function WorkPage() {
         </Link>
         <h1 className="app-page-title mt-2 text-3xl">Execution Slot</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Deliver work + short explanation. Hashes on-chain; body stays local.
+          Deliver the work with a short note on how it meets each criterion.
         </p>
         {!caps.canSubmitExecution && caps.blocks.submit_execution ? (
           <p className="mt-2 text-sm text-[var(--warn)]">

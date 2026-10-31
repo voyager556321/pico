@@ -83,7 +83,7 @@ export function TaskDetailView({
       <div className="grid gap-3 sm:grid-cols-3">
         <Panel>
           <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
-            Escrow
+            Budget reserved
           </p>
           <p className="display mt-1 text-2xl font-extrabold">
             ${baseUnitsToUsdc(task.reward.toNumber()).toFixed(2)}
@@ -165,7 +165,7 @@ export function TaskDetailView({
 
         {caps.showClientWaitingQualify ? (
           <p className="w-full text-sm text-[var(--muted)]">
-            Waiting for workers to finish timed tests. Operator assigns the podium —
+            Waiting for specialists to finish the skill test. We assign the best results —
             you don’t enter Qualify.
           </p>
         ) : null}

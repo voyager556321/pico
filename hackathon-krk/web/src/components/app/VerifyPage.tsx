@@ -93,8 +93,8 @@ export function VerifyPage() {
         </h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
           {active === 1
-            ? "Review the Execution deliverable."
-            : "Review the previous verifier’s work. Last Done → client."}
+            ? "Review the submitted work against the criteria."
+            : "Check the previous reviewer’s notes. Once approved, the work goes to the client."}
         </p>
         {!caps.canSubmitVerification && caps.blocks.submit_verification ? (
           <p className="mt-2 text-sm text-[var(--warn)]">
