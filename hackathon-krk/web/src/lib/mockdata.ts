@@ -409,5 +409,5 @@ export const CANDS: Record<string, {
 export const NOTES = [
   { t: "Work submitted", s: "Sign-up regression test · review by Oct 6", go: "signup", mode: "hire" },
   { t: "Specialist replied in a dispute", s: "Landing copy QA · Task.quo decides by Sep 28", go: "landingqa", mode: "hire" },
-  { t: "2 workers below the pass mark", s: "Pricing page redesign · still finding a worker", go: "pricing", mode: "hire" },
+  { t: "2 specialists didn't pass the skill test", s: "Pricing page redesign · still finding a specialist", go: "pricing", mode: "hire" },
 ];

@@ -77,7 +77,29 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const me = useAccountIdentity(mode === "working" ? "Alex Morgan" : "Northwind Studio");
 
-  useEffect(() => setMenuOpen(false), [pathname]);
+  const [navigating, setNavigating] = useState(false);
+
+  useEffect(() => { setMenuOpen(false); setNavigating(false); }, [pathname]);
+
+  // Instant feedback on internal link clicks, so a slow page load never looks like an ignored click.
+  useEffect(() => {
+    function onClick(event: MouseEvent) {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const anchor = (event.target as HTMLElement | null)?.closest?.("a");
+      if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+      setNavigating(true);
+    }
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
+  useEffect(() => {
+    if (!navigating) return;
+    const timer = window.setTimeout(() => setNavigating(false), 15000);
+    return () => window.clearTimeout(timer);
+  }, [navigating]);
 
   const pageName = pathname === "/app"
     ? copy.home
@@ -85,7 +107,8 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
       ?? (pathname.includes("/room/") ? "workroom" : "taskDetails")];
 
   return (
-    <div className={`app tq-app${menuOpen ? " menu-open" : ""}`} lang={LANDING_LANGUAGES.find((item) => item.code === language)?.locale}>
+    <div className={`app tq-app${menuOpen ? " menu-open" : ""}${navigating ? " is-navigating" : ""}`} aria-busy={navigating || undefined} lang={LANDING_LANGUAGES.find((item) => item.code === language)?.locale}>
+      {navigating && <div className="tq-nav-progress" role="progressbar" aria-label="Loading page" />}
       <aside className="sb">
         <div className="brandrow">
           <Link href="/app" className="tq-logo" aria-label="Task.quo home">
@@ -97,8 +120,6 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
         <Link className="srch" href="/app/tasks" aria-label={copy.searchTasks}>
           <IconSearch size={16} />
           <span>{copy.search}</span>
-          <kbd>⌘</kbd>
-          <kbd>K</kbd>
         </Link>
 
         {NAV.map(([group, items], groupIndex) => (
@@ -126,11 +147,11 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           <div><hr /><div className="lbl">{copy.tools}</div><div className="nv"><Link href="/app/operator" className="ni on">{copy.operator}</Link></div></div>
         )}
         <div className="grow" />
-        <Link className="ni sout" href="/#flow">{ICONS.arrow && <ICONS.arrow size={18} />}{copy.howItWorks}</Link>
-        <div className="acct">
+        <Link className="acct" href="/app/profile" aria-label={`${me.name}, open profile`}>
           <span className="avs">{me.initials}</span>
           <span><b>{me.name}</b><small>{mode === "working" ? copy.workerAccount : copy.companyAccount}</small></span>
-        </div>
+          <svg className="acct-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M9 6l6 6-6 6" /></svg>
+        </Link>
       </aside>
       <div className="tq-scrim" aria-hidden onClick={() => setMenuOpen(false)} />
 
@@ -153,7 +174,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
               <button type="button" className={mode === "hiring" ? "on" : ""} aria-pressed={mode === "hiring"} onClick={() => setMode("hiring")}>{ICONS.brief && <ICONS.brief size={16} />}{copy.hiring}</button>
               <button type="button" className={mode === "working" ? "on" : ""} aria-pressed={mode === "working"} onClick={() => setMode("working")}>{ICONS.tool && <ICONS.tool size={16} />}{copy.working}</button>
             </div>
-            <button className="bell" aria-label={copy.notifications} type="button">{ICONS.bell && <ICONS.bell size={18} />}</button>
+            <Link className="bell" aria-label={copy.notifications} href="/app/activity">{ICONS.bell && <ICONS.bell size={18} />}</Link>
             <AccountSlot label={copy.connectWallet} />
           </div>
         </header>

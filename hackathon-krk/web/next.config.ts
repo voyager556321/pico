@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
+  // Hide the floating Next.js dev badge: it covered the account card in the sidebar.
+  devIndicators: false,
   // Native .node bindings break when webpack bundles bigint-buffer; keep it on Node require.
   serverExternalPackages: ["bigint-buffer", "bindings"],
   // Proxy PostHog through our own domain so tracking protection / ad blockers don't drop events.

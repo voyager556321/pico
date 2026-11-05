@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { TASKS, TASK_ORDER, NOTES } from "@/lib/mockdata";
@@ -51,7 +52,90 @@ function PageTitle({
   );
 }
 
-function TaskList({ initialFilter = "All" }: { initialFilter?: TaskFilter }) {
+const NEEDS_YOU: Task["status"][] = ["review", "dispute"];
+const STEPS = ["Funded", "Assigned", "Working", "Review", "Paid"] as const;
+
+// Where a task is on its way to payout: index of the current step, or null when it never started / stopped.
+function taskProgress(task: Task): { current: number | null; caption: string } {
+  switch (task.status) {
+    case "draft": return { current: null, caption: "Not published yet" };
+    case "finding": return { current: 1, caption: "Finding a specialist" };
+    case "assigned": return { current: 2, caption: "Specialist assigned" };
+    case "progress": return { current: 2, caption: "Specialist is working" };
+    case "revision": return { current: 2, caption: "Specialist is revising" };
+    case "submitted":
+    case "review": return { current: 3, caption: "Waiting for your review" };
+    case "verification": return { current: 3, caption: "Reviewer is checking" };
+    case "dispute": return { current: 3, caption: "Dispute: reply needed" };
+    case "completed": return { current: 5, caption: "Paid out" };
+    default: return { current: null, caption: "Cancelled" };
+  }
+}
+
+function taskDate(task: Task) {
+  if (task.status === "completed") return task.paid ? `Paid ${task.paid}` : "Paid";
+  if (task.status === "cancelled") return task.cancelled ? `Cancelled ${task.cancelled}` : "Cancelled";
+  if (task.status === "draft") return "Draft";
+  if (task.due) return `Due ${task.due}`;
+  return task.funded ? `Posted ${task.funded}` : "";
+}
+
+function amountCaption(task: Task) {
+  if (task.status === "completed") return "paid";
+  if (task.status === "cancelled") return "returned";
+  if (task.status === "draft") return "not reserved";
+  return "reserved";
+}
+
+function CategoryGlyph({ cat }: { cat: string }) {
+  const key = catKey(cat);
+  return (
+    <span className={`tq-row-glyph tq-row-glyph-${key}`} aria-hidden>
+      {key === "video" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="13" height="14" rx="3" /><path d="M16 10l5-3v10l-5-3" /></svg>}
+      {key === "design" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><circle cx="11" cy="11" r="2" /></svg>}
+      {key === "dev" && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" /></svg>}
+    </span>
+  );
+}
+
+function TaskRow({ task, workerLabel }: { task: Task; workerLabel: string }) {
+  const [label, tone] = STATUS_LABELS[task.status];
+  const { current, caption } = taskProgress(task);
+  const needsYou = NEEDS_YOU.includes(task.status);
+  const muted = task.status === "cancelled" || task.status === "draft";
+  const date = taskDate(task);
+  return (
+    <Link className={`tq-row${needsYou ? " needs-you" : ""}${muted ? " muted" : ""}`} href={`/app/tasks/${task.id}`}>
+      <CategoryGlyph cat={task.cat} />
+      <span className="tq-row-main">
+        <b>{task.title}</b>
+        <span className="tq-row-meta">
+          <span>{task.cat}</span>
+          {task.worker && <><i aria-hidden>·</i><span className="tq-row-worker"><span className="tq-row-avatar" aria-hidden>{task.worker.slice(0, 2)}</span>{workerLabel} #{task.worker}</span></>}
+        </span>
+      </span>
+      <span className="tq-row-progress">
+        <span className="tq-row-status">
+          <span className={`tq-status tq-status-${tone || "neutral"}`}>{label}</span>
+          {date && <span className="tq-row-date"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>{date}</span>}
+        </span>
+        {current !== null && (
+          <span className={`tq-row-steps${task.status === "dispute" ? " is-alert" : ""}`} role="img" aria-label={`${caption}. Step ${Math.min(current + 1, 5)} of 5`}>
+            {STEPS.map((step, index) => <span key={step} className={index < current ? "done" : index === current ? "cur" : ""} />)}
+          </span>
+        )}
+      </span>
+      <span className="tq-row-amount"><b>${fmt(task.reward)}</b><small>{amountCaption(task)}</small></span>
+      <span className="tq-row-action">
+        {needsYou
+          ? <span className="tq-row-cta">{task.status === "dispute" ? "Reply" : "Review"}<span aria-hidden>→</span></span>
+          : <span className="tq-row-arrow" aria-hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg></span>}
+      </span>
+    </Link>
+  );
+}
+
+function TaskList({ initialFilter = "All", showHeader = true }: { initialFilter?: TaskFilter; showHeader?: boolean }) {
   const { language } = useAppLanguage();
   const copy = APP_COPY[language].home;
   const [filter, setFilter] = useState<TaskFilter>(initialFilter);
@@ -80,13 +164,15 @@ function TaskList({ initialFilter = "All" }: { initialFilter?: TaskFilter }) {
 
   return (
     <section className="proto-card">
-      <div className="proto-card-head">
-        <div>
-          <p className="proto-eyebrow">{APP_COPY[language].chrome.workspace}</p>
-          <h2>{copy.tasks}</h2>
+      {showHeader && (
+        <div className="proto-card-head">
+          <div>
+            <p className="proto-eyebrow">{APP_COPY[language].chrome.workspace}</p>
+            <h2>{copy.tasks}</h2>
+          </div>
+          <Link className="app-cta" href="/app/tasks/new">{copy.newTask}</Link>
         </div>
-        <Link className="app-cta" href="/app/tasks/new">{copy.newTask}</Link>
-      </div>
+      )}
       <div className="proto-filter-row" role="group" aria-label={copy.filterTasks}>
         {ACTIVE_FILTERS.map((item) => (
           <button
@@ -100,24 +186,20 @@ function TaskList({ initialFilter = "All" }: { initialFilter?: TaskFilter }) {
           </button>
         ))}
       </div>
-      <div className="proto-task-list">
-        {filtered.map((task) => {
-          const [label, tone] = STATUS_LABELS[task.status];
+      <div className="tq-rows">
+        {(() => {
+          const urgent = filtered.filter((task) => NEEDS_YOU.includes(task.status));
+          const rest = filtered.filter((task) => !NEEDS_YOU.includes(task.status));
+          const grouped = urgent.length > 0 && rest.length > 0;
           return (
-            <Link className="proto-task-row" href={`/app/tasks/${task.id}`} key={task.id}>
-              <span className="proto-task-main">
-                <b>{task.title}</b>
-                <small><span className={`tq-cat tq-cat-${catKey(task.cat)}`}>{task.cat}</span> {task.funded || task.paid || task.cancelled || "Draft"}</small>
-              </span>
-              <span className={`proto-status ${tone || "neutral"}`}>{label}</span>
-              <span className="proto-amount">${fmt(task.reward)}</span>
-              <span className="proto-task-worker">
-                {task.worker ? `${copy.worker} #${task.worker}` : task.status === "finding" ? "…" : "—"}
-              </span>
-              <span className="proto-arrow" aria-hidden>↗</span>
-            </Link>
+            <>
+              {grouped && <p className="tq-rows-label">Needs you <span>{urgent.length}</span></p>}
+              {urgent.map((task) => <TaskRow key={task.id} task={task} workerLabel={copy.worker} />)}
+              {grouped && <p className="tq-rows-label">Everything else <span>{rest.length}</span></p>}
+              {rest.map((task) => <TaskRow key={task.id} task={task} workerLabel={copy.worker} />)}
+            </>
           );
-        })}
+        })()}
         {filtered.length === 0 && <p className="proto-empty">{copy.noTasks}</p>}
       </div>
     </section>
@@ -128,45 +210,50 @@ export function PrototypeHomePage() {
   const { language } = useAppLanguage();
   const copy = APP_COPY[language].home;
   const tasks = useMemo(tasksInOrder, []);
-  const activeCount = tasks.filter((task) => ACTIVE_STATUSES.includes(task.status)).length;
+  const router = useRouter();
   const locked = tasks.reduce((sum, task) => sum + lockedOf(task), 0);
   const paid = tasks.reduce((sum, task) => sum + (task.paidAmt || 0), 0);
 
   return (
     <div className="proto-stack">
-      <PageTitle
-        eyebrow={copy.eyebrow}
-        title={copy.title}
-        description={copy.description}
-        action={<Link className="app-cta" href="/app/tasks/new">＋ {copy.postTask}</Link>}
-      />
-      <div className="proto-home-grid">
-        <section className="proto-home-hero">
-          <p className="proto-eyebrow">{copy.workspace}</p>
+      <h1 className="sr-only">{copy.title}</h1>
+      <div className="tq-home-top">
+      <section className="tq-hero">
+        <div className="tq-hero-copy">
           <h2>{copy.heroTitle}</h2>
-          <p>{copy.heroDescription}</p>
-          <form action="/app/tasks/new">
+          <p className="tq-hero-sub">{copy.heroDescription}</p>
+          <form
+            className="tq-hero-search"
+            action="/app/tasks/new"
+            onSubmit={(event) => {
+              // Client-side navigation: no full page reload, so the click responds instantly.
+              event.preventDefault();
+              const brief = new FormData(event.currentTarget).get("brief")?.toString().trim() ?? "";
+              router.push(brief ? `/app/tasks/new?brief=${encodeURIComponent(brief)}` : "/app/tasks/new");
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
             <input aria-label={copy.briefLabel} name="brief" placeholder={copy.briefPlaceholder} />
-            <button className="app-cta" type="submit">{copy.createTask} <span aria-hidden>→</span></button>
+            <button type="submit">{copy.createTask}<span aria-hidden>→</span></button>
           </form>
-          <div className="tq-popular"><span>Popular:</span>{["Podcast trailer", "Logo design", "YouTube banner", "Fix a bug"].map((chip) => <Link key={chip} className="tq-chip" href={`/app/tasks/new?brief=${encodeURIComponent(chip)}`}>{chip}</Link>)}</div>
-          <div className="proto-home-stats">
-            <span><b>{activeCount}</b><small>{copy.activeTasks}</small></span>
-            <span><b>{tasks.length}</b><small>{copy.totalTasks}</small></span>
-            <span><b>${fmt(locked)}</b><small>{copy.inEscrow}</small></span>
+          <div className="tq-hero-try">
+            <span>Try:</span>
+            {["Podcast trailer", "Logo design", "YouTube banner", "Fix a bug"].map((chip) => <Link key={chip} href={`/app/tasks/new?brief=${encodeURIComponent(chip)}`}>{chip}</Link>)}
           </div>
-        </section>
-        <section className="proto-balance-card">
-          <div className="proto-card-head">
-            <div><p className="proto-eyebrow">{copy.devnet}</p><h2>{copy.balance}</h2></div>
-            <span className="proto-balance-icon">$</span>
-          </div>
-          <div className="proto-balance-total">${fmt(650)}</div>
-          <div className="proto-kv"><span>{copy.available}</span><b>${fmt(650)}</b></div>
-          <div className="proto-kv"><span>{copy.locked}</span><b>${fmt(locked)}</b></div>
-          <div className="proto-kv"><span>{copy.paid}</span><b>${fmt(paid)}</b></div>
-          <Link className="proto-inline-link" href="/app/balance">{copy.balanceDetails}</Link>
-        </section>
+        </div>
+      </section>
+      <section className="tq-balance">
+        <div className="tq-balance-head">
+          <span>{copy.balance}</span>
+          <Link href="/app/balance">{copy.balanceDetails}</Link>
+        </div>
+        <b className="tq-balance-total">${fmt(650)}</b>
+        <span className="tq-balance-caption">{copy.available}</span>
+        <div className="tq-balance-rows">
+          <div><span><i className="is-held" />{copy.locked}</span><b>${fmt(locked)}</b></div>
+          <div><span><i className="is-paid" />{copy.paid}</span><b>${fmt(paid)}</b></div>
+        </div>
+      </section>
       </div>
       <section className="proto-card">
         <div className="proto-card-head">
@@ -174,13 +261,22 @@ export function PrototypeHomePage() {
           <Link className="proto-inline-link" href="/app/activity">{copy.allActivity}</Link>
         </div>
         <div className="proto-notifications">
-          {NOTES.slice(0, 4).map((note, index) => (
-            <Link className="proto-notice" href={`/app/tasks/${note.go}`} key={`${note.go}-${index}`}>
-              <span className="proto-notice-dot" />
-              <span><b>{note.t}</b><small>{note.s}</small></span>
-              <span className="proto-arrow" aria-hidden>→</span>
-            </Link>
-          ))}
+          {NOTES.slice(0, 4).map((note, index) => {
+            const status = TASKS[note.go]?.status;
+            const kind = status === "dispute" ? "dispute" : status === "review" || status === "submitted" ? "review" : "info";
+            const action = kind === "dispute" ? "Reply" : kind === "review" ? "Review" : "View";
+            return (
+              <Link className={`proto-notice tq-notice-${kind}`} href={`/app/tasks/${note.go}`} key={`${note.go}-${index}`}>
+                <span className="tq-notice-icon" aria-hidden>
+                  {kind === "review" && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5M9 14l2 2 4-4" /></svg>}
+                  {kind === "dispute" && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /><path d="M12 8v4M12 15.5v.01" /></svg>}
+                  {kind === "info" && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6" /></svg>}
+                </span>
+                <span className="tq-notice-text"><b>{note.t}</b><small>{note.s}</small></span>
+                <span className="tq-notice-action">{action}<span aria-hidden>→</span></span>
+              </Link>
+            );
+          })}
           {NOTES.length === 0 && <p className="proto-empty">{copy.caughtUp}</p>}
         </div>
       </section>
@@ -195,10 +291,10 @@ export function PrototypeTasksPage() {
       <PageTitle
         eyebrow="Workspace"
         title="My tasks"
-        description="Video, design and dev tasks you posted: who is on it, what is due, and what needs your review."
+        description="What needs your review, who is on each task, and where your money is."
         action={<Link className="app-cta" href="/app/tasks/new">＋ New task</Link>}
       />
-      <TaskList />
+      <TaskList showHeader={false} />
     </div>
   );
 }
