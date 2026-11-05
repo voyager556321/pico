@@ -337,31 +337,13 @@ export function PrototypeActivityPage() {
 }
 
 export function PrototypeBalancePage() {
-  const tasks = useMemo(tasksInOrder, []);
-  const locked = tasks.reduce((sum, task) => sum + lockedOf(task), 0);
-  const paid = tasks.reduce((sum, task) => sum + (task.paidAmt || 0), 0);
-  const moneyEvents = tasks.flatMap((task) =>
-    task.events.filter((event) => event.tone === "money").map((event) => ({ ...event, task })),
-  );
   return (
-    <div className="proto-stack">
-      <PageTitle eyebrow="Workspace" title="Balance" description="Money reserved for a task stays reserved until you accept the work or a reviewer passes it." />
-      <div className="proto-metric-grid">
-        {[
-          ["Available", fmt(650), "Ready to fund a task"],
-          ["Reserved for tasks", fmt(locked), `${tasks.filter((task) => ACTIVE_STATUSES.includes(task.status)).length} active tasks`],
-          ["Paid out", fmt(paid), "Released after acceptance"],
-        ].map(([label, value, detail]) => (
-          <section className="proto-card proto-metric" key={label}><p className="proto-eyebrow">{label}</p><p className="proto-metric-value">${value}</p><p className="proto-subtitle">{detail}</p></section>
-        ))}
-      </div>
-      <section className="proto-card">
-        <div className="proto-card-head"><div><p className="proto-eyebrow">Ledger</p><h2>Transaction history</h2></div></div>
-        <div className="proto-timeline">
-          {moneyEvents.map((event, index) => (
-            <div className="proto-event" key={`${event.task.id}-${index}`}><span className="proto-event-dot money" /><div><b>{event.title}</b><p>{event.sub} · <Link href={`/app/tasks/${event.task.id}`}>{event.task.title}</Link></p></div><time>{event.time}</time></div>
-          ))}
-        </div>
+    <div className="proto-stack narrow">
+      <PageTitle eyebrow="Workspace" title="Balance" description="Payment accounts will appear here when fiat payments are available." />
+      <section className="proto-card" role="status">
+        <p className="proto-eyebrow">Payments unavailable</p>
+        <h2 className="mt-2 text-lg font-bold">Fiat payments are being integrated</h2>
+        <p className="proto-subtitle mt-2">Funding, withdrawals, task escrow and payouts are disabled for now. No balance or transaction history is available.</p>
       </section>
     </div>
   );

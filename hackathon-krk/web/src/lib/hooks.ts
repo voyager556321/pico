@@ -1,17 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Program } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
-import {
-  ConfigAccount,
-  TaskAccount,
-  fetchAllTasks,
-  fetchConfig,
-  fetchTaskByKey,
-  getPicoProgram,
-} from "@/lib/program";
+import { useCallback, useEffect, useState } from "react";
+import type { Program } from "@coral-xyz/anchor";
+import type { PublicKey } from "@solana/web3.js";
+import type { ConfigAccount, TaskAccount } from "@/lib/program";
 import {
   getDemoTask,
   isDemoEnabled,
@@ -23,27 +15,14 @@ export function usePicoProgram(): {
   connected: boolean;
   publicKey: PublicKey | null;
 } {
-  const { connection } = useConnection();
-  const wallet = useWallet();
-
-  const program = useMemo(() => {
-    if (!wallet.publicKey || !wallet.signTransaction) return null;
-    try {
-      return getPicoProgram(connection, wallet as never);
-    } catch {
-      return null;
-    }
-  }, [connection, wallet, wallet.publicKey, wallet.signTransaction]);
-
   return {
-    program,
-    connected: Boolean(wallet.publicKey),
-    publicKey: wallet.publicKey,
+    program: null,
+    connected: false,
+    publicKey: null,
   };
 }
 
 export function useTasks(refreshKey = 0) {
-  const { program } = usePicoProgram();
   const [tasks, setTasks] = useState<TaskAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -54,14 +33,6 @@ export function useTasks(refreshKey = 0) {
     setError("");
     try {
       let rows: TaskAccount[] = [];
-      if (program) {
-        try {
-          rows = await fetchAllTasks(program);
-        } catch (e) {
-          if (!isDemoEnabled()) throw e;
-          setError(e instanceof Error ? e.message : String(e));
-        }
-      }
       rows = mergeWithDemo(rows);
       rows.sort((a, b) => b.taskNonce.cmp(a.taskNonce));
       setTasks(rows);
@@ -71,7 +42,7 @@ export function useTasks(refreshKey = 0) {
     } finally {
       setLoading(false);
     }
-  }, [program]);
+  }, []);
 
   useEffect(() => {
     void reload();
@@ -83,7 +54,6 @@ export function useTasks(refreshKey = 0) {
 }
 
 export function useTask(taskId: string | undefined, refreshKey = 0) {
-  const { program } = usePicoProgram();
   const [task, setTask] = useState<TaskAccount | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -103,31 +73,19 @@ export function useTask(taskId: string | undefined, refreshKey = 0) {
         setLoading(false);
         return;
       }
-      if (!program) {
-        setTask(null);
-        setError(
-          isDemoEnabled()
-            ? "Task not found (seed a demo task or connect wallet)"
-            : "Connect wallet"
-        );
-        return;
-      }
-      const key = new PublicKey(taskId);
-      const row = await fetchTaskByKey(program, key);
-      setTask(row);
-      if (!row) setError("Task not found on-chain (redeploy / wrong network?)");
+      setTask(null);
+      setError(
+        isDemoEnabled()
+          ? "Task not found in local demo data. Fiat-backed task loading is not available yet."
+          : "Task loading is temporarily unavailable while fiat payments are being integrated."
+      );
     } catch (e) {
-      const demo = getDemoTask(taskId);
-      if (demo) {
-        setTask(demo);
-      } else {
-        setError(e instanceof Error ? e.message : String(e));
-        setTask(null);
-      }
+      setError(e instanceof Error ? e.message : String(e));
+      setTask(null);
     } finally {
       setLoading(false);
     }
-  }, [program, taskId]);
+  }, [taskId]);
 
   useEffect(() => {
     void reload();
@@ -138,19 +96,8 @@ export function useTask(taskId: string | undefined, refreshKey = 0) {
   return { task, loading, error, reload, bumpDemo };
 }
 
-export function useConfig(refreshKey = 0) {
-  const { program } = usePicoProgram();
-  const [config, setConfig] = useState<ConfigAccount | null>(null);
-
-  useEffect(() => {
-    if (!program) {
-      setConfig(null);
-      return;
-    }
-    void fetchConfig(program).then(setConfig);
-  }, [program, refreshKey]);
-
-  return config;
+export function useConfig(): ConfigAccount | null {
+  return null;
 }
 
 export function errMsg(e: unknown): string {

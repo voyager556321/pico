@@ -191,15 +191,7 @@ export function AppShell({
             <button className="bell" aria-label="Notifications">
               {ICONS.bell && <ICONS.bell size={18} />}
             </button>
-            <button className="wchip" aria-label="Wallet">
-              <span className="wi">{ICONS.wallet && <ICONS.wallet size={16} />}</span>
-              <span>
-                <b>Phantom<span>Devnet</span></b>
-                <small>7xKX…9fQ2</small>
-              </span>
-              <span className="dotg" />
-              {ICONS.down && <ICONS.down size={16} />}
-            </button>
+            <span className="wchip" role="status">Fiat payments soon</span>
           </div>
         </div>
 

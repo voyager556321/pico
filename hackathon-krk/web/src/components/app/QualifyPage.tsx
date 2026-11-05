@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { shortPk } from "@/lib/constants";
+import { usePicoProgram } from "@/lib/hooks";
 import {
   QualifyEntry,
   loadQualifyBoard,
@@ -54,7 +54,7 @@ const QUESTIONS = [
 export function QualifyPage() {
   const params = useParams();
   const taskId = typeof params.id === "string" ? params.id : "";
-  const { publicKey } = useWallet();
+  const { publicKey } = usePicoProgram();
   const [mode] = useAppMode();
   const { task, bumpDemo } = useTask(taskId);
   const [round, setRound] = useState(0);

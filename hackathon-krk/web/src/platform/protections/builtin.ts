@@ -1,5 +1,31 @@
 import { FLOW } from "../flow";
+import type { PlatformAction } from "../types";
 import type { Protection } from "./types";
+
+const FIAT_DISABLED_ACTIONS: PlatformAction[] = [
+  "create_task",
+  "cancel_task",
+  "decline_slot",
+  "submit_execution",
+  "submit_verification",
+  "reject_verification",
+  "finalize_and_pay",
+  "assign_team",
+  "fill_slot",
+  "raise_dispute",
+  "resolve_dispute",
+];
+
+/** Solana-backed task mutations are paused until the fiat payment rail is integrated. */
+export const fiatPaymentsNotIntegrated: Protection = {
+  id: "fiat_payments_not_integrated",
+  label: "Solana-backed actions paused during fiat migration",
+  guard: (ctx) => {
+    return FIAT_DISABLED_ACTIONS.includes(ctx.action)
+      ? "Unavailable while fiat payments are being integrated"
+      : null;
+  },
+};
 
 /** Clients never take timed tests (FLOW). */
 export const clientsSkipQualify: Protection = {

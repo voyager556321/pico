@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import {
   baseUnitsToUsdc,
   shortPk,
   skillLabel,
 } from "@/lib/constants";
-import { useTasks } from "@/lib/hooks";
+import { usePicoProgram, useTasks } from "@/lib/hooks";
 import { isDefaultPk } from "@/lib/program";
 import { useAppMode } from "@/components/app/AppChrome";
 import { DemoControls } from "@/components/app/DemoControls";
@@ -25,7 +24,7 @@ type Tab =
   | "HiringSlot";
 
 export function DashboardPage() {
-  const { publicKey } = useWallet();
+  const { publicKey } = usePicoProgram();
   const [mode] = useAppMode();
   const { tasks, loading, error, reload, bumpDemo } = useTasks();
   const [tab, setTab] = useState<Tab>("all");
@@ -76,7 +75,7 @@ export function DashboardPage() {
   const title = mode === "hiring" ? "Hiring" : "Working";
   const blurb =
     mode === "hiring"
-      ? "Tasks you funded — watch the podium fill, slots, and payouts. No tests for clients."
+      ? "Tasks you posted — follow assignment, reviews, and payout status. No tests for clients."
       : "Open qualifies and seats you’re on — timed tests, then Execution or verification.";
 
   return (

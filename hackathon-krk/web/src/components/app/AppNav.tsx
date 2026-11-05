@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { BrandLink } from "@/components/app/ui";
 
 const LINKS = [
@@ -14,11 +12,6 @@ const LINKS = [
 
 export function AppNav() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <header className="sticky top-0 z-40 -mx-4 mb-8 border-b border-[var(--border)] bg-white/90 backdrop-blur-md sm:-mx-6">
@@ -52,14 +45,7 @@ export function AppNav() {
             })}
           </nav>
         </div>
-        {mounted ? (
-          <WalletMultiButton />
-        ) : (
-          <div
-            className="h-11 w-[148px] shrink-0 rounded-full bg-[var(--accent)]/80"
-            aria-hidden
-          />
-        )}
+        <span className="text-sm text-[var(--muted)]">Fiat payments soon</span>
       </div>
     </header>
   );

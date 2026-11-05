@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useWallet } from "@solana/wallet-adapter-react";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -27,24 +26,8 @@ import { errMsg, usePicoProgram } from "@/lib/hooks";
 import { saveTaskMeta } from "@/lib/program";
 import { BtnPink, Field, Panel, inputClass, textareaClass } from "@/components/app/ui";
 
-function friendlyTxError(e: unknown): string {
-  const raw = errMsg(e);
-  if (
-    raw.includes("InstructionFallbackNotFound") ||
-    raw.includes("Error Number: 101") ||
-    raw.includes("Fallback functions are not supported")
-  ) {
-    return (
-      "On-chain program is still the old build — it does not know create_task(review_count, slot_bps). " +
-      "Task creation is temporarily unavailable. Please try again later."
-    );
-  }
-  return raw;
-}
-
 export function NewTaskPage({ initialBrief = "" }: { initialBrief?: string }) {
   const router = useRouter();
-  const wallet = useWallet();
   const { program, publicKey } = usePicoProgram();
 
   const [skillId, setSkillId] = useState(1);
@@ -58,7 +41,6 @@ export function NewTaskPage({ initialBrief = "" }: { initialBrief?: string }) {
   const [deliverables, setDeliverables] = useState(["Completed work with a short handoff note"]);
   const [testState, setTestState] = useState<"ready" | "generating" | "generated">("ready");
   const [independentVerification, setIndependentVerification] = useState(false);
-  const [lowBalancePreview, setLowBalancePreview] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -89,8 +71,8 @@ export function NewTaskPage({ initialBrief = "" }: { initialBrief?: string }) {
   }
 
   async function onCreate() {
-    if (!program || !publicKey || !wallet.signTransaction) {
-      setError("Sign in first");
+    if (!program || !publicKey) {
+      setError("Task publishing is temporarily unavailable while fiat payments are being integrated.");
       return;
     }
     if (bpsSum !== BPS_DENOM) {
@@ -155,7 +137,7 @@ export function NewTaskPage({ initialBrief = "" }: { initialBrief?: string }) {
       });
       router.push(`/app/tasks/${task.toBase58()}`);
     } catch (e) {
-      setError(friendlyTxError(e));
+      setError(errMsg(e));
     } finally {
       setLoading(false);
     }
@@ -219,25 +201,23 @@ export function NewTaskPage({ initialBrief = "" }: { initialBrief?: string }) {
         </>}
 
         {step === 4 && <>
-          <div><p className="proto-eyebrow">Step 4 · Budget &amp; publish</p><h2 className="text-lg font-bold">Set the reward and team.</h2><p className="mt-1 text-xs text-[var(--muted)]">The budget is reserved for this task only.</p></div>
+          <div><p className="proto-eyebrow">Step 4 · Budget &amp; publish</p><h2 className="text-lg font-bold">Set the proposed reward and team.</h2><p className="mt-1 text-xs text-[var(--muted)]">This is a draft preview; publishing is paused until fiat payments are integrated.</p></div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Task budget ($)" value={rewardUsd} onChange={(value) => { setRewardUsd(value); setLowBalancePreview(false); }} placeholder="50" />
+            <Field label="Task budget ($)" value={rewardUsd} onChange={setRewardUsd} placeholder="50" />
             <Field label="Deadline (days)" value={days} onChange={setDays} placeholder="3" />
           </div>
           <div><p className="text-sm font-medium">Verification slots</p><div className="mt-2 flex gap-2">{[1, 2, 3].map((count) => <button key={count} type="button" className={reviewCount === count ? "chip chip-active" : "chip"} onClick={() => setReviewCountSafe(count)}>{count}</button>)}</div><p className="mt-2 text-xs text-[var(--muted)]">Team size = {slotCount} (1 Execution + {reviewCount} verification)</p></div>
           <div><div className="flex items-center justify-between"><p className="text-sm font-medium">Reward split (% of net)</p><p className={`text-xs font-semibold ${bpsSum === BPS_DENOM ? "text-[var(--ok)]" : "text-[var(--danger)]"}`}>{(bpsSum / 100).toFixed(0)}% / 100%</p></div><ul className="mt-3 space-y-2">{Array.from({ length: slotCount }).map((_, index) => <li key={index} className="flex items-center gap-3"><span className="w-40 shrink-0 text-xs font-medium text-[var(--muted)]">{slotLabel(index, slotCount)}</span><input type="number" min={1} max={100} className={inputClass + " !mt-0"} value={Math.round(bps[index] / 100)} onChange={(event) => setBpsAt(index, Number(event.target.value) * 100)} /><span className="text-xs text-[var(--muted)]">%</span></li>)}</ul></div>
-          <label className="proto-check"><input type="checkbox" checked={independentVerification} onChange={(event) => setIndependentVerification(event.target.checked)} /> Independent verification preview <span className="text-xs text-[var(--muted)]">(reviewer fee setup is not yet on-chain)</span></label>
-          <button type="button" className="app-cta-ghost self-start" onClick={() => setLowBalancePreview((value) => !value)}>{lowBalancePreview ? "Hide" : "Preview"} insufficient-balance state</button>
-          {lowBalancePreview && <div className="proto-low-balance" role="status"><b>Not enough balance</b><p>Add funds to your balance to publish this task. Add funds, then return to publish.</p><Link href="/app/balance">Go to balance →</Link></div>}
-          {!lowBalancePreview && <div className="proto-cost-summary"><span>Task reward<b>{Number(rewardUsd || 0).toFixed(2)} </b></span><span>Team size<b>{slotCount} seats</b></span><span>Qualification<b>Free</b></span></div>}
+          <label className="proto-check"><input type="checkbox" checked={independentVerification} onChange={(event) => setIndependentVerification(event.target.checked)} /> Independent verification preview <span className="text-xs text-[var(--muted)]">(reviewer fee setup is not configured)</span></label>
+          <div className="proto-cost-summary"><span>Task reward<b>{Number(rewardUsd || 0).toFixed(2)} </b></span><span>Team size<b>{slotCount} seats</b></span><span>Qualification<b>Free</b></span></div>
         </>}
 
         {error && <p className="text-sm text-[var(--danger)]" role="alert">{error}</p>}
         <div className="proto-form-actions proto-wizard-footer">
           {step > 1 ? <button type="button" className="app-cta-ghost" onClick={() => { setStep((current) => current - 1); setError(""); }}>← Back</button> : <Link className="app-cta-ghost" href="/app">Cancel</Link>}
-          {step < 4 ? <button type="button" className="app-cta" onClick={() => { if (step === 1 && !brief.trim()) { setError("Add a short task brief before continuing."); return; } if (step === 3 && testState !== "generated") { setError("Generate and review the worker test before continuing."); return; } setError(""); setStep((current) => current + 1); }}>Continue →</button> : <BtnPink loading={loading} disabled={lowBalancePreview} onClick={() => void onCreate()} className="ml-auto">Lock USDC &amp; publish</BtnPink>}
+          {step < 4 ? <button type="button" className="app-cta" onClick={() => { if (step === 1 && !brief.trim()) { setError("Add a short task brief before continuing."); return; } if (step === 3 && testState !== "generated") { setError("Generate and review the worker test before continuing."); return; } setError(""); setStep((current) => current + 1); }}>Continue →</button> : <BtnPink loading={loading} disabled className="ml-auto">Publishing unavailable</BtnPink>}
         </div>
-        <p className="text-xs text-[var(--muted)]">The budget is reserved for this task only. You can cancel until a specialist is assigned.</p>
+        <p className="text-xs text-[var(--muted)]" role="status">Task publishing and payment actions are unavailable while fiat payments are being integrated.</p>
       </Panel>
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import {
   DEMO_TASK_PK,
@@ -26,7 +25,6 @@ export function DemoControls({
   compact?: boolean;
   role?: "hiring" | "working" | "full";
 }) {
-  const { publicKey } = useWallet();
   const [msg, setMsg] = useState("");
   const [enabled, setEnabled] = useState(true);
 
@@ -44,7 +42,7 @@ export function DemoControls({
     }
   }
 
-  const worker = publicKey ?? DEMO_WORKER_PK;
+  const worker = DEMO_WORKER_PK;
   const showTests = role !== "hiring";
 
   const finisherCount = useMemo(() => {
@@ -102,7 +100,7 @@ export function DemoControls({
           className="app-demo-btn"
           onClick={() =>
             run("Seeded Qualifying task", () => {
-              seedDemoTask({ client: publicKey });
+              seedDemoTask();
             })
           }
         >
@@ -114,7 +112,7 @@ export function DemoControls({
             className="app-demo-btn"
             onClick={() =>
               run("Specialist passed 3 tests", () => {
-                seedDemoTask({ client: publicKey });
+                seedDemoTask();
                 simulateWorkerPassed(DEMO_TASK_PK.toBase58(), worker);
               })
             }
@@ -131,7 +129,7 @@ export function DemoControls({
                 ? "Team assigned (Working)"
                 : "Promoted → Working (Execution)",
               () => {
-                seedDemoTask({ client: publicKey });
+                seedDemoTask();
                 const seat =
                   role === "hiring" ? DEMO_WORKER_PK : worker;
                 simulateWorkerPassed(DEMO_TASK_PK.toBase58(), seat);
@@ -185,7 +183,7 @@ export function DemoBadge() {
   );
 }
 
-/** Resolve which wallet to treat as the demo worker for simulate. */
+/** Resolve the local demo identity used by qualification stubs. */
 export function resolveDemoWorker(publicKey: PublicKey | null): PublicKey {
   return publicKey ?? DEMO_WORKER_PK;
 }

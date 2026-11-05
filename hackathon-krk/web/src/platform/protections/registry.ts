@@ -1,6 +1,7 @@
 import {
   clientsSkipQualify,
   demoBlocksChain,
+  fiatPaymentsNotIntegrated,
   futureProtectionStub,
   statusSeatGates,
 } from "./builtin";
@@ -14,6 +15,7 @@ import type { PlatformAction } from "../types";
 const REGISTRY: Protection[] = [
   clientsSkipQualify,
   demoBlocksChain,
+  fiatPaymentsNotIntegrated,
   statusSeatGates,
   futureProtectionStub,
 ];

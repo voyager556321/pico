@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { slotLabel } from "@/lib/constants";
+import { usePicoProgram } from "@/lib/hooks";
 import { loadTaskMeta } from "@/lib/program";
 import { isDemoTask } from "@/lib/demo";
 import { useAppMode } from "@/components/app/AppChrome";
@@ -12,7 +12,6 @@ import { BtnGhost, BtnPink, Panel, textareaClass } from "@/components/app/ui";
 import {
   errMsg,
   submitVerification,
-  usePicoProgram,
   useTask,
 } from "@/domain";
 import { getTaskCapabilities, toTaskSnapshot } from "@/platform";
@@ -21,9 +20,8 @@ export function VerifyPage() {
   const params = useParams();
   const router = useRouter();
   const taskId = typeof params.id === "string" ? params.id : "";
-  const { publicKey } = useWallet();
   const [mode] = useAppMode();
-  const { program } = usePicoProgram();
+  const { program, publicKey } = usePicoProgram();
   const { task, loading } = useTask(taskId);
   const meta = taskId ? loadTaskMeta(taskId) : null;
 

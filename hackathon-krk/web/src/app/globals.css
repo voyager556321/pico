@@ -2261,21 +2261,6 @@ button {
   }
 }
 
-/* ---------- Wallet adapter override ---------- */
-.wallet-adapter-button {
-  background: var(--ai-gradient-button) !important;
-  color: #fff !important;
-  font-family: var(--font) !important;
-  font-weight: 700 !important;
-  border-radius: 10px !important;
-  height: 40px !important;
-  border: none !important;
-  box-shadow: var(--button-glow) !important;
-}
-.wallet-adapter-button:hover {
-  filter: brightness(1.08);
-}
-
 /* ---------- React app shell and prototype screens ---------- */
 .app-dark {
   --app-bg: var(--bg-page);
@@ -2610,22 +2595,6 @@ button {
 .proto-low-balance p { margin: 5px 0; color: var(--text-secondary); font-size: 10px; line-height: 1.5; }
 .proto-low-balance a { color: var(--text-accent); font-size: 10px; font-weight: 700; }
 .proto-wizard-footer { justify-content: space-between; padding-top: 6px; border-top: 1px solid var(--border-default); }
-.chrome-wallet .wallet-adapter-button {
-  height: 44px !important;
-  min-width: 120px;
-  padding: 0 12px !important;
-  border: 1px solid var(--border-default) !important;
-  border-radius: 12px !important;
-  background: var(--surface-primary) !important;
-  box-shadow: none !important;
-  color: var(--text-primary) !important;
-  font-size: 12px !important;
-  white-space: nowrap;
-}
-.app .chrome-wallet {
-  flex: none;
-}
-.chrome-wallet .wallet-adapter-button:hover { background: var(--surface-secondary) !important; }
 @media (max-width: 900px) {
   .proto-task-row { grid-template-columns: minmax(130px,1.5fr) minmax(90px,.8fr) minmax(80px,.7fr) 16px; }
   .proto-task-worker { display: none; }
@@ -2635,7 +2604,6 @@ button {
   .app .crumb a,.app .crumb span { display: none; }
   .app .tbr { flex: none; gap: 8px; }
   .app .mode button { width: 38px; min-width: 38px; justify-content: center; gap: 0; padding-inline: 0; font-size: 0; }
-  .app .chrome-wallet .wallet-adapter-button { width: auto; min-width: 88px; justify-content: center; padding-inline: 10px !important; font-size: 11px !important; }
   .app .wchip { width: 88px; min-width: 88px; justify-content: center; padding-inline: 6px !important; font-size: 10px !important; }
 }
 @media (max-width: 760px) {
@@ -4711,7 +4679,6 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 .tq-section-label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#5c6b60}
 .tq-history{list-style:none;margin:0;padding:0;display:grid;gap:8px}.tq-history>*{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--tq-line);padding-top:8px}
 .tq-history-side{text-align:right;font-size:13px;color:#5c6b60;white-space:nowrap}
-.tq-account-slot .wallet-adapter-button{border-radius:999px;background:var(--tq-deep);height:40px;font-family:inherit}
 .tq-menu-btn,.tq-menu-close,.tq-scrim{display:none}
 @media (max-width:860px){
  .tq-app{display:block!important;grid-template-columns:1fr!important}
@@ -4727,7 +4694,7 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 }
 @media (max-width:480px){
  .tq-app header select,.tq-app .hdr select{display:none}
- .tq-app .tq-account-slot .wallet-adapter-button,.tq-app .tq-account-slot .tq-pill{height:36px;padding:0 12px;font-size:14px;line-height:36px}
+ .tq-app .tq-account-slot .tq-pill{height:36px;padding:0 12px;font-size:14px;line-height:36px}
  .tq-app header,.tq-app .hdr{max-width:100vw;overflow:hidden}
 }
 
@@ -4838,8 +4805,7 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
   font-family: var(--font);
   font-size: 15px;
 }
-.app.tq-app button, .app.tq-app input, .app.tq-app textarea, .app.tq-app select,
-.app.tq-app .wallet-adapter-button, .app.tq-app .wallet-adapter-dropdown-list-item { font-family: var(--font); }
+.app.tq-app button, .app.tq-app input, .app.tq-app textarea, .app.tq-app select { font-family: var(--font); }
 
 /* Headings: tight and bold, like the landing */
 .app.tq-app .mn h1 { font-size: 44px; font-weight: 700; letter-spacing: -.035em; line-height: 1.05; }
@@ -4860,8 +4826,6 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 .app.tq-app .app-cta, .app.tq-app .app-cta-ghost, .app.tq-app .pbtn { font-size: 14px; font-weight: 600; border-radius: 999px; }
 .app.tq-app .app-cta, .app.tq-app .pbtn.p { background: #1f3f24; border-color: #1f3f24; color: #fff; box-shadow: none; }
 .app.tq-app .app-cta:hover, .app.tq-app .pbtn.p:hover { background: #3b7a33; border-color: #3b7a33; }
-.app.tq-app .wallet-adapter-button { background: #1f3f24; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: none; }
-.app.tq-app .wallet-adapter-button:not([disabled]):hover { background: #3b7a33; }
 .app.tq-app .tq-chip { font-size: 14px; padding: 6px 14px; }
 .app.tq-app .proto-status { font-size: 12px; padding: 4px 10px; }
 .app.tq-app .proto-filter { font-size: 13px; }
@@ -5019,7 +4983,7 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 .app.tq-app .mode button { height: 36px; }
 .app.tq-app .bell { width: 44px; height: 44px; border-radius: 999px; border-color: #e6eae4; transition: background-color .15s ease, border-color .15s ease; }
 .app.tq-app .bell:hover { background: #f6faf4; border-color: #b9d3b1; }
-.app.tq-app .tq-account-slot .wallet-adapter-button, .app.tq-app .tq-account-slot .tq-pill { height: 44px; padding: 0 22px; line-height: 44px; font-size: 15px; white-space: nowrap; }
+.app.tq-app .tq-account-slot .tq-pill { height: 44px; padding: 0 22px; line-height: 44px; font-size: 15px; white-space: nowrap; }
 @media (max-width: 1240px) {
   .app.tq-app .crumb a, .app.tq-app .crumb span { display: none; }
   .app.tq-app .mode button { padding: 0 12px; }
@@ -5138,17 +5102,6 @@ html:has(.pico-landing) { scroll-behavior: smooth; }
 /* Pass 3b: dispute progress in red; Sign in reads as a button */
 .tq-row .tq-row-steps.is-alert span.done { background: #e07a7a; }
 .tq-row .tq-row-steps.is-alert span.cur { background: #c62828; }
-.app.tq-app .tq-account-slot .wallet-adapter-button {
-  display: inline-flex !important; align-items: center; gap: 8px; height: 44px !important; padding: 0 20px 0 18px !important; border: 0 !important; border-radius: 999px !important;
-  background: #1f3f24 !important; color: #fff !important; font-size: 15px !important; font-weight: 600 !important; line-height: 44px !important; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(31,63,36,.22) !important; transition: background-color .15s ease, box-shadow .15s ease, transform .12s ease !important;
-}
-.app.tq-app .tq-account-slot .wallet-adapter-button::after { content: "→"; font-size: 15px; transition: transform .15s ease; }
-.app.tq-app .tq-account-slot .wallet-adapter-button:not([disabled]):hover { background: #3b7a33 !important; box-shadow: 0 8px 20px rgba(31,63,36,.3) !important; transform: translateY(-1px); }
-.app.tq-app .tq-account-slot .wallet-adapter-button:not([disabled]):hover::after { transform: translateX(3px); }
-.app.tq-app .tq-account-slot .wallet-adapter-button:not([disabled]):active { transform: translateY(0) scale(.97); }
-.app.tq-app .tq-account-slot .wallet-adapter-button:focus-visible { outline: none; box-shadow: 0 0 0 4px rgba(59,122,51,.25) !important; }
-
 /* ===== Pass 4: hero + overview strip ===== */
 .tq-hero {
   position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 48px; align-items: center;

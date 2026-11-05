@@ -1,8 +1,4 @@
 import type { NextConfig } from "next";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   // Hide the floating Next.js dev badge: it covered the account card in the sidebar.
@@ -26,14 +22,6 @@ const nextConfig: NextConfig = {
         { "bigint-buffer": "commonjs bigint-buffer", bindings: "commonjs bindings" },
       ];
     }
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // Prevent @solana/kit browser break via mobile wallet adapter
-      "@solana-mobile/wallet-adapter-mobile": path.resolve(
-        __dirname,
-        "src/stubs/solana-mobile-wallet-adapter.js"
-      ),
-    };
     return config;
   },
 };

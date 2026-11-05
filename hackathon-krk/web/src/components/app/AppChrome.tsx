@@ -175,9 +175,15 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
               <button type="button" className={mode === "working" ? "on" : ""} aria-pressed={mode === "working"} onClick={() => setMode("working")}>{ICONS.tool && <ICONS.tool size={16} />}{copy.working}</button>
             </div>
             <Link className="bell" aria-label={copy.notifications} href="/app/activity">{ICONS.bell && <ICONS.bell size={18} />}</Link>
-            <AccountSlot label={copy.connectWallet} />
+            <AccountSlot label={copy.paymentsSoon} />
           </div>
         </header>
+        <p
+          className="mb-5 rounded-xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100"
+          role="status"
+        >
+          {copy.paymentNotice}
+        </p>
         {children}
       </main>
     </div>

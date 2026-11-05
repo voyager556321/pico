@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { loadTaskMeta } from "@/lib/program";
 import { isDemoTask } from "@/lib/demo";
 import { useAppMode } from "@/components/app/AppChrome";
@@ -31,9 +30,8 @@ import {
 export function TaskDetailPage() {
   const params = useParams();
   const taskId = typeof params.id === "string" ? params.id : "";
-  const { publicKey } = useWallet();
   const [mode] = useAppMode();
-  const { program } = usePicoProgram();
+  const { program, publicKey } = usePicoProgram();
   const config = useConfig();
   const [tick, setTick] = useState(0);
   const { task, loading, error, reload, bumpDemo } = useTask(taskId, tick);
