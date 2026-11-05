@@ -14,3 +14,11 @@ Your goals when writing code for me:
 
 Do you understand these guidelines and constraints? If yes, acknowledge them and ask me about the core logic/idea of the custom Anchor program we are going to build first.
 
+
+## Current Task.quo web scope (supersedes the hackathon guidance above)
+
+For `web/**`, follow the repository-root `.cursorrules`, including its
+"Architecture & editing rules (Task.quo)" section. The Solana hackathon guidance
+above is historical and does not authorize new Solana/Anchor code or restoring
+wallet integration in the marketplace. New marketplace logic uses API routes
+and Postgres; fiat payments and non-wallet authentication remain unfinished.

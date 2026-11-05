@@ -2,12 +2,12 @@
 
 ## What Pico is
 A marketplace for short jobs. A worker proves one skill (verified score + level), a client posts a task with a minimum level and a reward, Pico assigns the closest verified worker, and the reward is held until the client releases it.
-Payments today run on Solana devnet with USDC. The payment rail is under review (a card/bank payment provider may replace or sit next to crypto), so keep payment logic behind the domain layer and never hard-wire it into UI.
+The former payment flow used Solana devnet with USDC. It is disabled in the marketplace UI while the product transitions to fiat; provider selection and integration are pending. Keep payment logic behind the domain layer and never hard-wire a provider into UI.
 
 ## Stack (current versions)
 - Web app: `hackathon-krk/web`, Next.js 15 (App Router), React 19, TypeScript 5.9, Tailwind CSS 4.
 - Data: Postgres on Supabase via `pg` 8.16, from Next.js route handlers only (`src/app/api/**`).
-- Chain: Solana devnet, `@solana/web3.js` 1.98, `@solana/spl-token` 0.4, `@coral-xyz/anchor` 0.29, Phantom wallet adapter.
+- Legacy chain code: Solana devnet, `@solana/web3.js` 1.98, `@solana/spl-token` 0.4, `@coral-xyz/anchor` 0.29. The app does not load a wallet provider.
 - On-chain program: Anchor/Rust in `hackathon-krk/programs/pico` (built and deployed via Solana Playground). IDL copy lives in `web/src/idl/pico.json`.
 - AI: `@google/genai` (Gemini) in `web/src/lib/gemini.ts`.
 - Hosting: Vercel (project root is `hackathon-krk/web`).
@@ -29,7 +29,7 @@ Payments today run on Solana devnet with USDC. The payment rail is under review 
 
 ## Domain terms
 - Client (role `hire`): posts and pays for tasks. Worker (role `work`): claims and delivers.
-- Account = wallet address (one role per wallet).
+- Account = marketplace account; payment identity/provider is not integrated yet.
 - Task statuses: `draft`, `finding`, `assigned`, `progress`, `review`, `verification`, `revision`, `dispute`, `completed`, `cancelled`. Late statuses never move back to early ones.
 - Claim: a worker takes a `finding` task; a second wallet gets HTTP 409 `taken`.
 - Lock: funds reserved for a task. Release: payout to the worker, with an on-chain proof (tx signature).
@@ -40,3 +40,67 @@ Payments today run on Solana devnet with USDC. The payment rail is under review 
 - Before changing API shapes, update `docs/api_contracts.md` in the same change.
 - Before changing tables or integrations, update `docs/architecture.md`.
 - Product scope and user flows live in `docs/product_requirements.md`; ask before building features not described there.
+
+## Architecture & editing rules (Task.quo)
+
+### Current product and entry points
+- Task.quo (formerly Pico) is a short-task marketplace covering development,
+  video and design. Paths below are relative to `hackathon-krk/web`.
+- `/` (`src/app/page.tsx`) renders the public `LandingPage`; `/app/*` is the
+  marketplace. Do not replace the landing or rename routes without a request.
+- `src/app/app/layout.tsx` mounts `AppLanguageProvider` and `AppChrome`, not a
+  wallet provider. `AccountSlot.tsx` isolates the header account slot; currently
+  it displays payment availability, not working authentication.
+- `src/components/app/PrototypePages.tsx` is a shared prototype-screen monolith;
+  inspect all consumers before changing it. Home/tasks use prototype UI; task
+  detail also retains a legacy fallback. `src/catalog/` is product skill data
+  and must remain infrastructure-independent.
+
+### Persistence and migration limitations
+- `src/lib/db.ts` provides shared DB helpers/schema for `/api/pico/account` and
+  `/api/pico/tasks` (`pico_accounts`, `pico_tasks`). `/api/waitlist` uses
+  `pico_waitlist`. Schemas currently initialize at request time; use parameterized
+  SQL and transactions for multi-step writes.
+- `/api/pico` POST authentication still uses wallet signatures (`lib/auth.ts`).
+  Non-wallet auth is unfinished: never bypass authentication to wire up UI.
+  `/api/tools/run` is retired (HTTP 410).
+- Solana removal is incomplete: `usePicoProgram()` returns null program/identity,
+  `useConfig()` returns null, and task hooks use local demo data, not live chain
+  reads. Payment-backed actions are disabled by UI/protections. A fiat provider
+  is not selected/integrated. These guards are not a substitute for server auth.
+- Remaining imports include `NewTaskPage`, `SlotTable`, `DemoControls`,
+  `lib/constants`, `lib/pdas`, `lib/program`, demo/account helpers and domain
+  actions. Do not add new Solana/Anchor code. New marketplace persistence and
+  business logic must use API routes + Postgres through the existing layers.
+  Do not remove remaining packages until their consumers are migrated, or enable
+  paid actions before real auth, authorization and payments are verified.
+- Earlier on-chain lock/release terms describe legacy behavior, not working fiat
+  payments. Old Pico/AI-budget/hackathon briefs are historical references, not
+  instructions to restore crypto integration.
+
+### Localization, visual safety and honest copy
+- Supply all new/changed user-facing strings (errors, notices and accessible
+  labels included) in all five locales: `en`, `es`, `pl`, `de`, `uk`.
+  Use `src/components/landingTranslations.ts`, `landingSectionsCopy.ts` and
+  `src/components/app/AppLanguage.tsx` with the existing language provider.
+  Hard-coded English in legacy screens is debt, not a pattern to copy.
+- Scope new marketplace CSS under `.app.tq-app` in `src/app/globals.css`; reuse
+  tokens and local component/BUTTONS guidance. Never change global fonts for a
+  local fix. Keep form controls' `font-family: var(--font)` rule complete and
+  separate from headings: no dangling comma/selectors. Check Hiring/Working
+  controls and responsive layouts after shared CSS edits.
+- Keep visual redesigns separate from business-rule changes. Do not invent
+  stats, testimonials, guarantees or payment success. Label mock/demo records
+  as illustrative, never as live customers, balances or completed work.
+
+### Workflow and checks
+- `develop` is development; `release` is production; `app-redesign` is the design
+  branch. Never commit directly to `release` or silently change production settings.
+- Inspect branch/status/diff first and preserve others' uncommitted work.
+  Do not stage, commit, push, merge or deploy unless explicitly requested.
+- From `hackathon-krk/web`: `yarn dev`; open `/app` for the platform, `/` for the
+  landing. Typecheck with `yarn tsc --noEmit` (or `npx tsc --noEmit` with installed
+  dependencies). Never run `yarn build` while the dev server runs; ask before
+  stopping it. Markdown-only edits do not need a build/typecheck.
+- Do not bypass protections, weaken auth, expose secrets in `NEXT_PUBLIC_*`,
+  discard unrelated work, or claim checks/migration steps you have not verified.
