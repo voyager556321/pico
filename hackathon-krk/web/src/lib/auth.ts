@@ -3,7 +3,7 @@ import bs58 from "bs58";
 
 /**
  * Wallet-ownership proof. The client signs the UTF-8 message `pico:<wallet>:<unix-ms>`
- * with Phantom signMessage and sends:
+ * with the connected wallet's signMessage and sends:
  *   x-pico-wallet: <base58 wallet>
  *   x-pico-ts:     <unix-ms used in the message>
  *   x-pico-sig:    <base64 ed25519 signature>

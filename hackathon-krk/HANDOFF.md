@@ -29,7 +29,7 @@ Web: лендинг `/` · апка `/app`.
 
 ## Продукт (що будуємо)
 
-**НЕ** новий Solana wallet (не Phantom).  
+**НЕ** вбудований Solana-гаманець.
 **ТАК** prepaid budget для AI-дій / agent tool calls.
 
 ### One-liner
@@ -136,7 +136,7 @@ Web: лендинг `/` · апка `/app`.
 - [x] Deploy Anchor на devnet + initializeConfig/Budget + debit
 - [ ] UI/UX: Figma за `UI-BRIEF.md` (паралельно з web)
 - [ ] `cd web && yarn install` + `.env.local` з OPERATOR_SECRET_KEY
-- [ ] `yarn dev` — Phantom Devnet demo
+- [ ] `yarn dev` — Solana Devnet demo
 - [ ] Зареєструватись / податись на Colosseum
 - [ ] Підготувати 90-сек демо-скрипт
 

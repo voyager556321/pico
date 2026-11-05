@@ -2,14 +2,15 @@
 
 All routes live under `hackathon-krk/web/src/app/api`. JSON in, JSON out. Errors are `{ "error": string }`.
 
-## Wallet signature (required on every POST under /api/pico)
-The caller proves it owns a wallet by signing the UTF-8 message `pico:<wallet>:<unix-ms>` with Phantom `signMessage` (ed25519).
+## Legacy wallet signature (required on every POST under /api/pico)
+These routes still use the former Solana wallet authentication and are not integrated with the current marketplace UI. Fiat authentication must replace this contract before the routes are used by the migrated product.
+The caller proves it owns a wallet by signing the UTF-8 message `pico:<wallet>:<unix-ms>` with `signMessage` (ed25519).
 Headers:
 - `x-pico-wallet`: base58 wallet that signed
 - `x-pico-ts`: the unix-ms timestamp inside the message
 - `x-pico-sig`: base64 of the 64-byte signature
 
-The server (`src/lib/auth.ts`) rejects signatures older than 5 minutes (or more than 1 minute in the future). The archived HTML design prototype contains the previous `picoAuthHeaders` client implementation, which cached signatures in `sessionStorage`; it is not part of the React runtime. Ensure a current React client implements and tests this signing flow before relying on these POST routes in production.
+The server (`src/lib/auth.ts`) rejects signatures older than 5 minutes (or more than 1 minute in the future). No current React client implements this signing flow.
 Auth errors:
 - 401: `{ "error": "signature required" | "bad timestamp" | "signature expired" | "timestamp in the future" | "bad wallet" | "bad signature" }`
 - 403: signature is valid but the signer may not make this change (see each route)

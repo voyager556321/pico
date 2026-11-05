@@ -40,7 +40,7 @@
 
 ## 2. Що вже реалізовано в коді (не ламай flow)
 
-1. Connect Phantom  
+1. No crypto wallet connection
 2. Add funds $1 / $2 / $5 → on-chain budget  
 3. Tools: Token Check ($0.05), Explain Tx ($0.01)  
 4. Result + charge + remaining  
@@ -59,10 +59,10 @@ Figma має покращити **екрани/стани/мікрокопі**, 
 ### A. Connect / Entry
 - Logo Pico + hero «Real control. On-chain.»
 - Chips: Analyze / Automate / Simplify
-- CTA: Connect Phantom
-- Microcopy: підключення ≠ доступ до коштів
-- Badge: Built on Solana · Devnet
-- States: default · connection rejected · Phantom not found
+- CTA: Continue
+- Microcopy: Fiat payments are being integrated; payment actions are temporarily unavailable.
+- Badge: Payments coming soon
+- States: payment setup pending
 
 ### B. Create budget
 - Title: Set your spending budget
